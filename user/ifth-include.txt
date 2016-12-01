@@ -1,0 +1,244 @@
+68kdis.frt        68000 Disassembler
+aitken.frt        FSL
+amoeba.frt        Nelder and Mead's Downhill Simplex Method V1.02
+amoebaX.frt       Nelder and Mead's Downhill Simplex Method V1.03
+anneal.frt        FSL
+arrays.frt        Array wordset
+arraysx.frt       SAVE-SYSTEM arrays
+asm.frt           ix86 assembler
+asm64.frt         ix86-64 assembler
+assemble.frt      Generic Assembler Framework - INTERNAL
+assert.frt        The Explicit Stack Security Wordset
+assertions.frt    A Forth Assertions Construct
+backtrac.frt      Dumping the return stack
+banner.frt        Printing large texts
+bignum.frt        Big number package
+blas.frt          BLAS Pentium optimized code (blas)
+buffers.frt       Smart buffers
+cblas.frt         BLAS Pentium optimized code (mkl)
+chebyshe.frt      Function Approximation by Chebyshev Series
+chebyshev_dd.frt  Function Approximation by Chebyshev Series (dd-fp)
+clapack.frt       Access to the C-LaPack library in clapack.dll
+cliserv.frt       Example internetworking usage (based on idea by S. Carter)
+cliserv2.frt      Example internetworking usage II (based on idea by S. Carter)
+complex.frt       Complex number package
+cplx_fsl.frt      Simulation tools; Complex numbers
+cubic.frt         FSL
+cvfind.frt        Find strings in text files, print these/the complement. V1.00
+dates.frt         FSL
+dd-fp.frt         128-bit FP words V1.07
+dde.frt           Dynamic Data Exchange (Win32 only)
+ddhilb.frt        Hilbert Matrix example using DD-fp
+ddregf.frt        Regula Falsi DD-fp
+debugopt.frt      Conditional compilation of debug code and output
+derivs.frt        FSL
+dialogs.frt       Reading and using .RES (and corresponding .H) files
+divdiffs.frt      FSL
+dosmouse.frt      Mouse Driver
+dynlibs.frt       Dynamic linking to OS libraries (H.Schwalm)
+dynlink.frt       Dynamic linking to OS libraries (M.Hendrix)
+eigenvals.frt     FSL
+ek.frt            FSL
+elip.frt          FSL
+enumsymbols.frt   Debugger interface
+eplot.frt         General utility to convert columnar data into a line graph
+esoteric.frt      Testing Linux specific graphics extensions
+expint.frt        FSL
+factoria.frt      FSL
+fcbrt.frt         FSL
+ffind.frt         Find strings in text files, print these/the complement V1.02
+fft.frt           Fast Fourier math package
+fi000.frt         assertions example
+fjack.frt         Audio processing client using JACK
+floatest.frt      Testing the Float Wordsets
+fotoapp.frt       Foto Demo
+fpio-test.frt     Floating-point IO tests
+fsl_util.frt      Std Array words, for implicitly 64-bit float Forths
+                  (DF@ == F@ etc.)
+fstat-test.frt    fstat() test
+gamma.frt         FSL
+gauleg.frt        FSL
+gausseid.frt      FSL
+gaussj.frt        Numerical Library
+gaussj_test.frt   gaussj test
+gblas.frt         BLAS Pentium optimized code (GotoBLAS)
+genfft.frt        Generic FFT (handle functions, equally and non-equally spaced
+                  data)
+gg.frt            Graphic driver for any platform
+gint.frt          Interface to Giant Integer Library (gint)
+glossary.frt      Forth Documentation
+glutdemo.frt      Examples for -glutlib
+glutlib.frt       Interface for libfreeglut
+gnugraf.frt       Graphic driver for GNU DOS extender
+gnugrafh.frt      Graphic driver for GNU DOS extender; Needs Hi-color hardware
+gnuplot.frt       Gnuplot bindings
+goto.frt          Goto & State Machine Package
+graphics.frt      Graphic toolset
+hartley.frt       FSL
+hash.frt          Setup and access a string hash table
+hashx.frt         Setup and access a string hash table. This is a faster special
+                  purpose version of hash.frt
+heaps.frt         Heap Implementation
+heapsort.frt      Heap Sort
+help.frt          Online Help
+hermite.frt       FSL
+hexfloat.frt      Convert among IEEE 754 32-bit or 64-bit float, C99
+                  mixed hex/decimal string, and raw hex string formats
+hilbert.frt       FSL
+horner.frt        FSL
+hpgl.frt          HPGL driver for GRAPHICS.FRT
+html.frt          Tool to convert a Forth HELP file to HTML V1.00
+html2.frt         Tool to convert a Forth HELP file to HTML V1.03
+ieee-arith-test.frt  IEEE Special Data Arithmetic Tests
+imatrix.frt       Specialized Integer Matrix Commands
+inisiol.frt       Modem Control
+install.frt       Installs iForth 2.1 on Windows
+integral.frt      FSL
+interpreduce.frt  Reduce a list of samples using linear interpolation
+intfft.frt        Fast Fourier math package
+iwords1.frt       INTERNAL utility
+iwords2.frt       INTERNAL utility
+ix86asm.frt       80386 Protected Mode Cross Assembler specifics - INTERNAL
+kiss.frt          Fast Random Number Generator with large period
+lagrange.frt      FSL
+lagroots.frt      FSL
+largipol.frt      FSL
+lcfname.frt       Lower-case filenames
+lecroy2raw.frt    Conversion tools for LeCroy/Yokogawa *.txt, *.csv, LeCroy 
+                  *.trc and LTSPICE / SPICE 3f5 .raw files
+linuxgrf.frt      Graphic driver for Linux SVGALIB
+lmouse.frt        Mouse Driver
+locate.frt        Locate Forth words in source files
+locbuff.frt       Buffers with the lifetime of a local
+locstrng.frt      Some strings with the lifetime of a local
+logistic.frt      FSL
+lprof.frt         Forth Line Profiler - Inspired by Jon Bentley's 
+                  ``More Programming Pearls'' V2.02
+lprofile.frt      Forth Line Profiler V1.15
+lu.frt            FSL
+lxfonts.frt       Easy binding for fonts in Linux
+machar.frt        FSL
+machtime.frt      Mach Timing Routines
+marquard.frt      FSL
+matplot.frt       Matlab Plotter driver
+matrices.frt      Specialized matrix commands
+mci.frt           String Interface to Windows MCI technology
+memmanager.frt    Fast memory manager with low fragmentation heap
+memtest.frt       Test ALLOCATE  FREE  RESIZE  AVAILABLE
+menus.frt         Menu Toolkit
+mertwist.frt      Fast Random Number Generator
+miscutil.frt      Useful words
+mlabeng.frt       Access to MATLAB
+mmask.frt
+mouse.frt         Mouse Driver
+mwc256.frt        Reasonably fast Random Number Generator with large period
+newlocals.frt     The new 200x local syntax
+newton.frt        FSL
+now.frt           Interactive Control Structures
+npipes.frt        Named pipes
+nrc.frt           Access to the NR library in nrclib.dll
+null.frt          FSL
+ode.frt           ODE toolset with examples V1.01
+odex.frt          ODE toolset with examples V1.02
+os.frt            Specialized OS commands
+pcylfun.frt       FSL
+perfctrs.frt      Access to the Performance Counter library in perfctrs.dll
+                  (perfmon.sys)
+pinning.frt       Primality using a Sieve
+pipes.frt         Testing (unidirectional) PIPES
+playwav.frt       Play .WAV files in the background
+   pwavdos.frt
+   pwavewin.frt
+   pwavlinu.frt
+polrat.frt        FSL
+polys.frt         FSL
+polysjw.frt       Polynomial manipulator (integers)
+prectable.frt     Generate 10* table
+priq.frt          Priority Queues
+proced.frt        Command line editor with history buffer
+profiler.frt      Where is the program spending its time
+pscript.frt       Postscript driver for GRAPHICS.FRT
+quadrati.frt      Solve for the two complex solutions of the quadratic equation
+quads.frt         Quadruple precision words
+quaternions.frt   Quaternions
+queues.frt        Queues
+r250.frt          FSL
+ran-next.frt      30-bit Random number generator
+ran4.frt          Secure Random Number Generator
+raw2out.frt       Converts a RAW file to DB records
+regfalsi.frt      Regula Falsi rooter
+revdiv.frt        Integer division and modulus by constants
+rk4_code.frt
+rs232com.frt      High-level Serial Interface using INS 8250 chip
+scanf.frt         scanf() functionality
+schema.frt        Drawing schematic diagrams, allows clipboard and printing
+sdllib.frt        SDL Interface for iForth
+search.frt        Boyer-Moore $search V1.01
+search2.frt       Boyer-Moore $search V2.00
+see.frt           Disassembler
+see64.frt         Disassembler 64-bit version
+seriespw.frt      FSL
+servgr16.frt      Graphic driver interface to resident Turbo Pascal unit
+servgraf.frt      Graphic driver interface to any server
+setix86.frt       Generic Assembler Framework; Configuration file; '386+'486
+                  INTERNAL
+setix86_64.frt
+sets.frt          Set operators, extended case statement
+setstd.frt        Generic Assembler Framework - INTERNAL
+siotools.frt      Serial port tools
+sketch3d.frt      High-resolution 3-D Function Sketcher
+sketcher.frt      High-resolution Function Sketcher cf. Grossman
+sockets.frt       Sockets
+sort.frt          Sort text files by line
+speaker.frt       Access to some sort of beeping device
+spifsim.frt       Run LTSPICE from within Forth; interface Simulink to LTSPICE
+spline.frt        Spline interpolation in a table
+sstream.frt       Input and output sockets accessible with GETCH and PUTCH
+stacks.frt        Stack Wordset (slow but safe)
+stiff.frt         Stiff ODE toolset with examples
+streams.frt       Input and output file accessible with GETCH and PUTCH
+strings.frt       String package, TO strings of variable maximum length
+stroked.frt       Using Borland's Stroked Font Character Sets
+   dlstroke.frt
+   winstrok.frt
+strokedx.frt      SAVE-SYSTEM Stroked Fonts
+structs.frt       Structure package
+subst.frt         Macro expansion
+svd.frt           Singular Value Decomposition; dealing with (almost) singular
+                  sets of equations and matrices
+telesco1.frt      FSL
+telesco2.frt      FSL
+terminal.frt      Terminal Driver
+testforeign.frt   Test 64-bit FOREIGN calls and CALLBACKS with mixed integer/
+                  float parameters
+testing_fftw.frt  Test libfftw
+textloop.frt      Loops in a text file
+threads.frt       OS Threads
+threadvals.frt    Thread/Task/Callback specific data types
+tmouse.frt        Mouse Driver
+toolbelt.frt      Tool Belt for iForth
+tracer.frt        Trace Debugging Tool
+trcount.frt       Tracing by count
+tri-solv.frt      FSL
+tsuite.frt        John Hopkins TESTER V1.01
+ttester.frt       John Hopkins TESTER V2.00
+twords1.frt       INTERNAL utility
+twords2.frt       INTERNAL utility
+uniq.frt          Extract unique lines from two files
+wc.frt            Count words and lines, compute character frequencies
+whatenv.frt       List and annotated environment
+wildcard.frt      Wildcard matching
+win32gui.frt      GUI tools for Win32; Dialogs.frt makes this obsolete!
+winconst.frt      Getting the value of a symbolic WIN32 constant - wincon.dll
+wingrf.frt        Graphic driver for Win95/98/ME/NT/2K/Vista/Win7
+winreg.frt        Read and Write Registry keys
+wmouse.frt        Mouse Driver
+words.frt         Extract all words from Forth's WORDLISTs
+writewav.frt      Write .WAV files
+xd-fp.frt         128-bit FP words V1.08
+xfreq.frt         Extract the frequency from an equidistantly sampled signal
+xlinuxgr.frt      Graphic driver for Linux X Windows
+xlmouse.frt       Mouse Driver
+xmatrix.frt       Specialized Complex Matrix commands
+xprof.frt         Forth Profiler V1.0
+zwofz.frt         FSL

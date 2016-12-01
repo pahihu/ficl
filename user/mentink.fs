@@ -42,8 +42,20 @@ INCLUDE utils.fs
 
 20000 CONSTANT /iter
 
+0 [IF]
 : inner ( -- ) /iter 0 DO LOOP ;
 : mentink ( -- ) /iter 0 DO inner LOOP ;
 
 : bench ( -- )
 		timer-reset  mentink  .elapsed ;
+[THEN]
+
+: inner ( n -- ) 0 DO  LOOP ;
+
+: mentink ( n -- )
+   dup  0 DO
+      dup inner
+   LOOP  drop ;
+
+: bench ( -- )
+		timer-reset  /iter mentink  .elapsed ;
