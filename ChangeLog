@@ -1,12 +1,20 @@
-150526
-	softcore patches: included circ-pad/missing/strarray/numcvt
-
-150509
+160421
+	softcore
+		restored original contents
+	softcore/makefile
+		added -m32
+	Makefile.darwin
+		removed -s
+	word.lst, glossary.txt
+150510
+	fileaccess.c
+		ficlFileOpen fixed
+150609
 	Makefile.darwin
 	primitives.c
 		env queries "stack-cells", "return-stack-cells" fixed
 		"/data-cells" added to return the size of the dict
-150507
+150607
 	Makefile.mingw
 		clobber target to delete ficl.exe
 	extras.c

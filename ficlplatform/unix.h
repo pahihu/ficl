@@ -3,8 +3,13 @@
 
 #define FICL_WANT_PLATFORM (1)
 
+#if defined(darwin)
+#define FICL_PLATFORM_OS              "darwin"
+#define FICL_PLATFORM_ARCHITECTURE    "x86"
+#else
 #define FICL_PLATFORM_OS              "unix"
 #define FICL_PLATFORM_ARCHITECTURE    "unknown"
+#endif
 
 #define FICL_PLATFORM_BASIC_TYPES     (1)
 #define FICL_PLATFORM_ALIGNMENT       (4)

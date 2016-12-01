@@ -49,7 +49,12 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
             strcat(mode, "r");
             break;
         case FICL_FAM_WRITE:
-            strcat(mode, writeMode);
+			// 150510AP
+			// 			OPEN-FILE	CREATE-FILE
+			// 	r/o		"r"			 -
+			// 	w/o		 -			"w"
+			// 	r/w		"r+"		"w+"
+            strcat(mode, "w"/*writeMode*/);
             break;
         case FICL_FAM_READ | FICL_FAM_WRITE:
             strcat(mode, writeMode);
@@ -81,7 +86,8 @@ EXIT:
 
 static void ficlPrimitiveOpenFile(ficlVm *vm) /* ( c-addr u fam -- fileid ior ) */
 {
-    ficlFileOpen(vm, "a");
+	// 150510AP
+    ficlFileOpen(vm, "r" /*"a"*/);
 }
 
 
@@ -287,11 +293,19 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 {
     ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    int length = ficlStackPopInteger(vm->dataStack);
+    int written, length = ficlStackPopInteger(vm->dataStack);
     void *address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
-    fwrite(address, 1, length, ff->f);
+#ifdef DEBUG
+	 fprintf(stderr,"ficlPrimitiveWriteFile: length   = %d\n", length);
+	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %d\n", ftell(ff->f));
+#endif
+    written = fwrite(address, 1, length, ff->f);
+#ifdef DEBUG
+	 fprintf(stderr,"ficlPrimitiveWriteFile: written  = %d\n", written);
+	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %d\n", ftell(ff->f));
+#endif
     pushIor(vm, ferror(ff->f) == 0);
 }
 

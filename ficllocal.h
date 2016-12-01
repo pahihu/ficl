@@ -5,4 +5,4 @@
 **
 */
 
-
+#define FICL_WANT_EXTENDED_PREFIX       (1)
