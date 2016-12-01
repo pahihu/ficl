@@ -455,6 +455,84 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
 }
 
+static int gTaskID = 1;
+
+/* : (PROCESS) (  -- 'vm ) */
+static void ficlPrimitiveProcess(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *newVm;
+
+   newVm  = ficlSystemCreateVm(system);
+   newVm->user[0].i = gTaskID++;
+   if (32768 == gTaskID) gTaskID = 1;
+   ficlStackPushPointer(vm->dataStack, newVm);
+}
+
+/* : (RUN) ( xt 'vm -- ) */
+static void ficlPrimitiveRun(ficlVm *vm)
+{
+   ficlWord *word;
+   ficlVm   *otherVm;
+
+   otherVm = ficlStackPopPointer(vm->dataStack);
+   word    = ficlStackPopPointer(vm->dataStack);
+   otherVm->runningWord = word;
+   otherVm->ip = (ficlIp)(word->param);
+}
+
+/* : (STOP) ( tid -- ior ) */
+static void ficlPrimitiveStop(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *pList  = system->vmList;
+   int         tid, ret;
+
+   if (pList->link) {
+      tid = ficlStackPopInteger(vm->dataStack);
+      for ( ; pList ; ) {
+         if (tid == pList->user[0].i)
+            break;
+         pList = pList->link;
+      }
+      if (pList) {
+         if (pList != vm) {
+            ficlSystemDestroyVm(pList);
+            ret = 0;
+         } else
+            ret = 3;    /* cannot stop current process */
+      } else
+         ret = 2;       /* process not found */
+   } else
+      ret = 1;          /* cannot stop root process */
+
+   ficlStackPushInteger(vm->dataStack, ret);
+}
+
+#define SWAP(T,a,b)  { T _tmp=a; a=b; b=_tmp; }
+
+/* : (PAUSE) ( -- ) */
+static void ficlPrimitivePause(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *pList  = system->vmList, *nextVm, tmpVm;
+
+   if (NULL == pList->link)
+      return;
+
+   nextVm = vm->link;
+   if (NULL == nextVm)
+      nextVm = pList;
+
+   memcpy(&tmpVm,     vm, sizeof(ficlVm));
+   memcpy(    vm, nextVm, sizeof(ficlVm));
+   memcpy(nextVm, &tmpVm, sizeof(ficlVm));
+
+   SWAP(ficlVm*, vm->link, nextVm->link);
+   SWAP(ficlVm*, vm->callback.vm, nextVm->callback.vm);
+
+}
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -485,6 +563,11 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(dlsym)",  ficlPrimitiveDlSym);
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
     addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
+
+    addPrimitive(dictionary, "(process)", ficlPrimitiveProcess);
+    addPrimitive(dictionary, "(run)",     ficlPrimitiveRun);
+    addPrimitive(dictionary, "(stop)",    ficlPrimitiveStop);
+    addPrimitive(dictionary, "(pause)",   ficlPrimitivePause);
 
     return;
 }

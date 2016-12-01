@@ -4,7 +4,9 @@ HEADERS= ficl.h ficlplatform/unix.h
 # Flags for shared library
 TARGET =  -Ddarwin # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = # -fPIC
-CFLAGS = -O2 -fomit-frame-pointer $(SHFLAGS) $(TARGET)
+#OPTFLAGS= -g -O0
+OPTFLAGS= -O2 -fomit-frame-pointer
+CFLAGS = $(OPTFLAGS) $(SHFLAGS) $(TARGET)
 CC     = gcc -m32
 #CC     = gcc-apple-4.2 -m32
 LIB    = ar cr
