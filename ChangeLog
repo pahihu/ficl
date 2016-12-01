@@ -1,20 +1,25 @@
-160421
-	softcore
-		restored original contents
-	softcore/makefile
-		added -m32
-	Makefile.darwin
-		removed -s
-	word.lst, glossary.txt
-150510
-	fileaccess.c
-		ficlFileOpen fixed
-150609
+160422
+    ficllocal.h
+        added FICL_WANT_EXTENDED_PREFIX, 32K default dict size
+    ficlplatform/unix.h
+        Darwin platform/arch string
+    softcore/makefile
+        -m32 flag added
+    softcore
+        changed back to original softcore layer + additions
+    Makefile.darwin
+        changed CC to gcc, removed -s flag
+    glossary.txt
+        words
+150526
+	softcore patches: included circ-pad/missing/strarray/numcvt
+
+150509
 	Makefile.darwin
 	primitives.c
 		env queries "stack-cells", "return-stack-cells" fixed
 		"/data-cells" added to return the size of the dict
-150607
+150507
 	Makefile.mingw
 		clobber target to delete ficl.exe
 	extras.c

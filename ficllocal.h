@@ -6,3 +6,6 @@
 */
 
 #define FICL_WANT_EXTENDED_PREFIX       (1)
+#define FICL_DEFAULT_DICTIONARY_SIZE    (32768)
+
+
