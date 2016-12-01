@@ -91,64 +91,62 @@ void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
 
 static HANDLE hConOut;
 
-/* : KEY ( -- c ) */
-static void ficlPrimitiveKey(ficlVm *vm)
-{
-	int ch;
-	
-	do {
-		ch = _getch();
-		if (0xE0 == ch)
-			ch = 0;
-	} while (0 == ch);
-	
-	ficlStackPushInteger(vm->dataStack, ch);
-}
-
-/* : KEY? ( -- flag ) */
-static void ficlPrimitiveKeyQ(ficlVm *vm)
-{
-	int ret = _kbhit();
-	ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
-}
-
-/* : EKEY ( -- code ) */
-static void ficlPrimitiveEkey(ficlVm *vm)
-{
-	int ch;
-	
-	ch = _getch();
-	if (0 == ch) ch = 0xF0;
-	if (0xE0 == ch || 0xF0 == ch) {
-		ch <<= 8; ch += _getch();
-	}
-		
-	ficlStackPushInteger(vm->dataStack, ch);
-}
-
-/* : GOTO-XY ( y x -- ) */
-static void ficlPrimitiveGotoXY(ficlVm *vm)
+/* : AT-XY ( col row -- ) */
+static void ficlPrimitiveAtXY(ficlVm *vm)
 {
 	COORD cp;
-	int x, y;
+	int row, col;
 	
-	x = ficlStackPopInteger(vm->dataStack);
-	y = ficlStackPopInteger(vm->dataStack);
-	cp.X = x;
-	cp.Y = y;
+	row = ficlStackPopInteger(vm->dataStack);
+	col = ficlStackPopInteger(vm->dataStack);
+	cp.X = col;
+	cp.Y = row;
 	SetConsoleCursorPosition(hConOut,cp);
 }
 
-/* : XY? ( -- y x ) */
-static void ficlPrimitiveXYQ(ficlVm *vm)
+/* : ?AT ( -- col row ) */
+static void ficlPrimitiveQAt(ficlVm *vm)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 
 	GetConsoleScreenBufferInfo(hConOut, &csbi);
-	ficlStackPushInteger(vm->dataStack, csbi.dwCursorPosition.Y);
 	ficlStackPushInteger(vm->dataStack, csbi.dwCursorPosition.X);
+	ficlStackPushInteger(vm->dataStack, csbi.dwCursorPosition.Y);
 }
 
+/* : SET-FG ( color -- ) */
+static void ficlPrimitiveColorsStore(ficlVm *vm)
+{
+	WORD wAttributes;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int fg, bg;
+
+	GetConsoleScreenBufferInfo(hConOut, &csbi);
+	// fg = csbi.wAttributes & 15;
+	bg = (csbi.wAttributes >> 4) & 15;
+
+	fg = ficlStackPopInteger(vm->dataStack);
+	wAttributes = ((bg & 15) << 4) + (fg & 15);
+	SetConsoleTextAttribute(hConOut, wAttributes);
+}
+
+/* : SET-BG ( color -- ) */
+static void ficlPrimitiveColorsStore(ficlVm *vm)
+{
+	WORD wAttributes;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int fg, bg;
+
+	GetConsoleScreenBufferInfo(hConOut, &csbi);
+	fg = csbi.wAttributes & 15;
+	// bg = (csbi.wAttributes >> 4) & 15;
+
+	bg = ficlStackPopInteger(vm->dataStack);
+	wAttributes = ((bg & 15) << 4) + (fg & 15);
+	SetConsoleTextAttribute(hConOut, wAttributes);
+}
+
+#if 0
 /* : FORM ( -- h w ) */
 static void ficlPrimitiveForm(ficlVm *vm)
 {
@@ -186,6 +184,7 @@ static void ficlPrimitiveColors(ficlVm *vm)
 	ficlStackPushInteger(vm->dataStack, bg);
 	ficlStackPushInteger(vm->dataStack, fg);
 }
+#endif
 
 /* : PAGE ( -- ) */
 static void ficlPrimitivePage(ficlVm *vm)
@@ -208,14 +207,6 @@ static void ficlPrimitivePage(ficlVm *vm)
 **
 */
 
-/* : UTIME ( -- sec ) */
-static void ficlPrimitiveUTime(ficlVm *vm)
-{
-	time_t t = time(NULL);
-
-	ficlStackPushInteger(vm->dataStack, (ficlInteger)t);
-}
-
 /* : MS ( msec -- ) */
 static void ficlPrimitiveMS(ficlVm *vm)
 {
@@ -230,36 +221,6 @@ static void ficlPrimitiveMS(ficlVm *vm)
 ** === Simple FFI ===
 **
 */
-
-/* : (C-CALL) ( argN ... arg1 n c-fn -- ret ) */
-static void ficlPrimitiveCCall(ficlVm *vm)
-{
-	int (*fn)();
-	int narg;
-	int i, arg[8];
-	int ret;
-
-	fn = (int (*)()) ficlStackPopPointer(vm->dataStack);
-	narg = ficlStackPopInteger(vm->dataStack);
-	for (i = 0; i < narg; i++) {
-		arg[i] = ficlStackPopInteger(vm->dataStack);
-	}
-
-	switch (narg) {
-	case 0: ret = (*fn)(); break;
-	case 1: ret = (*fn)(arg[0]); break;
-	case 2: ret = (*fn)(arg[0], arg[1]); break;
-	case 3: ret = (*fn)(arg[0], arg[1], arg[2]); break;
-	case 4: ret = (*fn)(arg[0], arg[1], arg[2], arg[3]); break;
-	case 5: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4]); break;
-	case 6: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]); break;
-	case 7: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]); break;
-	default:
-		break;
-	}
-
-	ficlStackPushInteger(vm->dataStack, ret);
-}
 
 /* : (STD-CALL) ( argN ... arg1 n std-fn -- ret ) */
 static void ficlPrimitiveStdCall(ficlVm *vm)
@@ -290,90 +251,6 @@ static void ficlPrimitiveStdCall(ficlVm *vm)
 
 	ficlStackPushInteger(vm->dataStack, ret);
 }
-
-/* callbacks */
-static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
-
-static int cb0(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(0, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb1(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(1, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb2(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(2, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb3(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(3, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb4(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(4, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb5(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(5, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb6(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(6, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb7(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(7, a1, a2, a3, a4, a5, a6, a7, a8); }
-
-typedef struct {
-	void *xt;		/* ficlWord */
-	int  nargs;
-	void *fn;
-} C_CALLBACK;
-
-static C_CALLBACK cb_tbl[] = {
-	{0, -1, cb0},
-	{0, -1, cb1},
-	{0, -1, cb2},
-	{0, -1, cb3},
-	{0, -1, cb4},
-	{0, -1, cb5},
-	{0, -1, cb6},
-	{0, -1, cb7}
-};
-
-static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
-{
-	ficlVm *vm;
-	ficlWord *xt;
-	int ret;
-
-	if (-1 == cb_tbl[n].nargs)
-		return 0;
-
-	vm = ficlVmCreate(NULL, 64, 64);
-
-	switch (cb_tbl[n].nargs) {
-	case 0: goto L0;
-	case 1: goto L1;
-	case 2: goto L2;
-	case 3: goto L3;
-	case 4: goto L4;
-	case 5: goto L5;
-	case 6: goto L6;
-	case 7: goto L7;
-	case 8: goto L8;
-	}
-
-L8: ficlStackPushInteger(vm->dataStack, a8);
-L7:	ficlStackPushInteger(vm->dataStack, a7);
-L6:	ficlStackPushInteger(vm->dataStack, a6);
-L5:	ficlStackPushInteger(vm->dataStack, a5);
-L4:	ficlStackPushInteger(vm->dataStack, a4);
-L3:	ficlStackPushInteger(vm->dataStack, a3);
-L2:	ficlStackPushInteger(vm->dataStack, a2);
-L1:	ficlStackPushInteger(vm->dataStack, a1);
-L0:
-
-	xt = (ficlWord*) cb_tbl[n].xt;
-	ficlVmExecuteWord(vm, xt);
-	ret = ficlStackPopInteger(vm->dataStack);
-
-	ficlVmDestroy(vm);
-
-	return ret;
-}
-
-/* : (CALLBACK) ( xt nargs cbidx -- ptr ) */
-static void ficlPrimitiveCallback(ficlVm *vm)
-{
-	int idx;
-
-	idx = ficlStackPopInteger(vm->dataStack);
-	cb_tbl[idx].nargs = ficlStackPopInteger(vm->dataStack);
-	cb_tbl[idx].xt    = ficlStackPopPointer(vm->dataStack);
-
-	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
-}
-
 
 /*
 **
@@ -522,39 +399,39 @@ static void ficlPrimitiveXY(ficlVm *vm)
                         f i c l C o m p i l e P l a t f o r m
 ** Build Mingw32 platform extensions into the system dictionary
 **************************************************************************/
+
+#define addPrimitive(d,nm,fn) \
+   ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
+
 void ficlSystemCompilePlatform(ficlSystem *system)
 {
     HMODULE hModule;
     ficlDictionary *dictionary = system->dictionary;
     FICL_SYSTEM_ASSERT(system, dictionary);
     
-	hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    ficlDictionarySetPrimitive(dictionary, "key",    	 ficlPrimitiveKey,    	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "key?",     	 ficlPrimitiveKeyQ,    	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "ekey",     	 ficlPrimitiveEkey,    	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "goto-xy", 	 ficlPrimitiveGotoXY,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "xy?",  	 	 ficlPrimitiveXYQ,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "form",  	 ficlPrimitiveForm,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "colors!",	 ficlPrimitiveColorsStore, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "colors",	 ficlPrimitiveColors,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "page",  	 ficlPrimitivePage,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "ms",  	 	 ficlPrimitiveMS,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall,   	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "(std-call)", ficlPrimitiveStdCall,  FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "(callback)", ficlPrimitiveCallback,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "gw-open", 	 ficlPrimitiveGwOpen,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "gw-do-events",ficlPrimitiveGwDoEvents,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "gw-wait-key",ficlPrimitiveGwWaitKey,FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "gw-close", 	 ficlPrimitiveGwClose,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "color",		 ficlPrimitiveColor,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "set-pixel",  ficlPrimitiveSetPixel,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "at",		 ficlPrimitiveAt,		FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "+at",		 ficlPrimitiveAt,		FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "line",  	 ficlPrimitiveLine,		FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "rect",		 ficlPrimitiveRect,		FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "box",		 ficlPrimitiveBox,		FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "utime",		 ficlPrimitiveUTime,	FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "xy",		 ficlPrimitiveXY,		FICL_WORD_DEFAULT);
+	 hConOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    addPrimitive(dictionary, "at-xy",  ficlPrimitiveAtXY);
+    addPrimitive(dictionary, "?at",    ficlPrimitiveQAt);      /* iForth */
+    addPrimitive(dictionary, "set-fg", ficlPrimitiveSetFG);
+    addPrimitive(dictionary, "set-bg",	ficlPrimitiveSetBG);
+    addPrimitive(dictionary, "page",   ficlPrimitivePage);
+    addPrimitive(dictionary, "ms",     ficlPrimitiveMS);
+
+    addPrimitive(dictionary, "(std-call)",  ficlPrimitiveStdCall);
+
+    addPrimitive(dictionary, "gw-open", 	  ficlPrimitiveGwOpen);
+    addPrimitive(dictionary, "gw-do-events",ficlPrimitiveGwDoEvents);
+    addPrimitive(dictionary, "gw-wait-key", ficlPrimitiveGwWaitKey);
+    addPrimitive(dictionary, "gw-close", 	  ficlPrimitiveGwClose);
+
+    addPrimitive(dictionary, "color",       ficlPrimitiveColor);
+    addPrimitive(dictionary, "set-pixel",   ficlPrimitiveSetPixel);
+    addPrimitive(dictionary, "at",		ficlPrimitiveAt);
+    addPrimitive(dictionary, "+at",		ficlPrimitiveAt);
+    addPrimitive(dictionary, "line",  	ficlPrimitiveLine);
+    addPrimitive(dictionary, "rect",	ficlPrimitiveRect);
+    addPrimitive(dictionary, "box",		ficlPrimitiveBox);
+    addPrimitive(dictionary, "xy",		ficlPrimitiveXY);
 
     /*
     ** Every other Win32-specific word is implemented in Ficl, with multicall or whatnot.

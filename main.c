@@ -130,7 +130,6 @@ int main(int argc, char **argv)
 	}
 
    f_system = ficlSystemCreate(&fsi);
-   ficlSystemCompileExtras(f_system);
    f_vm = ficlSystemCreateVm(f_system);
 
    returnValue = ficlVmEvaluate(f_vm, ".ver .( " __DATE__ " ) cr quit");

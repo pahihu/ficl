@@ -1,8 +1,21 @@
 \ Missing definitions from FiCL
 \ 160507AP  /string fixed
+\ 160603AP  /string fixed again, darwin?/winnt?/linux?
 .( loading UTILS ) cr
 
 ANEW -extras
+
+: DARWIN?   \ -- t|f ; true if Darwin
+   ficl-os 1 =
+;
+
+: LINUX?    \ -- t|f ; true if Linux
+   ficl-os 2 =
+;
+
+: WINNT?    \ -- t|f ; true if Windows
+   ficl-os 3 =
+;
 
 DECIMAL
 \ FiCL NOTES
@@ -29,10 +42,12 @@ DECIMAL
 : $, ( ca n -- ) here over allot  swap move ;
 : ," ( "string" -- ) [char] " word count $, ;
 : /STRING ( ca1 u1 +n -- ca2 u2 ) \ remove +n chars from sc
-   over IF
-      2dup - 0 max >R
-      min chars +  R>
-   THEN  drop ;
+   over
+   IF 0 max  over min
+      swap over - >R  +  R>
+   ELSE drop
+   THEN
+;
 : -TRAILING ( a u1 -- ca u2 )
 	BEGIN
 		dup  0<> >r 				\ u1 <> 0 ?
@@ -74,19 +89,20 @@ DECIMAL
 6 CONSTANT cyan
 7 CONSTANT white
 
-[UNDEFINED] PAGE [IF]
+WINNT? 0=
+[IF]
 
 \ ANSI escape codes
 : CSI ( -- ) 27 emit [char] [ emit ;
 : .CSI ( n -- ) 0 u.r ;
-: CUP ( row col -- ) swap  csi .csi [char] ; emit .csi [char] H emit ;
+: CUP ( col row -- ) csi .csi [char] ; emit .csi [char] H emit ;
 : SGR ( attr -- ) csi .csi [char] m emit ;
 : CLS ( -- ) csi 2 .csi [char] J emit ;
 
 : SET-FG ( color -- ) 30 +  sgr ;
 : SET-BG ( color -- ) 40 +  sgr ;
 : RESET-ATTRS ( -- ) 0 sgr ;
-: AT-XY ( x y -- ) cup ;
+: AT-XY ( col row -- ) cup ;
 : HOME ( -- ) 1 1 at-xy ;
 : PAGE ( -- ) home cls ;
 

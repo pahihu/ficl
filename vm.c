@@ -2792,7 +2792,8 @@ int ficlVmExecuteString(ficlVm *vm, ficlString s)
             ficlDictionaryEmpty(system->locals, system->locals->forthWordlist->size);
 #endif
         }
-        ficlDictionaryResetSearchOrder(dictionary);
+        /* 160603AP do NOT reset search order on error */
+        /* ficlDictionaryResetSearchOrder(dictionary); */
         ficlVmReset(vm);
         break;
    }

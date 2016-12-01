@@ -4,6 +4,9 @@
 
 #include "../ficl.h"
 
+#ifdef darwin
+#include <unistd.h>
+#endif
 
 
 int ficlFileTruncate(ficlFile *ff, ficlUnsigned size)
@@ -64,11 +67,24 @@ long ficlFileSize(ficlFile *ff)
     return statbuf.st_size;
 }
 
+/* : MS ( u -- ) */
+static void ficlPrimitiveMS(ficlVm *vm)
+{
+   useconds_t useconds;
 
+   useconds = 1000 * ficlStackPopUnsigned(vm->dataStack);
+   usleep(useconds);
+}
 
+#define addPrimitive(d,nm,fn) \
+   ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
 void ficlSystemCompilePlatform(ficlSystem *system)
 {
+    ficlDictionary *dictionary = ficlSystemGetDictionary(system);
+
+    addPrimitive(dictionary, "ms",    ficlPrimitiveMS);
+
     return;
 }
 

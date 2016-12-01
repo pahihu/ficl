@@ -59,6 +59,8 @@
 #include <string.h>
 #include "ficl.h"
 
+extern void ficlSystemCompileExtras(ficlSystem*);
+
 
 /*
 ** System statics
@@ -240,6 +242,9 @@ ficlSystem *ficlSystemCreate(ficlSystemInformation *fsi)
 #define ADD_COMPILE_STRING(name) ficlDictionarySetConstantString(environment, #name, name)
 	ADD_COMPILE_STRING(FICL_PLATFORM_ARCHITECTURE);
 	ADD_COMPILE_STRING(FICL_PLATFORM_OS);
+
+    /* 160603AP moved before softcore compile */
+    ficlSystemCompileExtras(system);
 
     ficlSystemCompileSoftCore(system);
     ficlSystemDestroyVm(system->vmList);

@@ -1,3 +1,18 @@
+160603
+	vm.c
+		do NOT reset dict search order on error
+	extras.c
+		added ficl-os, portable key/key?/ekey, utime
+		simple FFI (c-call), (callback)
+		DLL (dlopen), (dlsym)
+	ficlplatform/unix.c
+		added ms
+	softcore/missing.fs
+		/string fixed again, darwin?/linux?/winnt?
+	system.c, main.c
+		moved ficlSystemCompileExtras() to system.c (missing.fs needs it)
+	Makefile.darwin, Makefile.linux*, Makefile.mingw
+		added curterm.o
 160510
 	softcore/tester.fr,struct.fth
 		J.Hayes tester.  OpenFirmware struct.

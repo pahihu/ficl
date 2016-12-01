@@ -8,7 +8,12 @@
 #ifdef WIN32
 #include <io.h>
 #define getcwd _getcwd
+#include "dlfcn.h"
+#else
+#include <dlfcn.h>
 #endif
+
+#include "curterm.h"
 
 #if !defined(FICL_ANSI) || defined(__MINGW32__)
 
@@ -57,8 +62,7 @@ static void ficlPrimitiveChDir(ficlVm *vm)
     return;
 }
 
-
-
+/* : CLOCK ( -- u ) */
 static void ficlPrimitiveClock(ficlVm *vm)
 {
     clock_t now = clock();
@@ -66,6 +70,7 @@ static void ficlPrimitiveClock(ficlVm *vm)
     return;
 }
 
+/* : GET-MSECS ( -- u ) */
 static void ficlPrimitiveGetMSecs(ficlVm *vm)
 {
     clock_t now = clock();
@@ -250,6 +255,7 @@ static void ficlPrimitiveSpewHash(ficlVm *vm)
     return;
 }
 
+/* : BREAK ( -- ) */
 static void ficlPrimitiveBreak(ficlVm *vm)
 {
     vm->state = vm->state;
@@ -257,23 +263,228 @@ static void ficlPrimitiveBreak(ficlVm *vm)
 }
 
 
+/* : KEY ( -- c ) */
+static void ficlPrimitiveKey(ficlVm *vm)
+{
+	int ch;
+	
+   prepterm(1);
+
+   do {
+      ch = getkey();
+   } while (ch > 255);
+
+   prepterm(0);
+	
+	ficlStackPushInteger(vm->dataStack, ch);
+}
+
+/* : KEY? ( -- flag ) */
+static void ficlPrimitiveKeyQ(ficlVm *vm)
+{
+   int ret = has_key();
+
+	ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
+}
+
+/* : EKEY ( -- code ) */
+static void ficlPrimitiveEkey(ficlVm *vm)
+{
+   int ch;
+   
+   prepterm(1);
+   ch = getkey();
+   prepterm(0);
+		
+	ficlStackPushInteger(vm->dataStack, ch);
+}
+
+/* : UTIME ( -- sec ) */
+static void ficlPrimitiveUTime(ficlVm *vm)
+{
+	time_t t = time(NULL);
+
+	ficlStackPushInteger(vm->dataStack, (ficlInteger)t);
+}
+
+/* : (DLOPEN) ( ca u -- hnd ) */
+static void ficlPrimitiveDlOpen(ficlVm *vm)
+{
+   void *ret;
+   int  length = ficlStackPopInteger(vm->dataStack);
+   void *addr  = (void *)ficlStackPopPointer(vm->dataStack);
+
+   char *path = (char*)malloc(length + 1);
+   memcpy(path, addr, length);
+   path[length] = 0;
+
+   ret = dlopen(path, RTLD_NOW);
+   free(path);
+
+   ficlStackPushPointer(vm->dataStack, ret);
+}
+
+/* : (DLSYM) ( ca u hnd -- addr ) */
+static void ficlPrimitiveDlSym(ficlVm *vm)
+{
+   void *ret;
+   void *hnd   = (void *)ficlStackPopPointer(vm->dataStack);
+   int  length = ficlStackPopInteger(vm->dataStack);
+   void *addr  = (void *)ficlStackPopPointer(vm->dataStack);
+
+   char *symname = (char*)malloc(length + 1);
+   memcpy(symname, addr, length);
+   symname[length] = 0;
+
+   ret = dlsym(hnd, symname);
+   free(symname);
+
+   ficlStackPushPointer(vm->dataStack, ret);
+}
+
+/* : (C-CALL) ( argN ... arg1 fn  -- ret ) */
+static void ficlPrimitiveCCall(ficlVm *vm)
+{
+	int (*fn)();
+	int narg;
+	int i, arg[8];
+	int ret;
+
+	fn = (int (*)()) ficlStackPopPointer(vm->dataStack);
+	narg = ficlStackPopInteger(vm->dataStack);
+	for (i = 0; i < narg; i++) {
+		arg[i] = ficlStackPopInteger(vm->dataStack);
+	}
+
+	switch (narg) {
+	case 0: ret = (*fn)(); break;
+	case 1: ret = (*fn)(arg[0]); break;
+	case 2: ret = (*fn)(arg[0], arg[1]); break;
+	case 3: ret = (*fn)(arg[0], arg[1], arg[2]); break;
+	case 4: ret = (*fn)(arg[0], arg[1], arg[2], arg[3]); break;
+	case 5: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4]); break;
+	case 6: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]); break;
+	case 7: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]); break;
+	default:
+		break;
+	}
+
+	ficlStackPushInteger(vm->dataStack, ret);
+}
+
+/* callbacks */
+static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+
+static int cb0(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(0, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb1(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(1, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb2(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(2, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb3(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(3, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb4(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(4, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb5(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(5, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb6(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(6, a1, a2, a3, a4, a5, a6, a7, a8); }
+static int cb7(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(7, a1, a2, a3, a4, a5, a6, a7, a8); }
+
+typedef struct {
+	void *xt;		/* ficlWord */
+	int  nargs;
+	void *fn;
+} C_CALLBACK;
+
+static C_CALLBACK cb_tbl[] = {
+	{0, -1, cb0},
+	{0, -1, cb1},
+	{0, -1, cb2},
+	{0, -1, cb3},
+	{0, -1, cb4},
+	{0, -1, cb5},
+	{0, -1, cb6},
+	{0, -1, cb7}
+};
+
+static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+{
+	ficlVm *vm;
+	ficlWord *xt;
+	int ret;
+
+	if (-1 == cb_tbl[n].nargs)
+		return 0;
+
+	vm = ficlVmCreate(NULL, 64, 64);
+
+	switch (cb_tbl[n].nargs) {
+	case 0: goto L0;
+	case 1: goto L1;
+	case 2: goto L2;
+	case 3: goto L3;
+	case 4: goto L4;
+	case 5: goto L5;
+	case 6: goto L6;
+	case 7: goto L7;
+	case 8: goto L8;
+	}
+
+L8: ficlStackPushInteger(vm->dataStack, a8);
+L7: ficlStackPushInteger(vm->dataStack, a7);
+L6: ficlStackPushInteger(vm->dataStack, a6);
+L5: ficlStackPushInteger(vm->dataStack, a5);
+L4: ficlStackPushInteger(vm->dataStack, a4);
+L3: ficlStackPushInteger(vm->dataStack, a3);
+L2: ficlStackPushInteger(vm->dataStack, a2);
+L1: ficlStackPushInteger(vm->dataStack, a1);
+L0:
+
+	xt = (ficlWord*) cb_tbl[n].xt;
+	ficlVmExecuteWord(vm, xt);
+	ret = ficlStackPopInteger(vm->dataStack);
+
+	ficlVmDestroy(vm);
+
+	return ret;
+}
+
+/* : (CALLBACK) ( xt nargs cbidx -- ptr ) */
+static void ficlPrimitiveCallback(ficlVm *vm)
+{
+	int idx;
+
+	idx = ficlStackPopInteger(vm->dataStack);
+	cb_tbl[idx].nargs = ficlStackPopInteger(vm->dataStack);
+	cb_tbl[idx].xt    = ficlStackPopPointer(vm->dataStack);
+
+	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
+}
+
+#define addPrimitive(d,nm,fn) \
+   ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
 void ficlSystemCompileExtras(ficlSystem *system)
 {
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
 
-    ficlDictionarySetPrimitive(dictionary, "break",    ficlPrimitiveBreak,    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "load",     ficlPrimitiveLoad,     FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "spewhash", ficlPrimitiveSpewHash, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "system",   ficlPrimitiveSystem,   FICL_WORD_DEFAULT);
+    addPrimitive(dictionary, "break",    ficlPrimitiveBreak);
+    addPrimitive(dictionary, "load",     ficlPrimitiveLoad);
+    addPrimitive(dictionary, "spewhash", ficlPrimitiveSpewHash);
+    addPrimitive(dictionary, "system",   ficlPrimitiveSystem);
 
 #if !defined(FICL_ANSI) || defined(__MINGW32__)
-    ficlDictionarySetPrimitive(dictionary, "clock",    ficlPrimitiveClock,    FICL_WORD_DEFAULT);
+    addPrimitive(dictionary, "clock",    ficlPrimitiveClock);
     ficlDictionarySetConstant(dictionary,  "clocks/sec", CLOCKS_PER_SEC);
-    ficlDictionarySetPrimitive(dictionary, "pwd",      ficlPrimitiveGetCwd,   FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "cd",       ficlPrimitiveChDir,    FICL_WORD_DEFAULT);
-	ficlDictionarySetPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs, FICL_WORD_DEFAULT);
+    addPrimitive(dictionary, "pwd",      ficlPrimitiveGetCwd);
+    addPrimitive(dictionary, "cd",       ficlPrimitiveChDir);
+	 addPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs);
 #endif /* FICL_ANSI */
+
+    ficlDictionarySetConstant(dictionary,  "ficl-os",  FICL_OS);
+
+    addPrimitive(dictionary, "key",      ficlPrimitiveKey);
+    addPrimitive(dictionary, "key?",     ficlPrimitiveKeyQ);
+    addPrimitive(dictionary, "ekey",     ficlPrimitiveEkey);
+    addPrimitive(dictionary, "utime",    ficlPrimitiveUTime);
+    addPrimitive(dictionary, "(dlopen)", ficlPrimitiveDlOpen);
+    addPrimitive(dictionary, "(dlsym)",  ficlPrimitiveDlSym);
+    addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
+    addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
 
     return;
 }
