@@ -1,18 +1,34 @@
 \ Utilities
 \ 29apr2015
 
-decimal
+forth definitions decimal
 
+0 constant FiCL
+1 constant Gforth
+0 constant PFE
+
+FiCL [IF]
 : counter ( -- u ) \ current msec timer
 		get-msecs ;
+[THEN]
+
+Gforth [IF]
+: counter ( -- u )
+  cputime d+ 1000 sm/rem swap drop ;
+[THEN]
+
+PFE [IF]
+: counter ( -- u )
+  clock 1000 CLK_TCK */ ;
+[THEN]
 
 : timer ( u -- ) \ display elapsed msecs
-		get-msecs swap - u. ." ms ";
+		counter swap - u. ." ms ";
 
 variable elapsed-timer
 
 : timer-reset ( -- )
-		get-msecs elapsed-timer ! ;
+		counter elapsed-timer ! ;
 
 : .elapsed ( -- )
 		elapsed-timer @ timer ;
