@@ -12,8 +12,8 @@ RANLIB = ranlib
 MAJOR = 4
 MINOR = 0.31
 
-ficl: main.o $(HEADERS) libficl.a
-	$(CC) main.o -o ficl -L. -lficl -lgdi32 -lm
+ficlw.exe: main.o $(HEADERS) libficl.a
+	$(CC) main.o -o $@ -L. -lficl -lgdi32 -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -55,4 +55,5 @@ clean:
 	rm -f *.o *.a libficl.*
 
 clobber: clean
-	rm -f ficl.exe
+	rm -f ficlw.exe
+

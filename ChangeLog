@@ -1,3 +1,8 @@
+160610
+	extras.c
+		debugged (pause), wasn't so easy...
+	Makefile.*
+		target is now ficl[d|l|w].exe
 160608
 	extras.c
 		cooperative multi-tasking: (process) (run) (stop) (pause)

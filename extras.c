@@ -455,17 +455,16 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
 }
 
-static int gTaskID = 1;
-
 /* : (PROCESS) (  -- 'vm ) */
 static void ficlPrimitiveProcess(ficlVm *vm)
 {
+   static int gProcessID = 1;
    ficlSystem *system = vm->callback.system;
    ficlVm     *newVm;
 
    newVm  = ficlSystemCreateVm(system);
-   newVm->user[0].i = gTaskID++;
-   if (32768 == gTaskID) gTaskID = 1;
+   newVm->user[0].i = gProcessID++;
+   if (32768 == gProcessID) gProcessID = 1;
    ficlStackPushPointer(vm->dataStack, newVm);
 }
 
@@ -481,56 +480,123 @@ static void ficlPrimitiveRun(ficlVm *vm)
    otherVm->ip = (ficlIp)(word->param);
 }
 
-/* : (STOP) ( tid -- ior ) */
-static void ficlPrimitiveStop(ficlVm *vm)
+#define SWAP(T,a,b)  { T _tmp=a; a=b; b=_tmp; }
+
+static void ficlPrimitivePS(ficlVm *vm)
 {
+   int i;
    ficlSystem *system = vm->callback.system;
    ficlVm     *pList  = system->vmList;
-   int         tid, ret;
 
-   if (pList->link) {
-      tid = ficlStackPopInteger(vm->dataStack);
-      for ( ; pList ; ) {
-         if (tid == pList->user[0].i)
-            break;
-         pList = pList->link;
-      }
-      if (pList) {
-         if (pList != vm) {
-            ficlSystemDestroyVm(pList);
-            ret = 0;
-         } else
-            ret = 3;    /* cannot stop current process */
-      } else
-         ret = 2;       /* process not found */
-   } else
-      ret = 1;          /* cannot stop root process */
-
-   ficlStackPushInteger(vm->dataStack, ret);
+   fprintf(stderr,"\npList = ");
+   for (i = 0; pList && (i < 10); i++) {
+      fprintf(stderr,"#%ld ",pList->user[0].i);
+      pList = pList->link;
+   }
+   if (10 == i) {
+      char *ptr = 0;
+      *ptr = 'F';
+   }
 }
-
-#define SWAP(T,a,b)  { T _tmp=a; a=b; b=_tmp; }
 
 /* : (PAUSE) ( -- ) */
 static void ficlPrimitivePause(ficlVm *vm)
 {
    ficlSystem *system = vm->callback.system;
    ficlVm     *pList  = system->vmList, *nextVm, tmpVm;
+   int        headpid = pList->user[0].i;
+   int        pid = vm->user[0].i;
+   ficlVm *pointedToVm;
 
-   if (NULL == pList->link)
-      return;
 
+   // ficlPrimitivePS(vm);
+
+   /* select next VM: if end of list, select head */
+   // fprintf(stderr,"\n-I-PAUSE:  pid is #%d",pid);
+   // fprintf(stderr,"\n-I-PAUSE: head is #%d",headpid);
    nextVm = vm->link;
-   if (NULL == nextVm)
+   if (NULL == nextVm) {
+      // fprintf(stderr,"\n-I-PAUSE: next is head");
       nextVm = pList;
+   }
 
+   /* same as running VM, do nothing */
+   if (nextVm == vm) {
+      // fprintf(stderr,"\n-I-PAUSE: only one, skip");
+      return;
+   }
+
+   // fprintf(stderr,"\n-I-PAUSE: next is #%ld",nextVm->user[0].i);
+
+   pointedToVm = 0;
+   for ( ; pList ; ) {
+      if (vm == pList->link) {
+         pointedToVm = pList;
+         break;
+      }
+      pList = pList->link;
+   }
+
+   /* swap the VMs */
    memcpy(&tmpVm,     vm, sizeof(ficlVm));
    memcpy(    vm, nextVm, sizeof(ficlVm));
    memcpy(nextVm, &tmpVm, sizeof(ficlVm));
 
-   SWAP(ficlVm*, vm->link, nextVm->link);
    SWAP(ficlVm*, vm->callback.vm, nextVm->callback.vm);
 
+   /* if vmList is moved, follow it */
+   if (vm->user[0].i == headpid) {
+      system->vmList = vm;
+   } else if (nextVm->user[0].i == headpid) {
+      system->vmList = nextVm;
+   }
+
+   /* who pointed to vm should point to nextVm */
+   if (pointedToVm) {
+      if (nextVm == pointedToVm)
+         vm->link = nextVm;
+      else
+         pointedToVm->link = nextVm;
+   }
+   if (pid)
+      nextVm->link = vm;
+
+   // fprintf(stderr,"\n-I-PAUSE: current head is #%ld",system->vmList->user[0].i);
+   // ficlPrimitivePS(vm);
+}
+
+/* : (STOP) ( -- ) */
+static void ficlPrimitiveStop(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *pList;
+   int         pid    = vm->user[0].i;
+   int i;
+
+   /* schedule next VM, if it is the same, then do nothing */
+   /* i.e. cannot stop root process */
+   // fprintf(stderr,"\n-I-STOP: current is #%d",pid);
+   ficlPrimitivePause(vm);
+   // fprintf(stderr,"\n-I-STOP:    next is #%ld",vm->user[0].i);
+   if (vm->user[0].i == pid)
+      return;
+
+   /* search process by pid */
+   pList = system->vmList;
+   for (i = 0 ;pList && (i < 10); i++) {
+      // fprintf(stderr,"\n-I-STOP: check #%ld",pList->user[0].i);
+      if (pid == pList->user[0].i)
+         break;
+      pList = pList->link;
+   }
+   if (10 == i) {
+      char *ptr = 0;
+      *ptr = 'F';
+   }
+   if (pList) {
+      // fprintf(stderr,"\n-I-STOP: destroy");
+      ficlSystemDestroyVm(pList);
+   }
 }
 
 #define addPrimitive(d,nm,fn) \
