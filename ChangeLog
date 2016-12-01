@@ -1,3 +1,9 @@
+160510
+	softcore/tester.fr,struct.fth
+		J.Hayes tester.  OpenFirmware struct.
+160509
+	user/safer-oof.fs
+		C.Jakeman's extensions for mini-oof.fs
 160507
 	vm.c
 		ficlVmInnerLoop longjmp() fix

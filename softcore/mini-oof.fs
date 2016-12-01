@@ -1,5 +1,5 @@
 \ B.Paysan Mini-OOF
-.( loading B.Paysan's Mini-OOF ) cr
+.( loading Mini-OOF -- B.Paysan ) cr
 
 : noop ( -- ) ;
 1 cells CONSTANT cell

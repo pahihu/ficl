@@ -3,7 +3,8 @@ SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 # SOURCES += preswoop.fr swoop.fr swoopex.fr
 SOURCES += mini-oof.fs
 SOURCES += ficllocal.fr fileaccess.fr
-SOURCES += toolbelt.fr switch.fr circ-pad.fs missing.fs strarray.fs numcvt.fs
+SOURCES += tester.fr toolbelt.fr switch.fr struct.fth
+SOURCES += circ-pad.fs missing.fs strarray.fs numcvt.fs
 	
 
 ../softcore.c: makesoftcore $(SOURCES)

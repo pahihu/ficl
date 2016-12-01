@@ -3,7 +3,7 @@
 \ ** Rick VanNorman (rvn@forth.com)
 \ ** 1999
 
-.( loading R.v.Norman's SWITCH ) cr
+.( loading SWITCH -- R.v.Norman ) cr
 
 \ ***
 : LINK@  @ ;
