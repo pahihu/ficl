@@ -3,7 +3,7 @@
 \ ** Wil Baden (neilbawd@earthlink.net)
 \ ** 2003-02-25
 
-.( loading TOOLBELT ) CR
+.( loading N.Bawd's TOOLBELT ) CR
 
 \ ******************  Forth Programmer's Handbook  ******************
 

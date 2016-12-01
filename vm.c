@@ -169,7 +169,11 @@ RUNTIME_FIXUP:
 					*ip = (ficlWord *)(destination - ip);
 					break;
 				}
+            default:
+               break;
 			}
+      default:
+         break;
 		}
 	}
 
@@ -201,6 +205,7 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 	** which might mask bugs (places where we needed to spill but didn't).
 	** --lch
 	*/
+   // fprintf(stderr,"called ficlStackCheckNospill()");
 	ficlCell *oldTop = stack->top;
 	stack->top = top;
 	ficlStackCheck(stack, popCells, pushCells);
@@ -240,6 +245,7 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 		vm->ip = (ficlIp)ip;	\
 		vm->dataStack->top = dataTop;	\
 		vm->returnStack->top = returnTop;	\
+      spilled = 1; \
 		FLOAT_LOCAL_VARIABLE_SPILL \
 		LOCALS_LOCAL_VARIABLE_SPILL
 
@@ -247,9 +253,23 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 		ip = (ficlInstruction *)vm->ip; \
 		dataTop = vm->dataStack->top;	\
 		returnTop = vm->returnStack->top;	\
+      spilled = 0; \
 		FLOAT_LOCAL_VARIABLE_REFILL	\
 		LOCALS_LOCAL_VARIABLE_REFILL
 
+
+/*
+ * On a longjmp() it restores everything to the original contents.
+ * That means on an exception it resets the stacks to the state
+ * when it enters the inner loop.
+ *
+ * `spilled' used to prevent the reset on an exception.  The key 
+ * point is to store the state elsewhere, ie. not in the function
+ * preamble which gets executed again on a longjmp().
+ *
+ * 160507AP
+ */
+static int spilled = 0;
 
 void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
 {
@@ -288,8 +308,11 @@ void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
 
 	if (except)
 		{
-		LOCAL_VARIABLE_SPILL;
+         if (!spilled) {
+		      LOCAL_VARIABLE_SPILL;
+         }
 	    vm->exceptionHandler = oldExceptionHandler;
+        //fprintf(stderr,"except: %d\n",except);
 		  ficlVmThrow(vm, except);
 		}
 
@@ -2586,6 +2609,7 @@ void ficlVmQuit(ficlVm *vm)
 **************************************************************************/
 void ficlVmReset(ficlVm *vm)
 {
+    //fprintf(stderr,"called ficlVmReset()\n");
     ficlVmQuit(vm);
     ficlStackReset(vm->dataStack);
 #if FICL_WANT_FLOAT

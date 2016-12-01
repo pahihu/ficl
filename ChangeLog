@@ -1,16 +1,29 @@
+160507
+	vm.c
+		ficlVmInnerLoop longjmp() fix
+	softcore/strarray.fs
+		string handling words added	
+	softcore/mini-oof.fs
+		B.Paysan Mini-OOF, replaced FiCL OO
+	wordlist.txt
+		words defined in FiCL
+	glossary.txt
+		softcore help V1.0
+	user/ficlex.fs,jakeman.fs
+		added examples
 160422
-    ficllocal.h
-        added FICL_WANT_EXTENDED_PREFIX, 32K default dict size
-    ficlplatform/unix.h
-        Darwin platform/arch string
-    softcore/makefile
-        -m32 flag added
-    softcore
-        changed back to original softcore layer + additions
-    Makefile.darwin
-        changed CC to gcc, removed -s flag
-    glossary.txt
-        words
+	ficllocal.h
+		added FICL_WANT_EXTENDED_PREFIX, 32K default dict size
+	ficlplatform/unix.h
+		Darwin platform/arch string
+	softcore/makefile
+		-m32 flag added
+	softcore
+		changed back to original softcore layer + additions
+	Makefile.darwin
+		changed CC to gcc, removed -s flag
+	glossary.txt
+	words
 150526
 	softcore patches: included circ-pad/missing/strarray/numcvt
 

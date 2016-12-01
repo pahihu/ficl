@@ -72,6 +72,8 @@ void ficlStackCheck(ficlStack *stack, int popCells, int pushCells)
 {
     int nFree = stack->size - STKDEPTH(stack);
 
+    // fprintf(stderr,"poCells:%d depth: %d (%p,%p)\n",popCells,STKDEPTH(stack),stack->top,stack->base);
+
     if (popCells > STKDEPTH(stack))
     {
         ficlVmThrowError(stack->vm, "Error: %s stack underflow", stack->name);
@@ -332,6 +334,7 @@ void ficlStackPushFloat(ficlStack *stack, ficlFloat f)
 
 void ficlStackReset(ficlStack *stack)
 {
+    // fprintf(stderr,"called ficlStackReset()\n");
     stack->top = stack->base - 1;
     return;
 }

@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 		narg++;
 	}
 
-	if (sig = setjmp(mainLoop)) {
+	if ((sig = setjmp(mainLoop))) {
 		sprintf(f_vm->pad, "Error: got signal (%d)\n", sig);
 		ficlVmErrorOut(f_vm, f_vm->pad);
 	}

@@ -148,6 +148,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /*
 ** Put all your local defines in ficllocal.h,
@@ -398,7 +399,7 @@ extern "C" {
 ** FICL_PLATFORM_HAS_2INTEGER
 ** Indicates whether or not the current architecture
 ** supports a native double-width integer type.
-** If you set this to 1 in your ficlplatform/*.h file,
+** If you set this to 1 in your ficlplatform/ *.h file,
 ** you *must* create typedefs for the following two types:
 **        ficl2Unsigned
 **        ficl2Integer
@@ -610,7 +611,7 @@ typedef struct ficlString ficlString;
 
 /*
 ** System dependent routines:
-** Edit the implementations in your appropriate ficlplatform/*.c to be
+** Edit the implementations in your appropriate ficlplatform/ *.c to be
 ** compatible with your runtime environment.
 **
 ** ficlCallbackDefaultTextOut sends a zero-terminated string to the 

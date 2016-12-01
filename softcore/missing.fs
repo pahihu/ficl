@@ -1,4 +1,5 @@
 \ Missing definitions from FiCL
+\ 160507AP  /string fixed
 .( loading UTILS ) cr
 
 ANEW -extras
@@ -28,7 +29,10 @@ DECIMAL
 : $, ( ca n -- ) here over allot  swap move ;
 : ," ( "string" -- ) [char] " word count $, ;
 : /STRING ( ca1 u1 +n -- ca2 u2 ) \ remove +n chars from sc
-	tuck - 0 max >r  chars +  r> ;
+   over IF
+      2dup - 0 max >R
+      min chars +  R>
+   THEN  drop ;
 : -TRAILING ( a u1 -- ca u2 )
 	BEGIN
 		dup  0<> >r 				\ u1 <> 0 ?
