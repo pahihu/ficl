@@ -125,8 +125,12 @@ ficlStack *ficlStackCreate(ficlVm *vm, char *name, unsigned size)
 
 void ficlStackDestroy(ficlStack *stack)
 {
-    if (stack)
+    if (stack) {
+#if defined(DEBUG)
+        memset(stack, 0xEF, stack->size * sizeof(ficlCell) + sizeof(ficlStack));
+#endif
         ficlFree(stack);
+    }
     return;
 }
 

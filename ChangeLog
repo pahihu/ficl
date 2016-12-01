@@ -1,3 +1,11 @@
+160614
+	vm.c, stack.c
+		clear memory areas in Destroy() routines
+	extras.c
+		cooperative multi-tasking V2: (init-multi), (pause) returns 
+		a flag if it changed processes.
+		There is a ficlVm which is used just to run the tasks.
+		It is outside the system->vmList.
 160612
 	extras.c
 		added prepterm, needed by ekey/key/key?

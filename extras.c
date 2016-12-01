@@ -452,6 +452,49 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
 }
 
+static ficlVm *gShadowVm  = NULL;
+static ficlVm *gRunningVm = NULL;
+
+static void ResetVmPointers(ficlVm *vm)
+{
+   vm->callback.vm     = vm;
+   vm->dataStack->vm   = vm;
+   vm->returnStack->vm = vm;
+   vm->floatStack->vm  = vm;
+}
+
+static void ficlPrimitiveInitMulti(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *pList, *pointedToVm;
+
+   if (gShadowVm)
+      return;
+
+   gShadowVm = ficlSystemCreateVm(system);
+   system->vmList = system->vmList->link;
+
+   pList = system->vmList;
+   pointedToVm = 0;
+   for ( ; pList ; pList = pList->link) {
+      if (vm == pList->link) {
+         pointedToVm = pList;
+         break;
+      }
+   }
+
+   memcpy(gShadowVm, vm, sizeof(ficlVm));
+   ResetVmPointers(gShadowVm);
+
+   if (pointedToVm)
+      pointedToVm->link = gShadowVm;
+
+   if (vm == system->vmList)
+      system->vmList = gShadowVm;
+
+   gRunningVm = gShadowVm;
+}
+
 /* : (PROCESS) (  -- 'vm ) */
 static void ficlPrimitiveProcess(ficlVm *vm)
 {
@@ -486,13 +529,9 @@ static void ficlPrimitivePS(ficlVm *vm)
    ficlVm     *pList  = system->vmList;
 
    fprintf(stderr,"\npList = ");
-   for (i = 0; pList && (i < 10); i++) {
-      fprintf(stderr,"#%ld ",pList->user[0].i);
+   for (i = 0; pList; i++) {
+      fprintf(stderr,"%ld=%p ",pList->user[0].i,pList);
       pList = pList->link;
-   }
-   if (10 == i) {
-      char *ptr = 0;
-      *ptr = 'F';
    }
 }
 
@@ -500,65 +539,44 @@ static void ficlPrimitivePS(ficlVm *vm)
 static void ficlPrimitivePause(ficlVm *vm)
 {
    ficlSystem *system = vm->callback.system;
-   ficlVm     *pList  = system->vmList, *nextVm, tmpVm;
-   int        headpid = pList->user[0].i;
-   int        pid = vm->user[0].i;
-   ficlVm *pointedToVm;
+   ficlVm     *nextVm, *oldLink;
 
+   if (NULL == gRunningVm)
+      ficlVmThrowError(vm, "Error: multi-tasking not initialized.");
 
    // ficlPrimitivePS(vm);
 
    /* select next VM: if end of list, select head */
-   // fprintf(stderr,"\n-I-PAUSE:  pid is #%d",pid);
-   // fprintf(stderr,"\n-I-PAUSE: head is #%d",headpid);
-   nextVm = vm->link;
+   // fprintf(stderr,"\n-I-PAUSE:  pid is #%ld",vm->user[0].i);
+   nextVm = gRunningVm->link;
    if (NULL == nextVm) {
       // fprintf(stderr,"\n-I-PAUSE: next is head");
-      nextVm = pList;
+      nextVm = system->vmList;
    }
 
    /* same as running VM, do nothing */
-   if (nextVm == vm) {
+   if (nextVm == gRunningVm) {
       // fprintf(stderr,"\n-I-PAUSE: only one, skip");
+      ficlStackPushInteger(vm->dataStack, FICL_FALSE);
       return;
    }
 
    // fprintf(stderr,"\n-I-PAUSE: next is #%ld",nextVm->user[0].i);
+   ficlStackPushInteger(vm->dataStack, FICL_TRUE);
 
-   pointedToVm = 0;
-   for ( ; pList ; ) {
-      if (vm == pList->link) {
-         pointedToVm = pList;
-         break;
-      }
-      pList = pList->link;
-   }
+   /* save state */
+   oldLink = gRunningVm->link;
+   memcpy(gRunningVm, vm, sizeof(ficlVm));
+   gRunningVm->link = oldLink;
+   ResetVmPointers(gRunningVm);
 
-   /* swap the VMs */
-   memcpy(&tmpVm,     vm, sizeof(ficlVm));
-   memcpy(    vm, nextVm, sizeof(ficlVm));
-   memcpy(nextVm, &tmpVm, sizeof(ficlVm));
+   /* load state of next VM */
+   memcpy(vm, nextVm, sizeof(ficlVm));
+   ResetVmPointers(vm);
 
-   SWAP(ficlVm*, vm->callback.vm, nextVm->callback.vm);
+   gRunningVm = nextVm;
+   // ficlStackPushInteger(vm->dataStack, FICL_TRUE);
 
-   /* if vmList is moved, follow it */
-   if (vm->user[0].i == headpid) {
-      system->vmList = vm;
-   } else if (nextVm->user[0].i == headpid) {
-      system->vmList = nextVm;
-   }
-
-   /* who pointed to vm should point to nextVm */
-   if (pointedToVm) {
-      if (nextVm == pointedToVm)
-         vm->link = nextVm;
-      else
-         pointedToVm->link = nextVm;
-   }
-   if (pid)
-      nextVm->link = vm;
-
-   // fprintf(stderr,"\n-I-PAUSE: current head is #%ld",system->vmList->user[0].i);
    // ficlPrimitivePS(vm);
 }
 
@@ -568,30 +586,26 @@ static void ficlPrimitiveStop(ficlVm *vm)
    ficlSystem *system = vm->callback.system;
    ficlVm     *pList;
    int         pid    = vm->user[0].i;
-   int i;
 
    /* schedule next VM, if it is the same, then do nothing */
    /* i.e. cannot stop root process */
-   // fprintf(stderr,"\n-I-STOP: current is #%d",pid);
+   // fprintf(stderr,"\n-I-STOP: current is #%d (%p)",pid,vm);
    ficlPrimitivePause(vm);
-   // fprintf(stderr,"\n-I-STOP:    next is #%ld",vm->user[0].i);
-   if (vm->user[0].i == pid)
+   // fprintf(stderr,"\n-I-STOP:    next is #%ld (%p)",vm->user[0].i,vm);
+   if (pid == vm->user[0].i) {
+      ficlStackPopInteger(vm->dataStack);
       return;
+   }
 
    /* search process by pid */
-   pList = system->vmList;
-   for (i = 0 ;pList && (i < 10); i++) {
-      // fprintf(stderr,"\n-I-STOP: check #%ld",pList->user[0].i);
+   for (pList = system->vmList; pList; pList = pList->link) {
+      // fprintf(stderr,"\n-I-STOP: check #%ld (%p)",pList->user[0].i,pList);
       if (pid == pList->user[0].i)
          break;
-      pList = pList->link;
    }
-   if (10 == i) {
-      char *ptr = 0;
-      *ptr = 'F';
-   }
+
    if (pList) {
-      // fprintf(stderr,"\n-I-STOP: destroy");
+      // fprintf(stderr,"\n-I-STOP: destroy (%p)",pList);
       ficlSystemDestroyVm(pList);
    }
 }
@@ -628,6 +642,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
     addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
 
+    addPrimitive(dictionary, "(init-multi)", ficlPrimitiveInitMulti);
     addPrimitive(dictionary, "(process)", ficlPrimitiveProcess);
     addPrimitive(dictionary, "(run)",     ficlPrimitiveRun);
     addPrimitive(dictionary, "(stop)",    ficlPrimitiveStop);

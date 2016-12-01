@@ -114,10 +114,13 @@ void ficlVmDestroy(ficlVm *vm)
 {
     if (vm)
     {
-        ficlFree(vm->dataStack);
-        ficlFree(vm->returnStack);
+        ficlStackDestroy(vm->dataStack);
+        ficlStackDestroy(vm->returnStack);
 #if FICL_WANT_FLOAT
-        ficlFree(vm->floatStack);
+        ficlStackDestroy(vm->floatStack);
+#endif
+#if defined(DEBUG)
+        memset(vm, 0xEF, sizeof(ficlVm));
 #endif
         ficlFree(vm);
     }
