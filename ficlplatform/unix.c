@@ -34,8 +34,10 @@ void ficlFree(void *p)
 void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
 {
     FICL_IGNORE(callback);
-    if (message != NULL)
+    if (message != NULL) {
         fputs(message, stdout);
+        fflush(stdout);
+    }
     else
         fflush(stdout);
     return;

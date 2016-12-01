@@ -1,3 +1,8 @@
+160612
+	extras.c
+		added prepterm, needed by ekey/key/key?
+	curterm.c
+		ESC detection in getkey()
 160610
 	extras.c
 		debugged (pause), wasn't so easy...

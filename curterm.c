@@ -112,47 +112,79 @@ int getkey(void)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 void prepterm(int dir)
 {
 	static struct termios told, tnew;
+
+   if (!isatty(STDIN_FILENO))
+      return;
 
 	if (dir) {
 		tcgetattr(STDIN_FILENO, &told);
 		tnew = told;
 		tnew.c_lflag &= ~(ICANON | ECHO );
 		tcsetattr(STDIN_FILENO, TCSANOW | TCSAFLUSH, &tnew);
-	}
-	else
+	} else {
 		tcsetattr(STDIN_FILENO, TCSANOW | TCSAFLUSH, &told);
+   }
 }
 
-int has_key(void)
+int has_key_timeout(int timeout)
 {
 	struct timeval tv;
 	fd_set rd;
+   int ret;
 
 	tv.tv_sec  = 0;
-	tv.tv_usec = 0;
+	tv.tv_usec = timeout;
 
 	FD_ZERO(&rd);
 	FD_SET(STDIN_FILENO, &rd);
 
-	select(STDIN_FILENO + 1, &rd, NULL, NULL, &tv);
+	ret = select(STDIN_FILENO + 1, &rd, NULL, NULL, &tv);
+   if (0 == ret)  /* timeout */
+      return 0;
+   if (-1 == ret) /* error */
+      return 0;
 	return FD_ISSET(STDIN_FILENO, &rd);
 }
 
-#define ESC '\033'
+int has_key(void)
+{
+   return has_key_timeout(0);
+}
+
+#define ESC          '\033'
+#define ESC_TIMEOUT  25000
+
+/*
+ * NB. using getchar() returns the ESC, but checking for the ESC-sequence
+ *     chars doesn't work. So we read the raw chars, but needs to flush
+ *     previously emitted chars.
+ */
+static
+u_char
+get_char(void)
+{
+   char buf;
+
+   fflush(stdout);
+   read(STDIN_FILENO, &buf, sizeof(char));
+   return (u_char)buf;
+}
 
 int getkey(void)
 {
 	int ch;
 
-	ch = getchar();
-	/* NOTE: cannot read ESC key */
+	ch = get_char();
 	if (ESC == ch) {
-		ch = (u_char)getchar();
-		ch = (ch << 8) + (u_char)getchar();
+      if (!has_key_timeout(ESC_TIMEOUT))
+         return ESC;
+		ch = (u_char)get_char();
+		ch = (ch << 8) + (u_char)get_char();
 	}
 
 	return ch;

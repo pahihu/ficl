@@ -262,19 +262,22 @@ static void ficlPrimitiveBreak(ficlVm *vm)
     return;
 }
 
+/* : PREPTERM ( 0|1 -- ) */
+static void ficlPrimitivePrepterm(ficlVm *vm)
+{
+   int dir = ficlStackPopInteger(vm->dataStack);
+
+   prepterm(dir);
+}
 
 /* : KEY ( -- c ) */
 static void ficlPrimitiveKey(ficlVm *vm)
 {
 	int ch;
 	
-   prepterm(1);
-
    do {
       ch = getkey();
    } while (ch > 255);
-
-   prepterm(0);
 	
 	ficlStackPushInteger(vm->dataStack, ch);
 }
@@ -283,19 +286,13 @@ static void ficlPrimitiveKey(ficlVm *vm)
 static void ficlPrimitiveKeyQ(ficlVm *vm)
 {
    int ret = has_key();
-
 	ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
 }
 
 /* : EKEY ( -- code ) */
 static void ficlPrimitiveEkey(ficlVm *vm)
 {
-   int ch;
-   
-   prepterm(1);
-   ch = getkey();
-   prepterm(0);
-		
+   int ch = getkey();
 	ficlStackPushInteger(vm->dataStack, ch);
 }
 
@@ -625,6 +622,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "key?",     ficlPrimitiveKeyQ);
     addPrimitive(dictionary, "ekey",     ficlPrimitiveEkey);
     addPrimitive(dictionary, "utime",    ficlPrimitiveUTime);
+    addPrimitive(dictionary, "prepterm", ficlPrimitivePrepterm);
     addPrimitive(dictionary, "(dlopen)", ficlPrimitiveDlOpen);
     addPrimitive(dictionary, "(dlsym)",  ficlPrimitiveDlSym);
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
