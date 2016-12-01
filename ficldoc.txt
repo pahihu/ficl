@@ -1,0 +1,226 @@
+: STRLEN ( c-string -- length )  FICL
+Returns the length of a C-style (zero-terminated) string.
+
+
+: SPRINTF ( i*x c-addr-fmt u-fmt c-addr-buffer u-buffer -- c-addr-buffer u-written success-flag )  FICL
+Similar to the C sprintf() function. It formats into a buffer based on
+a "format" string. Each character in the format string is copied verbatim
+to the output buffer, until SPRINTF encounters a percent sign ("%").
+SPRINTF then skips the percent sign, and examined the next character
+(the "format character"). Here are the valid format characters:
+  s - read a C-ADDR U-LENGTH string from the stack and copy it to
+  	  the buffer
+  d - read a ficlCell from the stack, format is as a string (base-10,
+      signed), and copy it to the buffer
+  x - same as d, except in base-16
+  u - same as d, but unsigned
+  % - output a literal percent-sign to the buffer
+SPRINTF returns the c-addr-buffer argument unchanged, the number of bytes
+written, and a flag indicating whether or not it ran out of space while
+writing to the output buffer (FICL_TRUE if it ran out of space).
+
+If SPRINTF runs out of space in the buffer to store the formatted string,
+it still continues parsing, in an effort to preserve your stack (otherwise
+it might leave uneaten arguments behind).
+
+
+: HASH ( c-addr u -- code )
+Calculates hashcode of specified string and leaves it on the stack.
+
+
+: (PARSE-STEP) ( c-addr u -- flag )
+Runtime for a precompiled parse step - pop a counted string off the
+stack, run the parse step against it, and push the result flag (FICL_TRUE
+if success, FICL_FALSE otherwise).
+
+
+: SLITERAL ( c-addr1 u -- )  STRING
+Interpretation: Interpretation semantics for this word are undefined.
+Compilation: append the run-time semantics given below to the current
+definition.
+Run-time: ( -- c-addr2 u )
+Return c-addr2 u describing a string consisting of the characters
+specified by c-addr1 u during compilation. A program shall not alter
+the returned string.
+
+
+: BODY> ( a-addr -- xt )  FICL
+Reverse effect of >BODY.
+
+
+: >NAME ( xt -- c-addr u )  FICL
+Push the address and length of a word's name given its address
+xt.
+
+
+: PARSE-WORD ( <spaces>name -- c-addr u )  FICL
+Skip leading spaces and parse name dlimited by a space. c-addr is the
+address withing the input buffer and u is the length of the selected
+string. If the parse area is empty, the resulting string has a zero length.
+
+
+: SFIND ( c-addr u -- 0 0 | xt 1 | xt -1 )  FICL
+Like FIND, but takes c-addr/u for the string.
+
+
+: .VER ( -- )
+Display Ficl version.
+
+
+: USER ( u -- ) "<spaces>name"
+Get a name from the input stream and create a user variable
+with the name and the index supplied. The run-time effect
+of a user variable is to push the address of the indexed ficlCell
+in the running vm's user array.
+
+
+: FALLTHROUGH ( -- )
+
+
+: ENDOF ENDCASE OF
+
+
+: ADD-PARSE-STEP ( -- )
+
+
+: COMPILE-ONLY ( -- )
+
+
+: ENDIF ( -- )
+
+
+: LAST-WORD ( -- )
+
+
+: OBJECTIFY ( -- )
+
+
+: ?OBJECT ( -- )
+
+
+: X. ( n -- )
+Display n in base-16.
+
+
+: INTERPRET ( -- )
+
+
+: LOOKUP ( -- )
+
+
+: __TEMPBASE ( n -- )
+
+
+: SYSTEM ( "string" -- )
+Gets a newline (or NULL) delimited string from the input
+and feeds it to the ANSI system function.
+
+
+: LOAD ( "filename" -- )
+Load a text file and execute it. Line oriented, filename
+is newline (or NULL) delimited.
+
+
+: SPEWHASH ( -- )
+Dump a tab delimited file that summarizes the contents of the
+dictionary hash table by hashcode.
+
+
+: BREAK ( -- )
+Allow to trigger a breakpoint in C.
+
+
+: FICL-WORDLIST ( n -- wid )  FICL
+Create a new empty word list, returning its word list identifier wid.
+The new word list may be returned from a pool of preallocated word
+lists or may be dynamically allocated in the data space. A system shall
+allow the creation of at least 8 new word lists in addition to any
+provided as part of the system.
+Notes:
+1. Ficl creates a new single-list hash in the dictionary and returns
+   its address.
+2. FICL-WORDLIST takes an arg off the stack indicating the number of
+   hash entries in the wordlist.
+
+
+: SEARCH> ( -- wid )  FICL
+Pop wid off the search order. Error if the search order is empty.
+
+
+: >SEARCH ( wid -- )  FICL
+Push wid onto the search order. Error if the search order is full.
+
+
+: WID-GET-NAME ( wid -- c-addr u )  FICL
+Get wid's (optional) name and push onto stack as a counted string.
+
+
+: WID-SET-NAME ( wid c-addr -- )  FICL
+Set wid's name pointer to the \0 terminated string address supplied.
+
+
+: WID-SET-SUPER ( parent-wid wid -- )  FICL
+Set wid's link field to the parent-wid. SEARCH-WORDLIST will
+iterate through all the links when finding words in the child wid.
+
+
+: .HASH ( -- )  DEBUG
+Calculate a figure of merit for the dictionary hash table based 
+on the average search depth for all the words in the dictionary,
+assuming uniform distribution of target keys. The figure of merit
+is the ratio of the total search depth for all keys in the table
+versus a theoretical optimum that would be achieved if the keys
+were distributed into the table as evenly as possible.
+The figure would be worse if the hash table used an open
+addressing scheme (i.e. collisions resolved by searching the 
+table for an empty slot) for a given size table.
+
+
+: DEBUG-XT ( xt -- )  DEBUG
+Given an xt of a colon definition or a word defined by DOES>, set the
+VM up to debug the word: push IP, set the xt as the next thing to execute,
+set a breakpoint at its first instruction, and run to the breakpoint.
+Note: the semantics of this word are equivalent to "step in".
+
+
+: STEP-BREAK ( -- )  FICL
+Handles breakpoints for stepped execution.
+Upon entry, breakpoint contains the address and replaced instruction
+of the current breakpoint.
+Clear the breakpoint.
+Get a command from the console.
+i (step in) - execute the current instruction and set a new breakpoint
+  at the IP
+o (step over) - execute the current instruction and set
+  a new breakpoint at the IP
+g (go) - execute the current instruction and exit
+q (quit) - abort current word
+b (toggle breakpoint)
+
+
+: .S-SIMPLE ( -- )  FICL
+
+
+: FORGET-WID ( wid -- )  FICL
+
+
+: SEE-XT ( xt -- )  FICL
+
+
+: R.S ( -- )  FICL
+Display the return stack.
+
+
+: .ENV ( -- )  FICL
+Print symbols defined in the environment.
+
+
+: ENV-CONSTANT ( n "<spaces>name" -- )  FICL
+Set environment constant.
+
+
+: ENV-2CONSTANT ( d "<spaces>name" -- )  FICL
+
+
+: PARSE-ORDER ( -- )  FICL
+Lists the parse steps in order.

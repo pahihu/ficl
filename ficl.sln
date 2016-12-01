@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{059D6162-CD51-11D0-AE1F-00A0C90FFFC3}") = "ficldll", "ficldll.dsp", "{F0AE95DF-C5EA-473C-9732-2F400CC749C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B864C4B3-CA98-4260-888D-1D69032439A6} = {B864C4B3-CA98-4260-888D-1D69032439A6}
+	EndProjectSection
+EndProject
+Project("{059D6162-CD51-11D0-AE1F-00A0C90FFFC3}") = "ficlexe", "ficlexe.dsp", "{51691697-F006-4AC9-90EC-ACD9B304805F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B864C4B3-CA98-4260-888D-1D69032439A6} = {B864C4B3-CA98-4260-888D-1D69032439A6}
+	EndProjectSection
+EndProject
+Project("{059D6162-CD51-11D0-AE1F-00A0C90FFFC3}") = "ficllib", "ficllib.dsp", "{B864C4B3-CA98-4260-888D-1D69032439A6}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

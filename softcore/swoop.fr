@@ -1,0 +1,297 @@
+\ ** swoop.fr
+\ ** SWOOP
+\ ** (C) FORTH, Inc. (www.forth.com)
+\ ** 1999
+
+.( loading SWOOP ) cr
+
+\ ***
+VARIABLE 'THIS
+VARIABLE 'SELF
+
+: THIS ( -- class )		'THIS @ ;
+: SELF ( -- object )	'SELF @ ;
+
+: >THIS ( class -- )	'THIS ! ;
+: >SELF ( object -- )		'SELF ! ;
+
+: >C ( class -- )
+		POSTPONE THIS POSTPONE >R POSTPONE >THIS ; IMMEDIATE
+		
+: C> ( -- )
+		POSTPONE R> POSTPONE >THIS ; IMMEDIATE
+		
+: >S ( object -- )
+		POSTPONE SELF POSTPONE >R POSTPONE >SELF ; IMMEDIATE
+		
+: S> ( -- )
+		POSTPONE R> POSTPONE >SELF ; IMMEDIATE
+		
+: >DATA ( xt -- object )	>BODY 3 CELLS + ;
+
+
+\ ***
+VARIABLE CSTATE
+
+: "SELF" ( -- )
+		CSTATE @ -EXIT  CSTATE @ THIS <> ?EXIT  POSTPONE SELF ;
+		
+: "THIS" ( -- )		CSTATE @ IF
+			CSTATE @ THIS = IF  POSTPONE THIS  EXIT  THEN
+		THEN  THIS POSTPONE LITERAL ;
+		
+
+\ ***
+WORDLIST: CC-WORDS
+WORDLIST: MEMBERS
+
+: +MEMBERS ( -- )		MEMBERS +ORDER ;
+: -MEMBERS ( -- )		MEMBERS -ORDER ;
+
+: +CC ( -- )		+MEMBERS CC-WORDS +ORDER ;
+: -CC ( -- )		-MEMBERS CC-WORDS -ORDER ;
+
+
+\ ***
+: BODY+ ( n "name" -- n+1 )
+		CREATE DUP CELLS , 1+ DOES> @ SWAP >BODY + ;
+		
+0 BODY+ >CLINK
+	BODY+ >CHANDLE
+	BODY+ >SUPER
+	BODY+ >PUBLIC
+	BODY+ >PROTECTED
+	BODY+ >PRIVATE
+	BODY+ >SIZE
+	BODY+ >CLASSTAG
+CONSTANT |CLASS|
+
+' |CLASS| CONSTANT CLASSTAG
+' |CLASS| 1+ CONSTANT OBJTAG
+
+: SIZEOF ( class -- n )		>SIZE @ ;
+
+
+\ ***
+CHAIN CLASSES
+
+VARIABLE OPAQUE
+
+: RE-OPEN ( class -- )	DUP >THIS  CSTATE !  0 OPAQUE !  +CC ;
+
+: (CLASS) ( -- )	CREATE-XT ( xt) DUP RE-OPEN
+		CLASSES >LINK  ( xt) , |CLASS| 2 - CELLS /ALLOT CLASSTAG ,
+		DOES> CELL+ @ ;
+
+(CLASS) SUPREME   -MEMBERS -CC
+
+: INHERITS ( class -- )
+		HERE CELL- @ CLASSTAG <> ABORT" INHERITS must follow CLASS <name>"
+		|CLASS| 1- CELLS NEGATE ALLOT		\ forget all except link.
+		DUP ,														\ point superclass field to new parent.
+		DUP >PUBLIC RELINK,							\ inherit public
+		DUP >PROTECTED RELINK,					\ and protected.
+		0 ,															\ never inherit private.
+		DUP SIZEOF ,										\ inherit size.
+		CLASSTAG ,											\ mark this as a class.
+		DROP ;
+		
+: CLASS ( -- )
+		(CLASS) SUPREME INHERITS ;
+		
+: SUBCLASS ( class -- )
+		(CLASS) INHERITS ;
+		
+
+\ ***
+: COMPILE-AN-OBJECT ( addr xt -- )	>R
+		@+ POSTPONE LITERAL R> COMPILE,  CELL+ @ >THIS +MEMBERS ;
+		
+: INTERPRET-AN-OBJECT ( addr xt -- addr )		>R
+		@+ SWAP CELL+ @ >THIS +MEMBERS  R> EXECUTE ;
+		
+: (OBJECT) ( addr xt -- | addr )
+		STATE @ IF COMPILE-AN-OBJECT ELSE INTERPRET-AN-OBJECT THEN ;
+		
+: BUILDS ( class -- )
+		CREATE-XT IMMEDIATE ( xt) , OBJTAG , ( class) DUP ,  SIZEOF /ALLOT
+		DOES> ['] >DATA  (OBJECT) ;
+		
+: USING ( -- )		' DUP  >CLASSTAG @
+		CLASSTAG <> ABORT" Class name must follow USING"
+		>THIS +MEMBERS ; IMMEDIATE
+		
+
+\ ***
+: NEW ( class -- addr )
+		DUP SIZEOF CELL+ CELL+ ALLOCATE THROW OBJTAG !+ SWAP !+ ;
+		
+: DESTROY ( addr -- )
+		CELL- CELL- FREE THROW ;
+		
+
+\ ***
+: NEW-MEMBER ( member data runtime-xt compiler-xt -- )
+		ALIGN
+		,  THIS >PUBLIC  OPAQUE @ CELLS + >LINK  ROT , , , ;
+		
+: BELONGS? ( member list -- 'member true | member false )
+		BEGIN
+			DUP @ DUP WHILE +
+			2DUP CELL+ @ =
+		UNTIL NIP TRUE EXIT
+		THEN	NIP ;
+		
+: PUBLIC? ( member -- 'member true | member 0 )
+		THIS >PUBLIC BELONGS? ;
+		
+: PROTECTED? ( member -- 'member true | member 0 )
+		THIS >PROTECTED BELONGS? ;
+		
+: PRIVATE? ( member -- 'member true | member 0)
+		THIS >PRIVATE BELONGS? ;
+		
+: CLASS-MEMBER? ( member -- 'member true | 0 )
+		THIS IF
+			PUBLIC?			DUP ?EXIT DROP
+			PROTECTED?	DUP ?EXIT DROP
+		THEN DROP 0 ;
+		
+: VISIBLE-MEMBER? ( member -- 'member true | 0 )
+		THIS IF													\ class is selected
+			PUBLIC? DUP ?EXIT DROP				\ exit if in public
+			CSTATE @ IF										\ compiling a class
+				PROTECTED? DUP ?EXIT DROP		\ exit if in protected
+				CSTATE @ THIS = IF					\ compiling this class
+					PRIVATE? DUP ?EXIT DROP		\ exit if in private
+				THEN
+			THEN													\ else normal forth reference
+		THEN DROP 0 ;										\ failing
+		
+: MEMBER? ( member class -- 'member true | member 0 )
+		>PUBLIC BELONGS? ;
+		
+
+\ ***
+: EARLY-BINDING ( 'member -- )
+		DUP 3 CELLS +  SWAP CELL - @ EXECUTE ;
+		
+: LATE-BINDING ( object 'member -- )
+		OVER CELL- @ >THIS  2 CELLS + @+  EXECUTE ;
+		
+: REFERENCE-MEMBER ( [object] 'member -- )
+		STATE @ IF EARLY-BINDING ELSE
+			CSTATE @ IF ( interpreting in a class definition)
+				0 SWAP 2 CELLS + @+ EXECUTE
+			ELSE
+				LATE-BINDING  THIS 0= IF  -MEMBERS  THEN
+			THEN
+		THEN ;
+		
+: ?OBJECT ( object -- )
+		2 CELLS - @ OBJTAG <> THROW ;
+		
+: RESOLVED ( member -- )
+		CLASS-MEMBER? 0= THROW  3 CELLS + @ EXECUTE ;
+		
+: SENDMSG ( object member-id -- )		OVER ?OBJECT
+		OVER CELL- @ MEMBER? 0= THROW LATE-BINDING ;
+		
+: CALLING ( -- )
+		BL WORD COUNT MEMBERS SEARCH-WORDLIST 0= ABORT" Member not defined"
+		STATE @ IF
+			POSTPONE LITERAL  POSTPONE SENDMSG
+		ELSE  SENDMSG  THEN ; IMMEDIATE
+		
+
+\ ***
+: DO-NONMEMBER ( addr -- )
+		-MEMBERS FIND DUP IF
+			0< STATE @ 0<> AND IF COMPILE, ELSE EXECUTE THEN
+			CSTATE @ IF +MEMBERS ELSE 0 >THIS  THEN  EXIT THEN
+		DROP  COUNT TYPE  ."  not found" 0 >THIS  -1 THROW ;
+		
+: DO-MEMBER ( member-addr -- )
+		@+ VISIBLE-MEMBER? IF
+			NIP REFERENCE-MEMBER  EXIT THEN
+		DO-NONMEMBER ;
+		
+: CREATE-MEMBER ( -- xt )
+		>IN @ >R  CREATE-XT IMMEDIATE ( xt) DUP ,  R> >IN !
+		BL WORD COUNT STRING,  DOES> DO-MEMBER ;
+		
+: MEMBER ( -- xt )
+		>IN @  BL WORD COUNT MEMBERS SEARCH-WORDLIST IF  NIP EXIT  THEN  >IN !
+		GET-CURRENT >R  MEMBERS SET-CURRENT
+		['] CREATE-MEMBER CATCH R> SET-CURRENT THROW ;
+		
+
+\ ***
+: RUN-DATA ( object 'data -- addr )		@ +  0 >THIS ;
+
+: RUN-OBJECT ( objec 'data -- addr )	2@  SWAP >THIS + ;
+
+: RUN-COLON ( object 'data -- )
+		SWAP >S THIS >C  @ EXECUTE  C> S> 0 >THIS ;
+		
+
+\ ***
+: END-REFERENCE ( -- )
+		CSTATE @ DUP >THIS  ?EXIT -MEMBERS ;
+		
+: COMPILE-OBJECT ( 'data -- )		"SELF"
+	2@ ?DUP IF POSTPONE LITERAL POSTPONE + THEN  >THIS +MEMBERS ;
+	
+: COMPILE-DATA ( 'data -- )		"SELF"	\ 'data: offset
+	@ ?DUP IF POSTPONE LITERAL POSTPONE + THEN   END-REFERENCE ;
+	
+: PRE-COLON ( -- )		"SELF"  POSTPONE >S  "THIS" POSTPONE >C ;
+: POST-COLON ( -- )		POSTPONE C>  POSTPONE S>  END-REFERENCE ;
+
+: COMPILE-COLON ( object 'data -- )		PRE-COLON
+		@ COMPILE, POST-COLON ;
+		
+: COMPILE-DEFER ( object 'data -- )		PRE-COLON
+		2 CELLS - @ POSTPONE LITERAL POSTPONE RESOLVED  POST-COLON ;
+		
+
+\ ***
+GET-CURRENT ( *) CC-WORDS SET-CURRENT
+
+	: PUBLIC		( -- )	0 OPAQUE ! ;
+	: PROTECTED	( -- )	1 OPAQUE ! ;
+	: PRIVATE		( -- )	2 OPAQUE ! ;
+	
+	: END-CLASS	( -- )	0 RE-OPEN  -CC ;
+	
+	: SUPER ( -- )
+			THIS >SUPER @ >THIS POSTPONE SELF ; IMMEDIATE
+			
+	: COMMON  -CC  BL WORD DO-NONMEMBER  +CC ; IMMEDIATE
+	
+	: BUFFER: ( n -- )		MEMBER  THIS SIZEOF
+			['] RUN-DATA ['] COMPILE-DATA  NEW-MEMBER
+			THIS >SIZE +! ;
+			
+	: VARIABLE ( -- )		THIS SIZEOF ALIGNED THIS >SIZE !
+			[ +CC ] CELL BUFFER: [ -CC ] ;
+			
+	: CVARIABLE ( -- )
+			[ +CC ] 1 BUFFER: [ -CC ] ;
+			
+	: DEFER: ( -- member runtime compile colon-sys )
+			OPAQUE @ 0 2 WITHIN 0= ABORT" Can't DEFER: in private"  MEMBER
+			['] RUN-COLON ['] COMPILE-DEFER  :NONAME ;
+			
+	: : ( -- member class-sys colon-sys )		MEMBER
+			['] RUN-COLON ['] COMPILE-COLON  :NONAME ;
+			
+	: ; ( member runtime compiley colon-sys -- )
+			POSTPONE ; ROT ROT  NEW-MEMBER ; IMMEDIATE
+			
+	: BUILDS ( class -- )		MEMBER  THIS SIZEOF
+			['] RUN-OBJECT ['] COMPILE-OBJECT NEW-MEMBER
+			( class) DUP ,	SIZEOF THIS >SIZE +! ;
+			
+GET-CURRENT CC-WORDS <> THROW ( *) SET-CURRENT
+

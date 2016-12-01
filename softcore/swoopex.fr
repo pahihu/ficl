@@ -1,0 +1,59 @@
+\ ** swoopex.fr
+\ ** Examples of SWOOP extensions
+\ ** (C) FORTH, Inc. (www.forth.com)
+\ ** 1999
+
+
+\ ***
+: OBJ-SIZE ( xt -- addr size )	>BODY CELL+ CELL+ @+ SIZEOF ;
+
+: INDEXED[]  ( n base size -- addr )	ROT * + ;
+
+: >DATA[] ( n xt -- object )	OBJ-SIZE INDEXED[] ;
+
+: BUILDS[] ( n class -- )
+		CREATE-XT IMMEDIATE ( xt) , OBJTAG , ( class) DUP ,  SIZEOF  * /ALLOT
+		DOES> ['] >DATA[]  (OBJECT) ;
+		
+
+\ ***
+: RUN-CONSTANT ( object 'data -- n )
+		NIP @ ;
+
+: COMPILE-CONSTANT ( 'data -- )		"SELF"  POSTPONE DROP
+		@  POSTPONE LITERAL  END-REFERENCE ;
+		
+
+\ ***
+: RUN-CREATE ( object 'data -- )
+		NIP CELL+ ;
+		
+: COMPILE-CREATE ( 'data -- )		"SELF"  POSTPONE DROP
+	THIS POSTPONE LITERAL  POSTPONE >BODY
+	THIS >BODY - CELL+ POSTPONE LITERAL  POSTPONE +  END-REFERENCE ;
+	
+
+\ ***
+: RUN-OBJECT[] ( n object 'data -- addr )
+	2@	ROT + ROT ROT	 DUP >THIS  SIZEOF * + ;
+	
+: COMPILE-OBEJCT[] ( 'data -- )		"SELF"
+	2@  ?DUP IF POSTPONE LITERAL POSTPONE + THEN
+	DUP >THIS  SIZEOF POSTPONE LITERAL POSTPONE INDEXED[] ;
+	
+
+\ ***
+GET-CURRENT ( *) CC-WORDS SET-CURRENT
+
+	: CONSTANT ( n -- )
+			MEMBER SWAP ['] RUN-CONSTANT ['] COMPILE-CONSTANT NEW-MEMBER ;
+			
+	: CREATE ( -- )
+			MEMBER CELL ['] RUN-CREATE ['] COMPILE-CREATE NEW-MEMBER ;
+			
+	: BUILDS[] ( n class -- )		MEMBER  THIS SIZEOF
+			['] RUN-OBJECT[] ['] COMPILE-OBEJCT[] NEW-MEMBER
+			( class) DUP ,  SIZEOF * THIS >SIZE +! ;
+			
+GET-CURRENT CC-WORDS <> THROW ( *) SET-CURRENT
+

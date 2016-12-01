@@ -1,0 +1,64 @@
+\ ** preswoop.fr
+\ ** ANS prelude for SWOOP
+\ ** Wil Baden (neilbawd@earthlink.net)
+
+\ ***
+: {											( "ccc...}" -- )
+		BEGIN SOURCE +										( addr)
+			[CHAR] }	PARSE + > NOT WHILE		( )
+		REFILL 0= UNTIL THEN ; IMMEDIATE
+		
+
+\ ***
+1 CELLS CONSTANT CELL
+
+: /ALLOT ( n -- )	HERE SWAP	 DUP ALLOT  ERASE ;
+
+: ?EXIT  ( n -- )	\  IF EXIT THEN
+	 POSTPONE IF  POSTPONE EXIT  POSTPONE THEN ; IMMEDIATE
+	 
+: -EXIT  ( n -- )	\  0= IF EXIT THEN
+	 POSTPONE 0=  POSTPONE IF  POSTPONE EXIT  POSTPONE THEN ;
+	 IMMEDIATE
+	 
+: !+	( addr n -- addr+CELL )	 OVER ! CELL+ ;
+
+: @+	( addr -- addr+CELL n )	 DUP CELL+ SWAP @ ;
+
+: STRING,	 ( str len -- )
+		HERE  OVER 1+ CHARS ALLOT  2DUP C!  CHAR+  SWAP MOVE ;
+		
+
+\ ***
+: CHAIN  ( "name" -- )	CREATE  0 , ;
+
+: RELINK,  ( a -- ) DUP @ DUP IF  OVER +  HERE -  THEN , DROP ;
+
+: >LINK ( a -- )	ALIGN  HERE  OVER RELINK,  OVER - SWAP ! ;
+
+
+\ ***
+: -ORDER			( wid -- )
+	>R  GET-ORDER						( widn ... wid1 n)( R: wid)
+		DUP BEGIN  DUP WHILE	( widn ... wid1 n i)
+			DUP 1+ PICK					( widn ... wid1 n i widi)
+			R@ = IF							( widn ... wid1 n i)
+				DUP 1+ ROLL DROP
+				>R 1- R>
+			THEN
+			1-
+		REPEAT DROP						( widn ... wid1 n)
+		SET-ORDER
+	R> DROP ;
+	
+: +ORDER ( wid -- )
+	DUP >R  -ORDER  GET-ORDER  R> SWAP 1+  SET-ORDER ;
+	
+
+\ ***
+: CREATE-XT ( "name" -- xt )
+	>IN @  CREATE  >IN !
+	BL WORD COUNT  GET-CURRENT  SEARCH-WORDLIST 0= THROW ;
+	
+: WORDLIST: ( "name" -- )	 WORDLIST CONSTANT ;
+

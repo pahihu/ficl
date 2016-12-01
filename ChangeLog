@@ -1,0 +1,24 @@
+130626
+	ficlplatform/mingw32.c
+		KEY ( -- ch )
+		KEY? ( -- flag )
+		EKEY ( -- code )
+		PAGE ( -- )
+		MS ( msec -- )
+
+		AT ( y x -- )
+		AT? ( -- y x )
+		FORM ( -- h w )
+
+		SET-COLORS ( background foreground -- )
+		GET-COLORS ( -- background foreground )
+
+		(C-CALL) ( argN ... arg1 n fn-ptr -- ret )
+		(STD-CALL) ( argN ... arg1 n fn-ptr -- ret )
+		(CALLBACK) ( xt nargs cbidx -- cb-ptr )
+
+		GW-OPEN ( y x -- )
+		GW-DO-EVENTS ( -- )
+		GW-WAIT-KEY ( -- )
+		SET-PIXEL ( rgb y x -- )
+		GW-CLOSE ( -- )

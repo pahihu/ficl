@@ -1,0 +1,51 @@
+\ ** switch.fr
+\ ** SWITCH construct
+\ ** Rick VanNorman (rvn@forth.com)
+\ ** 1999
+
+.( loading SWITCH ) cr
+
+\ ***
+: LINK@  @ ;
+: LINK,  HERE OVER @ , SWAP ! ;
+
+
+\ ***
+: SWITCHER ( i*x n head -- j*x )
+   DUP CELL+ @ >R ( save default xt)
+   BEGIN
+      LINK@ ?DUP WHILE ( n a)
+      2DUP CELL+ @ = IF ( match)
+         NIP CELL+ CELL+ @ EXECUTE
+         R> DROP EXIT
+      THEN
+   REPEAT R> EXECUTE ;
+   
+
+\ ***
+: :SWITCH ( xt -- addr )
+   CREATE  HERE 0 , SWAP ,  DOES> SWITCHER ;
+   
+: <SWITCH ( head xt n -- head )
+   2 PICK LINK,  , , ;
+
+
+\ ***
+: [SWITCH ( -- head )
+   CREATE  HERE 0 ,  ' ,  DOES> SWITCHER ;
+   
+: [+SWITCH ( -- head )
+   ' >BODY ;
+   
+: SWITCH] ( head -- )
+   DROP ;
+   
+
+\ ***
+: RUNS ( head n -- )
+   ' SWAP <SWITCH ;
+   
+: RUN: ( head n -- )
+   :NONAME [CHAR] ; PARSE EVALUATE  POSTPONE ;  ( xt) SWAP <SWITCH ;
+
+

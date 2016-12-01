@@ -1,0 +1,28 @@
+\ ** softcore/toolbelt2002.fr
+\ ** ToolBelt 2002
+\ ** Wil Baden (neilbawd@earthlink.net)
+\ ** 2003-02-25
+
+.( loading TOOLBELT ) CR
+
+\ ******************  Forth Programmer's Handbook  ******************
+
+: NOT  ( x -- flag )  S" 0= " EVALUATE ; IMMEDIATE
+
+: [DEFINED]                 ( "name" -- flag )
+    BL WORD FIND NIP 0<> ; IMMEDIATE
+
+: [UNDEFINED]               ( "name" -- flag )
+    BL WORD FIND NIP 0= ; IMMEDIATE
+
+: C+!  ( n addr -- )  DUP >R  C@ +  R> C! ;
+
+: POSSIBLY  ( "name" -- )  BL WORD FIND  ?DUP AND IF  EXECUTE  THEN ;
+
+: ANEW  ( "name" -- )( Run: -- )  >IN @ POSSIBLY  >IN ! MARKER ;
+
+: EMPTY                         ( "name" -- )
+    S" ANEW --EMPTY-- DECIMAL  ONLY FORTH DEFINITIONS "
+		EVALUATE ;
+
+\ ** E N D   T O O L B E L T . F R
