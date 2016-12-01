@@ -8,9 +8,14 @@ SOURCES = \
 	fileaccess.fr \
 	toolbelt.fr \
 	switch.fr \
-	preswoop.fr \
-	swoop.fr \
-	swoopex.fr \
+	circ-pad.fs \
+	missing.fs \
+	strarray.fs \
+	numcvt.fs
+	
+#	preswoop.fr
+#	swoop.fr
+#	swoopex.fr
 
 ../softcore.c: makesoftcore $(SOURCES)
 	./makesoftcore $(SOURCES)

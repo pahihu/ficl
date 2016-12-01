@@ -3384,8 +3384,10 @@ void ficlSystemCompileCore(ficlSystem *system)
 	FICL_2UNSIGNED_SET(UINT_MAX, UINT_MAX, combined);
     ficlDictionarySet2Constant(environment,"max-ud",            FICL_2UNSIGNED_TO_2INTEGER(combined));
 	}
-    ficlDictionarySetConstant(environment, "return-stack-cells",FICL_DEFAULT_STACK_SIZE);
-    ficlDictionarySetConstant(environment, "stack-cells",       FICL_DEFAULT_STACK_SIZE);
+	// 150509AP
+    ficlDictionarySetConstant(environment, "return-stack-cells",system->stackSize /*FICL_DEFAULT_STACK_SIZE*/);
+    ficlDictionarySetConstant(environment, "stack-cells",       system->stackSize /*FICL_DEFAULT_STACK_SIZE*/);
+    ficlDictionarySetConstant(environment, "/data-cells",       dictionary->size);
 
     /*
     ** The optional Double-Number word set (partial)

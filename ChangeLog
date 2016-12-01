@@ -1,3 +1,25 @@
+150526
+	softcore patches: included circ-pad/missing/strarray/numcvt
+
+150509
+	Makefile.darwin
+	primitives.c
+		env queries "stack-cells", "return-stack-cells" fixed
+		"/data-cells" added to return the size of the dict
+150507
+	Makefile.mingw
+		clobber target to delete ficl.exe
+	extras.c
+		include <io.h> for getcwd
+150506
+	Darwin
+		compile it with gcc-apple-4.2
+150429
+	extras.c
+		GET-MSECS ( -- n )
+	Makefile.linux-ppc
+	user/mentink.fs
+	user/utils.fs: .b .d .h counter timer timer-reset .elapsed
 130626
 	ficlplatform/mingw32.c
 		KEY ( -- ch )

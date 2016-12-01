@@ -5,6 +5,10 @@
 
 #include "ficl.h"
 
+#ifdef WIN32
+#include <io.h>
+#define getcwd _getcwd
+#endif
 
 #if !defined(FICL_ANSI) || defined(__MINGW32__)
 
@@ -17,7 +21,7 @@ static void ficlPrimitiveGetCwd(ficlVm *vm)
 {
     char *directory;
 
-    directory = _getcwd(NULL, 80);
+    directory = getcwd(NULL, 80);
     ficlVmTextOut(vm, directory);
     ficlVmTextOut(vm, "\n");
     free(directory);
@@ -59,6 +63,16 @@ static void ficlPrimitiveClock(ficlVm *vm)
 {
     clock_t now = clock();
     ficlStackPushUnsigned(vm->dataStack, (ficlUnsigned)now);
+    return;
+}
+
+static void ficlPrimitiveGetMSecs(ficlVm *vm)
+{
+    clock_t now = clock();
+    ficlStackPushUnsigned(
+		vm->dataStack,
+		(ficlUnsigned)(1000 * ((double)now / CLOCKS_PER_SEC))
+	);
     return;
 }
 
@@ -258,6 +272,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     ficlDictionarySetConstant(dictionary,  "clocks/sec", CLOCKS_PER_SEC);
     ficlDictionarySetPrimitive(dictionary, "pwd",      ficlPrimitiveGetCwd,   FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "cd",       ficlPrimitiveChDir,    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs, FICL_WORD_DEFAULT);
 #endif /* FICL_ANSI */
 
     return;
