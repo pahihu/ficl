@@ -3,8 +3,8 @@
 
 forth definitions decimal
 
-0 constant FiCL
-1 constant Gforth
+1 constant FiCL
+0 constant Gforth
 0 constant PFE
 
 FiCL [IF]

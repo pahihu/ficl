@@ -31,9 +31,9 @@
 ( speed of FiCL   is 1/12th of opt. C )
 ( speed of FiCL   is 1/ 2nd of gforth )
 
-0 constant FiCL
+1 constant FiCL
 0 constant gforth
-1 constant iForth
+0 constant iForth
 0 constant PFE
 
 iForth 0= [IF]

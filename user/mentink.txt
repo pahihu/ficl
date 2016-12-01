@@ -1,0 +1,18 @@
+=== FORTH Mentink-benchmark
+
+iMac 27" Core2 @ 3.0GHz
+
+                      penalty
+clang -O2    135  C    1.0
+clang -O0    730  C    5.4
+A2           780  C    5.7
+iForth       815  C    6.0
+gforth      1085  I    8.0
+Squeak 5.0  1165  J    8.6
+CForth      1760  I   13.0
+8th         2020  I?  14.9
+FiCL        2160  I   16.0
+
+- app performance
+   an application spends 80% of its time in 20% of the code
+

@@ -24,6 +24,6 @@ Integer n
 VARIABLE a
 
 \ u = 10M
-: t0  ( u )  timer-reset 0 ?DO  a @     drop  LOOP .elapsed ;  \    736ms
-: t1  ( u )  timer-reset 0 ?DO  n [get] drop  LOOP .elapsed ;  \    694ms
-: t1b ( u )  timer-reset 0 ?DO  n  get  drop  LOOP .elapsed ;  \ 20,569ms
+: t0  ( u )  timer-reset 0 ?DO  a @     drop  LOOP .elapsed ;
+: t1  ( u )  timer-reset 0 ?DO  n [get] drop  LOOP .elapsed ;
+: t1b ( u )  timer-reset 0 ?DO  n  get  drop  LOOP .elapsed ;
