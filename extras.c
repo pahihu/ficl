@@ -268,6 +268,7 @@ static void ficlPrimitivePrepterm(ficlVm *vm)
    int dir = ficlStackPopInteger(vm->dataStack);
 
    prepterm(dir);
+   cbreak(!dir);
 }
 
 /* : KEY ( -- c ) */
