@@ -13,7 +13,7 @@ MAJOR = 4
 MINOR = 0.31
 
 ficll.exe: main.o $(HEADERS) libficl.a
-	$(CC) main.o -o $@ -L. -lficl -lm
+	$(CC) main.o -o $@ -L. -lficl -ldl -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -29,7 +29,7 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
-	$(CC) main.o -o main -L. -lficl -lm
+	$(CC) main.o -o main -L. -lficl -ldl -lm
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
 
 unix.o: ficlplatform/unix.c $(HEADERS)
@@ -55,5 +55,5 @@ clean:
 	rm -f *.o *.a libficl.*
 
 clobber: clean
-   rm -f ficll.exe
+	rm -f ficll.exe
 
