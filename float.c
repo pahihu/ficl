@@ -223,6 +223,20 @@ static void ficlPrimitiveFLiteralImmediate(ficlVm *vm)
 	}
 }
 
+/*******************************************************************
+** Floating square root.
+** fsqrt ( r1 -- r2 )
+*******************************************************************/
+static void ficlPrimitiveFSqrt(ficlVm *vm)
+{
+    float f;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
+
+    f = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, (ficlFloat) sqrt(f));
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -438,6 +452,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f.",        ficlPrimitiveFDot,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
+
+    ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,     FICL_WORD_COMPILE_ONLY);

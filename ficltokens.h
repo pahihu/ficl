@@ -192,8 +192,8 @@ FICL_INSTRUCTION_TOKEN(ficlInstructionISlashF, "i/f", FICL_WORD_DEFAULT)
 
 FICL_INSTRUCTION_TOKEN(ficlInstructionFFrom, "float>", FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionToF, ">float", FICL_WORD_DEFAULT)
-FICL_INSTRUCTION_TOKEN(ficlInstructionIntToFloat, "int>float", FICL_WORD_DEFAULT)
-FICL_INSTRUCTION_TOKEN(ficlInstructionFloatToInt, "float>int", FICL_WORD_DEFAULT)
+FICL_INSTRUCTION_TOKEN(ficlInstructionIntToFloat, "s>f", FICL_WORD_DEFAULT)
+FICL_INSTRUCTION_TOKEN(ficlInstructionFloatToInt, "f>s", FICL_WORD_DEFAULT)
 	
 FICL_INSTRUCTION_TOKEN(ficlInstructionFFetch, "f@", FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionFStore, "f!", FICL_WORD_DEFAULT)
@@ -222,7 +222,10 @@ FICL_INSTRUCTION_TOKEN(ficlInstructionF0Equals, "f0=", FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionFEquals, "f=", FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionF0Greater, "f0>", FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionFGreater, "f>", FICL_WORD_DEFAULT)
-	
+
+FICL_INSTRUCTION_TOKEN(ficlInstructionF2Star, "f2*", FICL_WORD_DEFAULT)
+FICL_INSTRUCTION_TOKEN(ficlInstructionF2Slash, "f2/", FICL_WORD_DEFAULT)
+
 #endif  /* FICL_WANT_FLOAT */
 
 FICL_TOKEN(ficlInstructionExitInnerLoop, "** exit inner loop **")

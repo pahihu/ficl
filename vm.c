@@ -1821,7 +1821,7 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1, 1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f += f;
 				continue;
 			}
@@ -1835,7 +1835,7 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1, 1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f -= f;
 				continue;
 			}
@@ -1849,7 +1849,7 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1, 1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f *= f;
 				continue;
 			}
@@ -1863,7 +1863,7 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1, 1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f /= f;
 				continue;
 			}
@@ -1877,7 +1877,7 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1, 1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f = f - floatTop->f;
 				continue;
 			}
@@ -1891,14 +1891,14 @@ BRANCH_PAREN:
 				CHECK_FLOAT_STACK(1,1);
 				CHECK_STACK(1, 0);
 
-				f = (ficlFloat)(dataTop--)->f;
+				f = (ficlFloat)(dataTop--)->i;
 				floatTop->f = f / floatTop->f;
 				continue;
 			}
 
 			/*******************************************************************
 			** Do integer to float conversion.
-			** int>float ( n -- r )
+			** s>f ( n -- r )
 			*******************************************************************/
 			case ficlInstructionIntToFloat:
 			{
@@ -1911,7 +1911,7 @@ BRANCH_PAREN:
 
 			/*******************************************************************
 			** Do float to integer conversion.
-			** float>int ( r -- n )
+			** f>s ( r -- n )
 			*******************************************************************/
 			case ficlInstructionFloatToInt:
 			{
@@ -2226,7 +2226,7 @@ FMINUSROLL:
 
 			/*******************************************************************
 			** Move float to param stack (assumes they both fit in a single ficlCell)
-			** f>s 
+			** float> >float 
 			*******************************************************************/
 			case ficlInstructionFFrom:
 			{
@@ -2243,6 +2243,30 @@ FMINUSROLL:
 				CHECK_STACK(1, 0);
 
 				*++floatTop = *dataTop--;
+				continue;
+			}
+
+			/*******************************************************************
+			** Multiply float top by 2.
+			** f2* ( r -- 2.0*r )
+			*******************************************************************/
+			case ficlInstructionF2Star:
+			{
+				CHECK_FLOAT_STACK(1, 1);
+
+				floatTop->f *= 2.0;
+				continue;
+			}
+
+			/*******************************************************************
+			** Divide float top by 2.
+			** f2/ ( r -- r/2.0 )
+			*******************************************************************/
+			case ficlInstructionF2Slash:
+			{
+				CHECK_FLOAT_STACK(1, 1);
+
+				floatTop->f /= 2.0;
 				continue;
 			}
 
