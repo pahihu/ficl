@@ -2907,6 +2907,11 @@ int ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord)
     return (except);
 }
 
+static int ficlNumberSeparator(unsigned c)
+{
+    return (((unsigned)'+' <= c) && (c < (unsigned)'0')) || (c == (unsigned)':');
+}
+
 
 /**************************************************************************
                         f i c l P a r s e N u m b e r
@@ -2919,7 +2924,7 @@ int ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord)
 
 int ficlVmParseNumber(ficlVm *vm, ficlString s)
 {
-    ficlInteger accumulator = 0;
+    ficl2Integer accumulator;
     char isNegative         = 0;
     char isDouble           = 0;
     unsigned base           = vm->base;
@@ -2927,6 +2932,8 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
     ficlUnsigned8 length    = (ficlUnsigned8)FICL_STRING_GET_LENGTH(s);
     unsigned c;
     unsigned digit;
+
+    FICL_2INTEGER_SET(0, 0, accumulator);
 
     if (length > 1)
     {
@@ -2947,7 +2954,7 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
         }
     }
 
-    if ((length > 0) && (trace[length - 1] == '.')) /* detect & remove trailing decimal */
+    if ((length > 0) && ficlNumberSeparator(trace[length - 1])) /* detect & remove trailing decimal */
     {
         isDouble = 1;
         length--;
@@ -2958,7 +2965,12 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
 
     while ((length--) && ((c = *trace++) != '\0'))
     {
-        if (!isalnum(c))
+        if (ficlNumberSeparator(c))
+        {
+            isDouble = 1;
+            continue;
+        }
+        else if (!isalnum(c))
             return FICL_FALSE;
 
         digit = c - '0';
@@ -2969,25 +2981,25 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
         if (digit >= base)
             return FICL_FALSE;
 
-        accumulator = accumulator * base + digit;
+        accumulator = ficl2UnsignedMultiplyAccumulate(accumulator,base,digit);
     }
 
-#if 0
-	if (isDouble)		/* simple (required) DOUBLE support */
-		ficlStackPushInteger(vm->dataStack, 0);
-#endif
-
     if (isNegative)
-        accumulator = -accumulator;
+        accumulator = ficl2IntegerNegate(accumulator);
 
-    ficlStackPushInteger(vm->dataStack, accumulator);
+    if (isDouble)
+    {
+        ficlStackPush2Integer(vm->dataStack, accumulator);
+        if (vm->state == FICL_VM_STATE_COMPILE)
+            ficlPrimitive2LiteralIm(vm);
+    }
+    else
+    {
+        ficlStackPushInteger(vm->dataStack, FICL_2UNSIGNED_GET_LOW(accumulator));
+        if (vm->state == FICL_VM_STATE_COMPILE)
+            ficlPrimitiveLiteralIm(vm);
 
-	/* 20080117AP */
-	if (isDouble)
-		ficlStackPushInteger(vm->dataStack, isNegative ? -1 : 0);
-
-    if (vm->state == FICL_VM_STATE_COMPILE)
-        ficlPrimitiveLiteralIm(vm);
+    }
 
     return FICL_TRUE;
 }

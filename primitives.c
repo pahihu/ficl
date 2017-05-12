@@ -1044,7 +1044,7 @@ void ficlPrimitiveLiteralIm(ficlVm *vm)
 }
 
 
-static void ficlPrimitive2LiteralIm(ficlVm *vm)
+void ficlPrimitive2LiteralIm(ficlVm *vm)
 {
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
 

@@ -1225,6 +1225,7 @@ FICL_PLATFORM_EXTERN void        ficlVmPopTib   (ficlVm *vm, ficlTIB *pTib);
 
 
 FICL_PLATFORM_EXTERN void ficlPrimitiveLiteralIm(ficlVm *vm);
+FICL_PLATFORM_EXTERN void ficlPrimitive2LiteralIm(ficlVm *vm);
 
 /*
 ** A FICL_CODE points to a function that gets called to help execute
