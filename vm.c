@@ -2907,10 +2907,6 @@ int ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord)
     return (except);
 }
 
-static int ficlNumberSeparator(unsigned c)
-{
-    return (((unsigned)'+' <= c) && (c < (unsigned)'0')) || (c == (unsigned)':');
-}
 
 
 /**************************************************************************
@@ -2921,6 +2917,12 @@ static int ficlNumberSeparator(unsigned c)
 ** (jws 8/01) Trailing decimal point causes a zero ficlCell to be pushed. (See
 ** the standard for DOUBLE wordset.
 **************************************************************************/
+
+static int ficlNumberSeparator(unsigned c)
+{
+    return (((unsigned)'+' <= c) && (c < (unsigned)'0')) || (c == (unsigned)':');
+}
+
 
 int ficlVmParseNumber(ficlVm *vm, ficlString s)
 {
@@ -2934,6 +2936,7 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
     unsigned digit;
 
     FICL_2INTEGER_SET(0, 0, accumulator);
+    vm->dpl = -1;
 
     if (length > 1)
     {
@@ -2957,6 +2960,7 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
     if ((length > 0) && ficlNumberSeparator(trace[length - 1])) /* detect & remove trailing decimal */
     {
         isDouble = 1;
+        vm->dpl = 0;
         length--;
     }
 
@@ -2967,6 +2971,8 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
     {
         if (ficlNumberSeparator(c))
         {
+            if (!isDouble)
+                vm->dpl = length;
             isDouble = 1;
             continue;
         }

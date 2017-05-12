@@ -1187,6 +1187,18 @@ static void ficlPrimitiveBase(ficlVm *vm)
 }
 
 
+static void ficlPrimitiveDpl(ficlVm *vm)
+{
+    ficlCell *pDpl;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    pDpl = (ficlCell *)(&vm->dpl);
+    ficlStackPush(vm->dataStack, FICL_LVALUE_TO_CELL(pDpl));
+    return;
+}
+
+
 static void ficlPrimitiveDecimal(ficlVm *vm)
 {
     vm->base = 10;
@@ -3300,6 +3312,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "depth",     ficlPrimitiveDepth,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "do",        ficlPrimitiveDoCoIm,         FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "does>",     ficlPrimitiveDoesCoIm,       FICL_WORD_COMPILE_ONLY_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "dpl",       ficlPrimitiveDpl,            FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "else",      ficlPrimitiveElseCoIm,       FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "emit",      ficlPrimitiveEmit,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "endcase",   ficlPrimitiveEndcaseCoIm,    FICL_WORD_COMPILE_ONLY_IMMEDIATE);

@@ -1065,6 +1065,7 @@ struct ficlVm
     ficlWord      *runningWord;/* address of currently running word (often just *(ip-1) ) */
     ficlUnsigned   state;      /* compiling or interpreting        */
     ficlUnsigned   base;       /* number conversion base           */
+    ficlInteger    dpl;        /* decimal point location           */
     ficlStack     *dataStack;
     ficlStack     *returnStack;     /* return stack                     */
 #if FICL_WANT_FLOAT
