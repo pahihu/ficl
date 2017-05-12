@@ -5,6 +5,16 @@
 
 ANEW -extras
 
+decimal
+
+Start-Prefixes
+: %  2 __tempbase ; IMMEDIATE
+: &  8 __tempbase ; IMMEDIATE
+: # 10 __tempbase ; IMMEDIATE
+: $ 16 __tempbase ; IMMEDIATE
+End-Prefixes
+
+
 : DARWIN?   \ -- t|f ; true if Darwin
    ficl-os 1 =
 ;
@@ -30,9 +40,9 @@ DECIMAL
 : OCTAL	 8 BASE ! ;
 : ALPHA  36 BASE ! ;
 
-: .D ( n -- ) base @ >r  decimal u. r> base ! ;
-: .X ( n -- ) base @ >r  hex     u. r> base ! ;
-: .B ( n -- ) base @ >r  binary  u. r> base ! ;
+: .D ( n -- ) base @   decimal swap u.  base ! ;
+: .X ( n -- ) base @   hex     swap u.  base ! ;
+: .B ( n -- ) base @   binary  swap u.  base ! ;
 : .BASE ( -- ) base @ .D ;
 
 
@@ -78,6 +88,11 @@ DECIMAL
 : D- ( d1 d2 -- d ) dnegate d+ ;
 : D0= ( d -- f ) or 0= ;
 : D0< ( d -- f ) 0< nip ;
+
+: M+ ( d1 n -- d2 ) s>d d+ ;
+: <= ( n1 n2 -- ff ) > 0= ;
+: >= ( n1 n2 -- ff ) < 0= ;
+: \\ ( -- ) BEGIN  refill 0=  UNTIL ;
 
 \ ANSI colors
 0 CONSTANT black

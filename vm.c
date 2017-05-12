@@ -2919,12 +2919,12 @@ int ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord)
 
 int ficlVmParseNumber(ficlVm *vm, ficlString s)
 {
-    ficlInteger accumulator  = 0;
-    char isNegative      = 0;
-	char isDouble      = 0;
-    unsigned base   = vm->base;
-    char *trace        = FICL_STRING_GET_POINTER(s);
-    ficlUnsigned8 length = (ficlUnsigned8)FICL_STRING_GET_LENGTH(s);
+    ficlInteger accumulator = 0;
+    char isNegative         = 0;
+    char isDouble           = 0;
+    unsigned base           = vm->base;
+    char *trace             = FICL_STRING_GET_POINTER(s);
+    ficlUnsigned8 length    = (ficlUnsigned8)FICL_STRING_GET_LENGTH(s);
     unsigned c;
     unsigned digit;
 
