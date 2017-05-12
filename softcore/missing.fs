@@ -29,10 +29,7 @@ End-Prefixes
 
 DECIMAL
 \ FiCL NOTES
-\ - NUMBER cannot read double numbers larger than 2^32-1
 \ - only DNEGATE present from the double operators
-\ - in colon definitions cannot embed double numbers
-\	 workaround: [ d. ] 2literal
 
 : XXX ( -- ) 1 abort" not implemented" ;
 
