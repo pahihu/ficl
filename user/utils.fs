@@ -22,16 +22,26 @@ PFE [IF]
   clock 1000 CLK_TCK */ ;
 [THEN]
 
-: timer ( u -- ) \ display elapsed msecs
-		counter swap - u. ." ms ";
+: (timer) ( u -- elapsed )
+\ *G Return elapsed time since u.
+   counter swap - ;
 
-variable elapsed-timer
+: timer ( u -- )
+\ *G Display elapsed msecs.
+   (timer)  u. ." ms" ;
+
+variable diff0
 
 : timer-reset ( -- )
-		counter elapsed-timer ! ;
+\ *G Reset elapsed timer.
+   counter  diff0 ! ;
 
 : .elapsed ( -- )
-		elapsed-timer @ timer ;
+\ *G Display elapsed msecs since timer-reset.
+   diff0 @  timer ;
+
+: .elapsed" ( <cmd> -- )
+   timer-reset  [char] " word count  evaluate  .elapsed ;
 
 : (.base) ( n base -- ) \ display n in base
 		base @ 

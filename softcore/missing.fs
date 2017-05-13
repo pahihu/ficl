@@ -80,7 +80,7 @@ DECIMAL
 \ tuck dabs <# ... rot sign #>
 
 : UMAX ( u1 u2 -- u ) 2dup u< IF swap THEN drop ;
-: UM+ ( u1 u2 -- d ) 2dup umax >r + dup r> ( sum umax) u< abs ;
+: UM+ ( u1 u2 -- ud ) over +  dup rot  u< abs ;
 : D+ ( d1 d2 -- d ) rot + >r um+ r> + ;
 : D- ( d1 d2 -- d ) dnegate d+ ;
 : D0= ( d -- f ) or 0= ;
