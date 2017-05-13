@@ -170,8 +170,8 @@ static void ficlPrimitiveLoad(ficlVm *vm)
         if (buffer[length] == '\n')
             buffer[length--] = '\0';
 
-		FICL_STRING_SET_POINTER(s, buffer);
-		FICL_STRING_SET_LENGTH(s, length + 1);
+        FICL_STRING_SET_POINTER(s, buffer);
+        FICL_STRING_SET_LENGTH(s, length + 1);
         result = ficlVmExecuteString(vm, s);
         /* handle "bye" in loaded files. --lch */
         switch (result)

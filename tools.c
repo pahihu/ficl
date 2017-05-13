@@ -263,12 +263,12 @@ static void ficlPrimitiveSeeXT(ficlVm *vm)
         break;
     }
 
-    if (word->flags & FICL_WORD_IMMEDIATE)
+    if (ficlWordIsImmediate(word))
     {
         ficlVmTextOut(vm, "immediate\n");
     }
 
-    if (word->flags & FICL_WORD_COMPILE_ONLY)
+    if (ficlWordIsCompileOnly(word))
     {
         ficlVmTextOut(vm, "compile-only\n");
     }
@@ -789,6 +789,118 @@ static void ficlPrimitiveWords(ficlVm *vm)
 
 
 /**************************************************************************
+                    t r a v e r s e - w o r d l i s t
+** TOOLS EXT  ( i * x xt wid -- j * x )
+** Remove wid and xt from the stack. Execute once for every word in the
+** wordlist wid, passing the name token nt of the word to xt, until the
+** wordlist is exhausted or until xt return false.
+**************************************************************************/
+static void ficlPrimitiveTraverseWordlist(ficlVm *vm)
+{
+    ficlHash *hash = 0;
+    ficlWord *wp, *xt;
+    unsigned i;
+    ficlInteger flag = FICL_TRUE;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    hash = ficlStackPopPointer(vm->dataStack);
+    xt   = ficlStackPopPointer(vm->dataStack);
+
+    ficlDictionaryLock(ficlVmGetDictionary(vm), FICL_TRUE);
+    for (i = 0; (FICL_TRUE == flag) && (i < hash->size); i++)
+    {
+        for (wp = hash->table[i];
+             (FICL_TRUE == flag) && wp != NULL; wp = wp->link)
+        {
+            if (wp->length == 0) /* ignore :noname defs */
+                continue;
+
+            ficlStackPushPointer(vm->dataStack, wp);
+            ficlVmExecuteXT(vm, xt);
+            flag = ficlStackPopInteger(vm->dataStack);
+        }
+    }
+    ficlDictionaryLock(ficlVmGetDictionary(vm), FICL_FALSE);
+
+    return;
+}
+
+
+/**************************************************************************
+                    n a m e > s t r i n g
+** TOOLS EXT  ( nt -- c-addr u )
+** Returns the name of the word nt in the character string c-addr u.
+**************************************************************************/
+static void ficlPrimitiveNameToString(ficlVm *vm)
+{
+    ficlWord *wp;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 2);
+
+    wp = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, wp->name);
+    ficlStackPushInteger(vm->dataStack, wp->length);
+
+    return;
+}
+
+
+/**************************************************************************
+                    n a m e > i n t e r p r e t
+** TOOLS EXT  ( nt -- xt | 0 )
+** xt represents the interpretation semantics of the word nt. If nt has no
+** interpretation semantics it returns 0.
+**************************************************************************/
+static void ficlPrimitiveNameToInterpret(ficlVm *vm)
+{
+    ficlWord *wp;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    wp = ficlStackPopPointer(vm->dataStack);
+    if (ficlWordIsCompileOnly(wp))
+        ficlStackPushInteger(vm->dataStack, 0);
+    else
+        ficlStackPushPointer(vm->dataStack, wp);
+
+    return;
+}
+
+
+/**************************************************************************
+                    n a m e > c o m p i l e
+** TOOLS EXT  ( nt -- x xt )
+** x xt represents the compilation semantics of the word nt. The returned
+** xt has the stack effect ( i * x x -- j * x ). Executing xt consumes x
+** and performs the compilation semantics of the word represented by nt.
+**************************************************************************/
+static void ficlPrimitiveNameToCompile(ficlVm *vm)
+{
+    ficlWord *wp;
+    static ficlWord *pExecute = 0;
+    static ficlWord *pCompileComma = 0;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 2);
+
+    if (0 == pExecute)
+    {
+        pExecute = ficlSystemLookup(vm->callback.system, "execute");
+        pCompileComma = ficlSystemLookup(vm->callback.system, "compile,");
+    }
+
+    wp = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, wp);
+    if (ficlWordIsImmediate(wp))
+        ficlStackPushPointer(vm->dataStack, pExecute);
+    else
+        ficlStackPushPointer(vm->dataStack, pCompileComma);
+
+    return;
+}
+
+
+/**************************************************************************
                         l i s t E n v
 ** Print symbols defined in the environment 
 **************************************************************************/
@@ -895,6 +1007,10 @@ void ficlSystemCompileTools(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "forget",    ficlPrimitiveForget,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "see",       ficlPrimitiveSee,            FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "words",     ficlPrimitiveWords,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "traverse-wordlist",     ficlPrimitiveTraverseWordlist,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "name>string",     ficlPrimitiveNameToString,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "name>interpret",     ficlPrimitiveNameToInterpret,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "name>compile",     ficlPrimitiveNameToCompile,      FICL_WORD_DEFAULT);
 
     /*
     ** Set TOOLS environment query values
