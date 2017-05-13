@@ -1,3 +1,5 @@
+=== SoftCore Glossary ===
+
 \ TOOLBELT W.Baden
 NOT ( x -- flag )   TOOLBELT
    Logical not.
