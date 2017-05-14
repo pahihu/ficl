@@ -433,6 +433,38 @@ static void ficlPrimitiveFloor(ficlVm *vm)
     ficlStackPushFloat(vm->floatStack, floor(r1));
 }
 
+/*******************************************************************
+** d>f ( d -- ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveDToF(ficlVm *vm)
+{
+    ficl2Integer d;
+    ficlFloat r;
+
+    FICL_STACK_CHECK(vm->dataStack,2,0);
+    FICL_STACK_CHECK(vm->floatStack,0,1);
+
+    d = ficlStackPop2Integer(vm->dataStack);
+    r = (ficlFloat) d;
+    ficlStackPushFloat(vm->floatStack, r);
+}
+
+/*******************************************************************
+** f>d ( -- d ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFToD(ficlVm *vm)
+{
+    ficl2Integer d;
+    ficlFloat r;
+
+    FICL_STACK_CHECK(vm->floatStack,1,0);
+    FICL_STACK_CHECK(vm->dataStack,0,2);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    d = (ficl2Integer) trunc(r);
+    ficlStackPush2Integer(vm->dataStack, d);
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -657,6 +689,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "falign",    ficlPrimitiveFAlign,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "faligned",  ficlPrimitiveFAligned,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "floor",     ficlPrimitiveFloor,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "d>f",       ficlPrimitiveDToF,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f>d",       ficlPrimitiveFToD,           FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",  ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
