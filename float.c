@@ -237,6 +237,107 @@ static void ficlPrimitiveFSqrt(ficlVm *vm)
     ficlStackPushFloat(vm->floatStack, (ficlFloat) sqrt(f));
 }
 
+/*******************************************************************
+** FAXPY
+** faxpy ( ra f_x x_stride f_y y_stride u -- )
+*******************************************************************/
+static void ficlPrimitiveFaxpy(ficlVm *vm)
+{
+    ficlFloat ra;
+    ficlFloat *x, *y;
+    ficlUnsigned ys, xs;
+    ficlUnsigned i, n;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 5, 0);
+
+    ra = ficlStackPopFloat(vm->floatStack);
+
+    n  = ficlStackPopUnsigned(vm->dataStack);
+    ys = ficlStackPopUnsigned(vm->dataStack);
+    y  = ficlStackPopPointer(vm->dataStack);
+    xs = ficlStackPopUnsigned(vm->dataStack);
+    x  = ficlStackPopPointer(vm->dataStack);
+
+    if (n & 3)
+    {
+        ficlUnsigned m = n & 3;
+        n -= m;
+        for (i = 0; i < m; i++)
+            *y += ra * *x; y = (void*)y + ys; x = (void*)y + xs;
+
+    }
+    for (i = 0; i < n; i += 4)
+    {
+        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
+        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
+        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
+        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
+    }
+}
+
+/*******************************************************************
+** FAXPY without strides.
+** faxpy-nostride ( ra f_x f_y u -- )
+*******************************************************************/
+static void ficlPrimitiveFaxpyNoStride(ficlVm *vm)
+{
+    ficlFloat ra;
+    ficlFloat *x, *y;
+    ficlUnsigned i, n;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+    ra = ficlStackPopFloat(vm->floatStack);
+
+    n = ficlStackPopUnsigned(vm->dataStack);
+    y = ficlStackPopPointer(vm->dataStack);
+    x = ficlStackPopPointer(vm->dataStack);
+
+    if (n & 3)
+    {
+        ficlUnsigned m = n & 3;
+        n -= m;
+        for (i = 0; i < m; i++)
+            *y++ += ra * *x++;
+
+    }
+    for (i = 0; i < n; i += 4)
+    {
+        y[i+0] += ra * x[i+0];
+        y[i+1] += ra * x[i+1];
+        y[i+2] += ra * x[i+2];
+        y[i+3] += ra * x[i+3];
+    }
+}
+
+/*******************************************************************
+** float+ ( f-addr1 -- f-addr2 )
+*******************************************************************/
+static void ficlPrimitiveFloatPlus(ficlVm *vm)
+{
+    ficlFloat *fp;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    fp = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, fp + 1);
+}
+
+/*******************************************************************
+** floats ( n1 -- n2 )
+*******************************************************************/
+static void ficlPrimitiveFloats(ficlVm *vm)
+{
+    ficlInteger n;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    n = ficlStackPopInteger(vm->dataStack);
+    ficlStackPushInteger(vm->dataStack, n * sizeof(ficlFloat));
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -453,7 +554,13 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
 
+    ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "floats",    ficlPrimitiveFloats,           FICL_WORD_DEFAULT);
+
     ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
+
+    ficlDictionarySetPrimitive(dictionary, "faxpy",  ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,     FICL_WORD_COMPILE_ONLY);

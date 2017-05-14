@@ -14,6 +14,7 @@
 #endif
 
 #include "curterm.h"
+#include "bswap.h"
 
 #if !defined(FICL_ANSI) || defined(__MINGW32__)
 
@@ -611,6 +612,39 @@ static void ficlPrimitiveStop(ficlVm *vm)
    }
 }
 
+/* : BSWAP16 ( uw1 -- uw2 ) */
+static void ficlPrimitiveBSwap16(ficlVm *vm)
+{
+    ficlUnsigned16 u;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    u = ficlStackPopUnsigned(vm->dataStack);
+    ficlStackPushUnsigned(vm->dataStack, bswap16(u));
+}
+
+/* : BSWAP32 ( u1 -- u2 ) */
+static void ficlPrimitiveBSwap32(ficlVm *vm)
+{
+    ficlUnsigned32 u;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    u = ficlStackPopUnsigned(vm->dataStack);
+    ficlStackPushUnsigned(vm->dataStack, bswap32(u));
+}
+
+/* : BSWAP64 ( ud1 -- ud2 ) */
+static void ficlPrimitiveBSwap64(ficlVm *vm)
+{
+    ficl2Unsigned u;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 2);
+
+    u = ficlStackPop2Unsigned(vm->dataStack);
+    ficlStackPush2Unsigned(vm->dataStack, bswap64(u));
+}
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -648,6 +682,11 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(run)",     ficlPrimitiveRun);
     addPrimitive(dictionary, "(stop)",    ficlPrimitiveStop);
     addPrimitive(dictionary, "(pause)",   ficlPrimitivePause);
+
+    addPrimitive(dictionary, "bswap16",   ficlPrimitiveBSwap16);
+    addPrimitive(dictionary, "bswap32",   ficlPrimitiveBSwap32);
+    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
+    addPrimitive(dictionary, "bswap64",   ficlPrimitiveBSwap64);
 
     return;
 }
