@@ -1,11 +1,11 @@
-OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o mingw32.o utility.o hash.o callback.o word.o curterm.o extras.o bswap.o
+OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o mingw32.o utility.o hash.o callback.o word.o curterm.o extras.o bswap.o dlfcn.o
 HEADERS= ficl.h ficlplatform/mingw32.h
 #
 # Flags for shared library
 TARGET =  -DWIN32 # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = # -fPIC
-CFLAGS = -O2 -DNDEBUG -fomit-frame-pointer -s $(SHFLAGS) $(TARGET)
-CC     = gcc
+CFLAGS = -O2 -DNDEBUG -fomit-frame-pointer -s -Ificlplatform $(SHFLAGS) $(TARGET)
+CC     = gcc -m32
 LIB    = ar cr
 RANLIB = ranlib
 
@@ -13,7 +13,7 @@ MAJOR = 4
 MINOR = 0.31
 
 ficlw.exe: main.o $(HEADERS) libficl.a
-	$(CC) main.o -o $@ -L. -lficl -lgdi32 -lm
+	$(CC) main.o -o $@ libficl.a -lgdi32 -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -34,6 +34,9 @@ main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 
 mingw32.o: ficlplatform/mingw32.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ficlplatform/mingw32.c
+	
+dlfcn.o: ficlplatform/dlfcn.c $(HEADERS)
+	$(CC) $(CFLAGS) -c ficlplatform/dlfcn.c
 
 #
 #       generic object code

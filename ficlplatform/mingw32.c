@@ -115,7 +115,7 @@ static void ficlPrimitiveQAt(ficlVm *vm)
 }
 
 /* : SET-FG ( color -- ) */
-static void ficlPrimitiveColorsStore(ficlVm *vm)
+static void ficlPrimitiveSetFG(ficlVm *vm)
 {
 	WORD wAttributes;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -131,7 +131,7 @@ static void ficlPrimitiveColorsStore(ficlVm *vm)
 }
 
 /* : SET-BG ( color -- ) */
-static void ficlPrimitiveColorsStore(ficlVm *vm)
+static void ficlPrimitiveSetBG(ficlVm *vm)
 {
 	WORD wAttributes;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
