@@ -850,7 +850,7 @@ MINUSROLL:
 			{
 				ficlUnsigned32 *integer32;
 				CHECK_STACK(1, 1);
-				integer32 = (ficlUnsigned32 *)dataTop->i;
+				integer32 = (ficlUnsigned32 *)dataTop->p;
 				dataTop->u = (ficlUnsigned)*integer32;
 				continue;
 			}
