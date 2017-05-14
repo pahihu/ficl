@@ -50,6 +50,60 @@
 
 #if FICL_WANT_FLOAT
 
+#define FICL_FLOAT_ALIGNMENT    sizeof(ficlFloat)
+
+/**************************************************************************
+                        f a l i g n P t r
+** Aligns the given pointer to sizeof(ficlFloat) address units.
+** Returns the aligned pointer value.
+**************************************************************************/
+void *ficlFAlignPointer(void *ptr)
+{
+	int p = (int)ptr;
+	if (p & (FICL_FLOAT_ALIGNMENT - 1))
+		ptr = (void *)((p & ~(FICL_FLOAT_ALIGNMENT - 1)) + FICL_FLOAT_ALIGNMENT);
+    return ptr;
+}
+
+
+/**************************************************************************
+                        d i c t F A l i g n
+** Align the dictionary's free space pointer to float.
+**************************************************************************/
+static void ficlDictionaryFAlign(ficlDictionary *dictionary)
+{
+    dictionary->here = ficlFAlignPointer(dictionary->here);
+}
+
+
+/**************************************************************************
+                        f a l i g n
+** falign ( -- )
+** If the data-space pointer is not float aligned, reserve enough space to
+** make it so.
+**************************************************************************/
+static void ficlPrimitiveFAlign(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    FICL_IGNORE(vm);
+    ficlDictionaryFAlign(dictionary);
+}
+
+
+/**************************************************************************
+                        f a l i g n e d
+** faligned ( addr -- f-addr )
+** f-addr is the first float-aligned address greater than or equal to addr.
+**************************************************************************/
+static void ficlPrimitiveFAligned(ficlVm *vm)
+{
+    void *addr;
+
+    FICL_STACK_CHECK(vm->dataStack,1,1);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, ficlFAlignPointer(addr));
+}
 
 /*******************************************************************
 ** Create a floating point constant.
@@ -338,6 +392,47 @@ static void ficlPrimitiveFloats(ficlVm *vm)
     ficlStackPushInteger(vm->dataStack, n * sizeof(ficlFloat));
 }
 
+/*******************************************************************
+** fmin ( r1 r2 -- r3 )
+*******************************************************************/
+static void ficlPrimitiveFMin(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack, 2, 1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, r1 < r2 ? r1 : r2);
+}
+
+/*******************************************************************
+** fmax ( r1 r2 -- r3 )
+*******************************************************************/
+static void ficlPrimitiveFMax(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack, 2, 1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, r1 < r2 ? r2 : r1);
+}
+
+/*******************************************************************
+** floor ( r1 -- r2 )
+*******************************************************************/
+static void ficlPrimitiveFloor(ficlVm *vm)
+{
+    ficlFloat r1;
+
+    FICL_STACK_CHECK(vm->floatStack,1,1);
+
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, floor(r1));
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -554,10 +649,14 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
 
+    ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "floats",    ficlPrimitiveFloats,           FICL_WORD_DEFAULT);
-
-    ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fmin",      ficlPrimitiveFMin,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fmax",      ficlPrimitiveFMax,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "falign",    ficlPrimitiveFAlign,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "faligned",  ficlPrimitiveFAligned,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "floor",     ficlPrimitiveFloor,           FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",  ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
@@ -572,13 +671,6 @@ void ficlSystemCompileFloat(ficlSystem *system)
 
     d>f
     f>d 
-    falign 
-    faligned 
-    float+
-    floats
-    floor
-    fmax
-    fmin
 */
 
     ficlDictionarySetConstant(environment, "floating",       FICL_FALSE);  /* not all required words are present */
