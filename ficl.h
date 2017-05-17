@@ -1058,14 +1058,16 @@ typedef enum
 struct ficlVm
 {
     ficlCallback   callback;
-    ficlVm        *link;       /* Ficl keeps a VM list for simple teardown */
-    jmp_buf       *exceptionHandler;     /* crude exception mechanism...     */
-    short          restart;   /* Set TRUE to restart runningWord  */
-    ficlIp         ip;         /* instruction pointer              */
-    ficlWord      *runningWord;/* address of currently running word (often just *(ip-1) ) */
-    ficlUnsigned   state;      /* compiling or interpreting        */
-    ficlUnsigned   base;       /* number conversion base           */
-    ficlInteger    dpl;        /* decimal point location           */
+    ficlVm        *link;        /* Ficl keeps a VM list for simple teardown */
+    jmp_buf       *exceptionHandler;    /* crude exception mechanism...     */
+    short          restart;     /* Set TRUE to restart runningWord  */
+    ficlIp         ip;          /* instruction pointer              */
+    ficlWord      *runningWord; /* address of currently running word (often just *(ip-1) ) */
+    ficlUnsigned   state;       /* compiling or interpreting        */
+    ficlUnsigned   base;        /* number conversion base           */
+    ficlInteger    dpl;         /* decimal point location           */
+    ficlCell       areg;        /* A reg                            */
+    ficlCell       breg;        /* B reg                            */
     ficlStack     *dataStack;
     ficlStack     *returnStack;     /* return stack                     */
 #if FICL_WANT_FLOAT

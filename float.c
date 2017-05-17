@@ -99,7 +99,7 @@ static void ficlPrimitiveFAligned(ficlVm *vm)
 {
     void *addr;
 
-    FICL_STACK_CHECK(vm->dataStack,1,1);
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
 
     addr = ficlStackPopPointer(vm->dataStack);
     ficlStackPushPointer(vm->dataStack, ficlFAlignPointer(addr));
@@ -174,7 +174,7 @@ ficlWord   *ficlDictionarySetF2Constant(ficlDictionary *dictionary, char *name, 
 *******************************************************************/
 static void ficlPrimitiveFDot(ficlVm *vm)
 {
-    float f;
+    ficlFloat f;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
@@ -189,7 +189,7 @@ static void ficlPrimitiveFDot(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveSDot(ficlVm *vm)
 {
-    float f;
+    ficlFloat f;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
@@ -283,7 +283,7 @@ static void ficlPrimitiveFLiteralImmediate(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveFSqrt(ficlVm *vm)
 {
-    float f;
+    ficlFloat f;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 1);
 
@@ -427,7 +427,7 @@ static void ficlPrimitiveFloor(ficlVm *vm)
 {
     ficlFloat r1;
 
-    FICL_STACK_CHECK(vm->floatStack,1,1);
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
 
     r1 = ficlStackPopFloat(vm->floatStack);
     ficlStackPushFloat(vm->floatStack, floor(r1));
@@ -441,8 +441,8 @@ static void ficlPrimitiveDToF(ficlVm *vm)
     ficl2Integer d;
     ficlFloat r;
 
-    FICL_STACK_CHECK(vm->dataStack,2,0);
-    FICL_STACK_CHECK(vm->floatStack,0,1);
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
 
     d = ficlStackPop2Integer(vm->dataStack);
     r = (ficlFloat) d;
@@ -457,8 +457,8 @@ static void ficlPrimitiveFToD(ficlVm *vm)
     ficl2Integer d;
     ficlFloat r;
 
-    FICL_STACK_CHECK(vm->floatStack,1,0);
-    FICL_STACK_CHECK(vm->dataStack,0,2);
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 0, 2);
 
     r = ficlStackPopFloat(vm->floatStack);
     d = (ficl2Integer) trunc(r);
@@ -472,7 +472,7 @@ static void ficlPrimitiveFRound(ficlVm *vm)
 {
     ficlFloat r1;
 
-    FICL_STACK_CHECK(vm->floatStack,1,1);
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
 
     r1 = ficlStackPopFloat(vm->floatStack);
     ficlStackPushFloat(vm->floatStack, rint(r1));
@@ -485,7 +485,7 @@ static void ficlPrimitiveFStarStar(ficlVm *vm)
 {
     ficlFloat r1, r2;
 
-    FICL_STACK_CHECK(vm->floatStack,2,1);
+    FICL_STACK_CHECK(vm->floatStack, 2, 1);
 
     r2 = ficlStackPopFloat(vm->floatStack);
     r1 = ficlStackPopFloat(vm->floatStack);
@@ -499,7 +499,7 @@ static void ficlPrimitiveFAbs(ficlVm *vm)
 {
     ficlFloat r1;
 
-    FICL_STACK_CHECK(vm->floatStack,1,1);
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
 
     r1 = ficlStackPopFloat(vm->floatStack);
     ficlStackPushFloat(vm->floatStack, fabs(r1));
@@ -579,6 +579,218 @@ static void ficlPrimitiveFProximate(ficlVm *vm)
             flag = FICL_TRUE;
     }
     ficlStackPushUnsigned(vm->dataStack, flag);
+}
+
+/*******************************************************************
+** f!+ ( addr1 -- addr2 ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFStorePlus(ficlVm *vm)
+{
+    ficlFloat *pFloat;
+    ficlInteger x;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    pFloat = ficlStackPopPointer(vm->dataStack);
+    *pFloat = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushPointer(vm->dataStack, pFloat + 1);
+}
+
+/*******************************************************************
+** f@+ ( addr1 -- addr2 ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFFetchPlus(ficlVm *vm)
+{
+    ficlFloat *pFloat;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    pFloat = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, pFloat + 1);
+    ficlStackPushFloat(vm->floatStack, *pFloat);
+}
+
+/*******************************************************************
+** f+!+ ( addr1 -- addr2 ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFPlusStorePlus(ficlVm *vm)
+{
+    ficlFloat *pFloat;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    pFloat = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, pFloat + 1);
+    *pFloat += ficlStackPopFloat(vm->floatStack);
+}
+
+/*******************************************************************
+** : fa@ ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFAFetch(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->areg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr);
+}
+
+/*******************************************************************
+** : fa! ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFAStore(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->areg.p;
+    *ptr = ficlStackPopFloat(vm->floatStack);
+
+}
+
+/*******************************************************************
+** : fa@+ ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFAFetchPlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->areg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr++);
+    vm->areg.p = ptr;
+}
+
+/*******************************************************************
+** : fa@- ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFAFetchMinus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->areg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr--);
+    vm->areg.p = ptr;
+}
+
+/*******************************************************************
+** : fa!+ ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFAStorePlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->areg.p;
+    *ptr++ = ficlStackPopFloat(vm->floatStack);
+    vm->areg.p = ptr;
+}
+
+/*******************************************************************
+** : fa+!+ ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFAPlusStorePlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->areg.p;
+    *ptr++ += ficlStackPopFloat(vm->floatStack);
+    vm->areg.p = ptr;
+}
+
+/*******************************************************************
+** : fb@ ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFBFetch(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->breg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr);
+}
+
+/*******************************************************************
+** : fb! ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFBStore(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->breg.p;
+    *ptr = ficlStackPopFloat(vm->floatStack);
+
+}
+
+/*******************************************************************
+** : fb@+ ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFBFetchPlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->breg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr++);
+    vm->breg.p = ptr;
+}
+
+/*******************************************************************
+** : fb@- ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFBFetchMinus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    ptr = vm->breg.p;
+    ficlStackPushFloat(vm->floatStack, *ptr--);
+    vm->breg.p = ptr;
+}
+
+/*******************************************************************
+** : fb!+ ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFBStorePlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->breg.p;
+    *ptr++ = ficlStackPopFloat(vm->floatStack);
+    vm->breg.p = ptr;
+}
+
+/*******************************************************************
+** : fb+!+ ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFBPlusStorePlus(ficlVm *vm)
+{
+    ficlFloat *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ptr = vm->breg.p;
+    *ptr++ += ficlStackPopFloat(vm->floatStack);
+    vm->breg.p = ptr;
 }
 
 /**************************************************************************
@@ -814,8 +1026,23 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "set-precision", ficlPrimitiveSetPrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,      FICL_WORD_DEFAULT);
 
-    ficlDictionarySetPrimitive(dictionary, "faxpy",  ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f!+",       ficlPrimitiveFStorePlus,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f@+",       ficlPrimitiveFFetchPlus,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f+!+",      ficlPrimitiveFPlusStorePlus,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
+
+    ficlDictionarySetPrimitive(dictionary,  "fa@",  ficlPrimitiveFAFetch,   FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fa!",  ficlPrimitiveFAStore,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fa@+", ficlPrimitiveFAFetchPlus,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fa@-", ficlPrimitiveFAFetchMinus,   FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fa!+", ficlPrimitiveFAStorePlus,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fa+!+", ficlPrimitiveFAPlusStorePlus,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fb@",  ficlPrimitiveFBFetch,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fb!",  ficlPrimitiveFBStore,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fb@+", ficlPrimitiveFBFetchPlus,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fb@-", ficlPrimitiveFBFetchMinus,   FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary,  "fb+!+", ficlPrimitiveFBPlusStorePlus,    FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,     FICL_WORD_COMPILE_ONLY);

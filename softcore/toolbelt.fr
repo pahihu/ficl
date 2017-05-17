@@ -15,8 +15,6 @@
 : [UNDEFINED]               ( "name" -- flag )
     BL WORD FIND NIP 0= ; IMMEDIATE
 
-: C+!  ( n addr -- )  DUP >R  C@ +  R> C! ;
-
 : POSSIBLY  ( "name" -- )  BL WORD FIND  ?DUP AND IF  EXECUTE  THEN ;
 
 : ANEW  ( "name" -- )( Run: -- )  >IN @ POSSIBLY  >IN ! MARKER ;

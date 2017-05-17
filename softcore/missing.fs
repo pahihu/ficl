@@ -63,7 +63,6 @@ DECIMAL
 	WHILE	1 chars -
 	REPEAT ;
 
-: !+ ( n a1 -- a2 ) tuck ! cell+ ;
 : 3DUP ( a b c -- a b c a b c ) dup 2over rot ;
 : BETWEEN ( n lo hi -- f ) 1+ within ;
 : BOUNDS ( lo count -- hi lo ) over + swap ;
