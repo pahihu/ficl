@@ -1,4 +1,4 @@
-OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o mingw32.o utility.o hash.o callback.o word.o curterm.o extras.o bswap.o dlfcn.o
+OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o mingw32.o utility.o hash.o callback.o word.o curterm.o extras.o bswap.o dlfcn.o eng.o
 HEADERS= ficl.h ficlplatform/mingw32.h
 #
 # Flags for shared library

@@ -1070,6 +1070,7 @@ struct ficlVm
     ficlStack     *returnStack;     /* return stack                     */
 #if FICL_WANT_FLOAT
     ficlStack     *floatStack;     /* float stack (optional)           */
+    ficlUnsigned   precision;      /* precision used in F. FE. FS.     */
 #endif
     ficlCell       sourceId;   /* -1 if EVALUATE, 0 if normal input, >0 if a file */
     ficlTIB        tib;        /* address of incoming text string  */

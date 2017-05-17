@@ -179,22 +179,22 @@ static void ficlPrimitiveFDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad,"%#f ",f);
+    sprintf(vm->pad, "%.*f ", vm->precision, f);
     ficlVmTextOut(vm, vm->pad);
 }
 
 /*******************************************************************
-** Display a float in engineering format.
-** fe. ( r -- )
+** Display a float in scientific format.
+** fs. ( r -- )
 *******************************************************************/
-static void ficlPrimitiveEDot(ficlVm *vm)
+static void ficlPrimitiveSDot(ficlVm *vm)
 {
     float f;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad,"%#e ",f);
+    sprintf(vm->pad,"%.*e ", vm->precision, f);
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -465,6 +465,122 @@ static void ficlPrimitiveFToD(ficlVm *vm)
     ficlStackPush2Integer(vm->dataStack, d);
 }
 
+/*******************************************************************
+** fround ( r1 -- r2 )
+*******************************************************************/
+static void ficlPrimitiveFRound(ficlVm *vm)
+{
+    ficlFloat r1;
+
+    FICL_STACK_CHECK(vm->floatStack,1,1);
+
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, rint(r1));
+}
+
+/*******************************************************************
+** f** ( r1 r2 -- r3 )
+*******************************************************************/
+static void ficlPrimitiveFStarStar(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack,2,1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, pow(r1, r2));
+}
+
+/*******************************************************************
+** fabs ( r1 -- r2 )
+*******************************************************************/
+static void ficlPrimitiveFAbs(ficlVm *vm)
+{
+    ficlFloat r1;
+
+    FICL_STACK_CHECK(vm->floatStack,1,1);
+
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, fabs(r1));
+}
+
+/*******************************************************************
+** Display a float in engineering format.
+** fe. ( r -- )
+*******************************************************************/
+extern char* eng(double, int, int);
+static void ficlPrimitiveEDot(ficlVm *vm)
+{
+    float f;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    f = ficlStackPopFloat(vm->floatStack);
+    sprintf(vm->pad, "%s ", eng(f, vm->precision, 1));
+    ficlVmTextOut(vm, vm->pad);
+}
+
+/*******************************************************************
+** Return number of significant digits used by F. FE. FS.
+** precision ( -- u )
+*******************************************************************/
+static void ficlPrimitivePrecision(ficlVm *vm)
+{
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    ficlStackPushUnsigned(vm->dataStack, vm->precision);
+}
+
+/*******************************************************************
+** Set the number of significant digits used by F. FE. FS.
+** set-precision ( u -- )
+*******************************************************************/
+static void ficlPrimitiveSetPrecision(ficlVm *vm)
+{
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    vm->precision = ficlStackPopUnsigned(vm->dataStack);
+}
+
+/*******************************************************************
+** f~ ( F: r1 r2 r3 -- r3 ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFProximate(ficlVm *vm)
+{
+    union {
+        ficlFloat f;
+        ficlUnsigned u;
+    } d1, d2;
+    ficlUnsigned flag = FICL_FALSE;
+    ficlFloat r1, r2, r3;
+
+    FICL_STACK_CHECK(vm->floatStack, 3, 0);
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    r3 = ficlStackPopFloat(vm->floatStack);
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    if (r3 > 0.0)
+    {
+        if (fabs(r1 - r2) < r3)
+            flag = FICL_TRUE;
+    }
+    else if (r3 < 0.0)
+    {
+        if (fabs(r1 - r2) < fabs(r3 * (fabs(r1) + fabs(r2))))
+            flag = FICL_TRUE;
+    }
+    else
+    {
+        d1.f = r1;
+        d2.f = r2;
+        if (d1.u == d2.u)
+            flag = FICL_TRUE;
+    }
+    ficlStackPushUnsigned(vm->dataStack, flag);
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -641,7 +757,6 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     return(1);
 }
 
-
 #if FICL_WANT_LOCALS
 
 static void ficlPrimitiveFLocalParen(ficlVm *vm)
@@ -679,18 +794,25 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "fliteral",  ficlPrimitiveFLiteralImmediate,     FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "f.",        ficlPrimitiveFDot,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,  FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fs.",       ficlPrimitiveSDot,           FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "floats",    ficlPrimitiveFloats,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmin",      ficlPrimitiveFMin,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmax",      ficlPrimitiveFMax,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "falign",    ficlPrimitiveFAlign,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "faligned",  ficlPrimitiveFAligned,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "floor",     ficlPrimitiveFloor,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "falign",    ficlPrimitiveFAlign,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "faligned",  ficlPrimitiveFAligned,       FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "floor",     ficlPrimitiveFloor,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "d>f",       ficlPrimitiveDToF,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f>d",       ficlPrimitiveFToD,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fround",    ficlPrimitiveFRound,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f**",       ficlPrimitiveFStarStar,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fabs",      ficlPrimitiveFAbs,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "precision", ficlPrimitivePrecision,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "set-precision", ficlPrimitiveSetPrecision,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,      FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",  ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
@@ -703,8 +825,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
  /* 
     Missing words:
 
-    d>f
-    f>d 
+    fvariable
+    represent
 */
 
     ficlDictionarySetConstant(environment, "floating",       FICL_FALSE);  /* not all required words are present */
