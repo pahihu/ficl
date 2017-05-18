@@ -248,6 +248,8 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 		vm->ip = (ficlIp)ip;	\
 		vm->dataStack->top = dataTop;	\
 		vm->returnStack->top = returnTop;	\
+		vm->areg = areg; \
+		vm->breg = breg; \
       spilled = 1; \
 		FLOAT_LOCAL_VARIABLE_SPILL \
 		LOCALS_LOCAL_VARIABLE_SPILL
@@ -256,6 +258,8 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 		ip = (ficlInstruction *)vm->ip; \
 		dataTop = vm->dataStack->top;	\
 		returnTop = vm->returnStack->top;	\
+		areg = vm->areg; \
+		breg = vm->breg; \
       spilled = 0; \
 		FLOAT_LOCAL_VARIABLE_REFILL	\
 		LOCALS_LOCAL_VARIABLE_REFILL
@@ -298,6 +302,7 @@ void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
 	ficlCountedString *s;
 	ficlCell *cell;
 	char *cp;
+	ficlCell areg, breg;
 
 	once = (fw != NULL);
 	if (once)
@@ -1708,7 +1713,261 @@ BRANCH_PAREN:
 				dataTop[0].i = FICL_2UNSIGNED_GET_LOW(qr.quotient);
 				continue;
 			}
+			
+/* : !+ ( x addr1 -- addr2 ) */
+case ficlInstructionStorePlus:
+{
+    ficlCell *pCell;
+    ficlInteger x;
 
+    CHECK_STACK(2, 1);
+    
+    pCell = (dataTop--)->p;
+    pCell->i = dataTop->i;
+    dataTop->p =pCell + 1;
+    continue;
+}
+
+/* : c!+ ( c c-addr1 -- c-addr2 ) */
+case ficlInstructionCStorePlus:
+{
+    ficlUnsigned8 *pChar;
+
+    CHECK_STACK(2, 1);
+    
+    pChar = (dataTop--)->p;
+    *pChar = dataTop->u;
+    dataTop->p = pChar + 1;
+    continue;
+}
+
+/* : @+ ( addr1 -- addr2 x ) */
+case ficlInstructionFetchPlus:
+{
+    ficlCell *pCell;
+
+    CHECK_STACK(1, 2);
+    
+    pCell = dataTop->p;
+    dataTop->p = pCell + 1;
+    (++dataTop)->i = pCell->i;
+    continue;
+}
+
+/* : c@+ ( c-addr1 -- c-addr2 c ) */
+case ficlInstructionCFetchPlus:
+{
+    ficlUnsigned8 *pChar;
+
+    CHECK_STACK(1, 2);
+    
+    pChar = dataTop->p;
+    dataTop->p = pChar + 1;
+    (++dataTop)->u = *pChar;
+    continue;
+}
+
+/* : c+! ( c c-addr1 -- ) */
+case ficlInstructionCPlusStore:
+{
+    ficlUnsigned8 *pChar;
+
+    CHECK_STACK(2, 0);
+    
+    pChar = (dataTop--)->p;
+    *pChar += (dataTop--)->u;
+    continue;
+}
+
+/* : +!+ ( x addr1 -- addr2 ) */
+case ficlInstructionPlusStorePlus:
+{
+    ficlCell *pCell;
+    ficlInteger x;
+
+    CHECK_STACK(2, 1);
+    pCell = (dataTop--)->p;
+    pCell->i += dataTop->i;
+    dataTop->p = pCell + 1;
+    continue;
+}
+
+/* : c+!+ ( c c-addr1 -- c-addr2 ) */
+case ficlInstructionCPlusStorePlus:
+{
+    ficlUnsigned8 *pChar;
+
+    CHECK_STACK(2, 1);
+    
+    pChar = (dataTop--)->p;
+    *pChar += dataTop->u;
+    dataTop->p = pChar + 1;
+    continue;
+}
+
+/* : >a ( x -- ) */
+case ficlInstructionToA:
+{
+    CHECK_STACK(1, 0);
+
+    areg.u = (dataTop--)->u;
+    continue;
+}
+
+/* : a> ( -- x ) */
+case ficlInstructionAFrom:
+{
+    CHECK_STACK(0, 1);
+
+    (++dataTop)->u = areg.u;
+    continue;
+}
+
+/* : a@ ( -- x ) */
+case ficlInstructionAFetch:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = areg.p;
+    (++dataTop)->u = *ptr;
+    continue;
+}
+
+/* : a! ( x -- ) */
+case ficlInstructionAStore:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(1, 0);
+
+    ptr = areg.p;
+    *ptr = (dataTop--)->u;
+    continue;
+
+}
+
+/* : a@+ ( -- x ) */
+case ficlInstructionAFetchPlus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = areg.p;
+    (++dataTop)->u = *ptr++;
+    areg.p = ptr;
+    continue;
+}
+
+/* : a@- ( -- x ) */
+case ficlInstructionAFetchMinus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = areg.p;
+    (++dataTop)->u = *ptr--;
+    areg.p = ptr;
+    continue;
+}
+
+/* : a!+ ( x -- ) */
+case ficlInstructionAStorePlus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(1, 0);
+
+    ptr = areg.p;
+    *ptr++ = (dataTop--)->u;
+    areg.p = ptr;
+    continue;
+}
+
+/* : >b ( x -- ) */
+case ficlInstructionToB:
+{
+    CHECK_STACK(1, 0);
+
+    breg.u = (dataTop--)->u;
+    continue;
+}
+
+/* : b> ( -- x ) */
+case ficlInstructionBFrom:
+{
+    CHECK_STACK(0, 1);
+
+    (++dataTop)->u = breg.u;
+    continue;
+}
+
+/* : b@ ( -- x ) */
+case ficlInstructionBFetch:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = breg.p;
+    (++dataTop)->u = *ptr;
+    continue;
+}
+
+/* : b! ( x -- ) */
+case ficlInstructionBStore:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(1, 0);
+
+    ptr = breg.p;
+    *ptr = (dataTop--)->u;
+    continue;
+
+}
+
+/* : b@+ ( -- x ) */
+case ficlInstructionBFetchPlus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = breg.p;
+    (++dataTop)->u = *ptr++;
+    breg.p = ptr;
+    continue;
+}
+
+/* : b@- ( -- x ) */
+case ficlInstructionBFetchMinus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(0, 1);
+
+    ptr = breg.p;
+    (++dataTop)->u = *ptr--;
+    breg.p = ptr;
+    continue;
+}
+
+/* : b!+ ( x -- ) */
+case ficlInstructionBStorePlus:
+{
+    ficlUnsigned *ptr;
+
+    CHECK_STACK(1, 0);
+
+    ptr = breg.p;
+    *ptr++ = (dataTop--)->u;
+    breg.p = ptr;
+    continue;
+}
 
 #if FICL_WANT_FLOAT
 
@@ -2269,6 +2528,231 @@ FMINUSROLL:
 				floatTop->f /= 2.0;
 				continue;
 			}
+
+/*******************************************************************
+** f!+ ( addr1 -- addr2 ) ( F: r -- )
+*******************************************************************/
+case ficlInstructionFStorePlus:
+{
+    ficlFloat *pFloat;
+    ficlInteger x;
+
+    CHECK_STACK(1, 1);
+    CHECK_FLOAT_STACK(1, 0);
+
+    pFloat = dataTop->p;
+    *pFloat = (floatTop--)->f;
+    dataTop->p = pFloat + 1;
+    continue;
+}
+
+/*******************************************************************
+** f@+ ( addr1 -- addr2 ) ( F: -- r )
+*******************************************************************/
+case ficlInstructionFFetchPlus:
+{
+    ficlFloat *pFloat;
+
+    CHECK_STACK(1, 1);
+    CHECK_FLOAT_STACK(0, 1);
+
+    pFloat = dataTop->p;
+    (++floatTop)->f = *pFloat;
+    dataTop->p = pFloat + 1;
+    continue;
+}
+
+/*******************************************************************
+** f+!+ ( addr1 -- addr2 ) ( F: r -- )
+*******************************************************************/
+case ficlInstructionFPlusStorePlus:
+{
+    ficlFloat *pFloat;
+
+    CHECK_STACK(1, 1);
+    CHECK_FLOAT_STACK(1, 0);
+
+    pFloat = dataTop->p;
+    *pFloat += (floatTop--)->f;
+    dataTop->p = pFloat + 1;
+    continue;
+}
+
+/*******************************************************************
+** : fa@ ( F: -- r )
+*******************************************************************/
+case ficlInstructionFAFetch:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = areg.p;
+    (++floatTop)->f = *ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fa! ( F: r -- )
+*******************************************************************/
+case ficlInstructionFAStore:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = areg.p;
+    *ptr = (floatTop--)->f;
+    continue;
+}
+
+/*******************************************************************
+** : fa@+ ( F: -- r )
+*******************************************************************/
+case ficlInstructionFAFetchPlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = areg.p;
+    (++floatTop)->f = *ptr++;
+    areg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fa@- ( F: -- r )
+*******************************************************************/
+case ficlInstructionFAFetchMinus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = areg.p;
+    (++floatTop)->f = *ptr--;
+    areg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fa!+ ( F: r -- )
+*******************************************************************/
+case ficlInstructionFAStorePlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = areg.p;
+    *ptr++ = (floatTop--)->f;
+    areg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fa+!+ ( F: r -- )
+*******************************************************************/
+case ficlInstructionFAPlusStorePlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = areg.p;
+    *ptr++ += (floatTop--)->f;
+    areg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fb@ ( F: -- r )
+*******************************************************************/
+case ficlInstructionFBFetch:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = breg.p;
+    (++floatTop)->f = *ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fb! ( F: r -- )
+*******************************************************************/
+case ficlInstructionFBStore:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = breg.p;
+    *ptr = (floatTop--)->f;
+    continue;
+}
+
+/*******************************************************************
+** : fb@+ ( F: -- r )
+*******************************************************************/
+case ficlInstructionFBFetchPlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = breg.p;
+    (++floatTop)->f = *ptr++;
+    breg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fb@- ( F: -- r )
+*******************************************************************/
+case ficlInstructionFBFetchMinus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(0, 1);
+
+    ptr = breg.p;
+    (++floatTop)->f = *ptr--;
+    breg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fb!+ ( F: r -- )
+*******************************************************************/
+case ficlInstructionFBStorePlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = breg.p;
+    *ptr++ = (floatTop--)->f;
+    breg.p = ptr;
+    continue;
+}
+
+/*******************************************************************
+** : fb+!+ ( F: r -- )
+*******************************************************************/
+case ficlInstructionFBPlusStorePlus:
+{
+    ficlFloat *ptr;
+
+    CHECK_FLOAT_STACK(1, 0);
+
+    ptr = breg.p;
+    *ptr++ += (floatTop--)->f;
+    breg.p = ptr;
+    continue;
+}
 
 #endif /* FICL_WANT_FLOAT */
 
