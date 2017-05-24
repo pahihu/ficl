@@ -212,7 +212,9 @@ static void ficlPrimitiveFDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
-    int prec, len, rSign, rExp;
+    int i, prec, len, rSign, rExp;
+    char *pHold;
+    char tmp[32];
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
@@ -231,12 +233,39 @@ static void ficlPrimitiveFDot(ficlVm *vm)
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
-            len = 0;
+            len = 0; pHold = vm->pad;
             if (rSign)
-                vm->pad[len++] = '-';
-            sprintf(vm->pad + len, "%f", r);
+                *pHold++ = '-';
+            sprintf(tmp, "%ld", (ficlUnsigned) rDisp);
+            if (rExp + 1 > prec)
+            {
+                for (i = 0; i < prec; i++)
+                    *pHold++ = tmp[i];
+                for (i = prec; i < rExp + 1; i++)
+                    *pHold++ = '0';
+                *pHold++ = '.';
+            }
+            else
+            {
+                if (rExp < 0)
+                {
+                    *pHold++ = '0'; *pHold++ = '.';
+                    for (i = rExp + 1; i < 0; i++)
+                        *pHold++ = '0';
+                    for (i = 0; i < prec; i++)
+                        *pHold++ = tmp[i];
+                }
+                else
+                {
+                    for (i = 0; i < rExp + 1; i++)
+                        *pHold++ = tmp[i];
+                    *pHold++ = '.';
+                    for (; i < prec; i++)
+                        *pHold++ = tmp[i];
+                }
+            }
             // zero supression
-            len = strlen(vm->pad) - 1;
+            len = pHold - vm->pad - 1;
             while ('0' == vm->pad[len]) len--;
             vm->pad[++len] = ' ';
             vm->pad[++len] = '\0';
