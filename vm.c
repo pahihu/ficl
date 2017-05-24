@@ -3125,7 +3125,7 @@ void ficlVmReset(ficlVm *vm)
     ficlStackReset(vm->dataStack);
 #if FICL_WANT_FLOAT
     ficlStackReset(vm->floatStack);
-    vm->precision   =  6;
+    vm->precision   =  FICL_FLOAT_PRECISION;
 #endif
     vm->base        = 10;
     return;

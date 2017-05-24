@@ -1721,6 +1721,7 @@ FICL_PLATFORM_EXTERN void       ficlPrimitiveTick(ficlVm *vm);
 FICL_PLATFORM_EXTERN void       ficlPrimitiveParseStepParen(ficlVm *vm);
 #if FICL_WANT_LOCALS
 FICL_PLATFORM_EXTERN void       ficlLocalParen(ficlVm *vm, int isDouble, int isFloat);
+#define FICL_FLOAT_PRECISION    (4 == sizeof(ficlFloat) ? 6 : 15)
 #endif /* FICL_WANT_LOCALS */
 
 

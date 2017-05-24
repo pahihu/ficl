@@ -167,7 +167,6 @@ ficlWord   *ficlDictionarySetF2Constant(ficlDictionary *dictionary, char *name, 
     return ficlDictionarySet2ConstantInstruction(dictionary, s, ficlInstructionF2ConstantParen, *(ficl2Integer *)(&value));
 }
 
-
 /*******************************************************************
 ** Display a float in decimal format.
 ** f. ( r -- )
@@ -179,7 +178,7 @@ static void ficlPrimitiveFDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad, "%.*f ", vm->precision, f);
+    sprintf(vm->pad, "%.*f ", (int) vm->precision, f);
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -194,7 +193,7 @@ static void ficlPrimitiveSDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad,"%.*e ", vm->precision, f);
+    sprintf(vm->pad,"%.*e ", (int) vm->precision, f);
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -517,7 +516,7 @@ static void ficlPrimitiveEDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad, "%s ", eng(f, vm->precision, 1));
+    sprintf(vm->pad, "%s ", eng(f, (int) vm->precision, 1));
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -538,9 +537,15 @@ static void ficlPrimitivePrecision(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveSetPrecision(ficlVm *vm)
 {
+    ficlUnsigned prec;
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
-    vm->precision = ficlStackPopUnsigned(vm->dataStack);
+    prec = ficlStackPopUnsigned(vm->dataStack);
+    if (prec < 1)
+        prec = 1;
+    else if (prec > FICL_FLOAT_PRECISION)
+        prec = FICL_FLOAT_PRECISION;
+    vm->precision = prec;
 }
 
 /*******************************************************************
