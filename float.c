@@ -167,18 +167,80 @@ ficlWord   *ficlDictionarySetF2Constant(ficlDictionary *dictionary, char *name, 
     return ficlDictionarySet2ConstantInstruction(dictionary, s, ficlInstructionF2ConstantParen, *(ficl2Integer *)(&value));
 }
 
+static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, double *out_mant, int *out_exp)
+{
+    int expof10, sign;
+    double value, fract, display;
+
+    sign = 0;
+
+    value = (double) r;
+    if (value < 0.0)
+    {
+        sign = 1;
+        value = -value;
+    }
+    if (out_sign)
+        *out_sign = sign;
+
+    expof10 = lrint(floor(log10(value)));
+    if (out_exp)
+        *out_exp = expof10;
+
+    value   *= pow(10.0, precision - 1 - expof10);
+    fract    = modf(value, &display);
+    if (fract >= 0.5)
+    {
+        int ndigits = lrint(floor(log10(display)));
+        display += 1.0;
+        if (ndigits != lrint(floor(log10(display))))
+            *out_exp += 1;
+    }
+    if (out_mant)
+        *out_mant = display;
+
+    value = display * pow(10.0, expof10 - precision + 1.0);
+
+    return (ficlFloat) value;
+}
+
 /*******************************************************************
 ** Display a float in decimal format.
 ** f. ( r -- )
 *******************************************************************/
 static void ficlPrimitiveFDot(ficlVm *vm)
 {
-    ficlFloat f;
+    ficlFloat r;
+    double rDisp;
+    int prec, len, rSign, rExp;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
-    f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad, "%.*f ", (int) vm->precision, f);
+    prec = vm->precision;
+    r = ficlStackPopFloat(vm->floatStack);
+    switch (fpclassify(r))
+    {
+        case FP_INFINITE:
+            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            break;
+        case FP_NAN:
+            sprintf(vm->pad, "nan ");
+            break;
+        case FP_ZERO:
+            sprintf(vm->pad, "0. ");
+            break;
+        default:
+            r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
+            len = 0;
+            if (rSign)
+                vm->pad[len++] = '-';
+            sprintf(vm->pad + len, "%f", r);
+            // zero supression
+            len = strlen(vm->pad) - 1;
+            while ('0' == vm->pad[len]) len--;
+            vm->pad[++len] = ' ';
+            vm->pad[++len] = '\0';
+    }
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -188,12 +250,34 @@ static void ficlPrimitiveFDot(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveSDot(ficlVm *vm)
 {
-    ficlFloat f;
+    ficlFloat r;
+    double rDisp;
+    int prec, len, rSign, rExp;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
-    f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad,"%.*e ", (int) vm->precision, f);
+    prec = vm->precision;
+    r = ficlStackPopFloat(vm->floatStack);
+    switch (fpclassify(r))
+    {
+        case FP_INFINITE:
+            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            break;
+        case FP_NAN:
+            sprintf(vm->pad, "nan ");
+            break;
+        case FP_ZERO:
+            sprintf(vm->pad, "%.*fE0 ", prec - 1, 0.0);
+            break;
+        default:
+            r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
+            len = 0;
+            if (rSign)
+                vm->pad[len++] = '-';
+            // 1 '.' prec - 1
+            rDisp *= pow(10.0, 1 - prec);
+            sprintf(vm->pad + len, "%.*fE%d ", prec - 1, rDisp, rExp);
+    }
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -212,7 +296,7 @@ static ficlInteger ficlFloatStackDisplayCallback(void *c, ficlCell *cell)
 {
     struct stackContext *context = (struct stackContext *)c;
     char buffer[64];
-    sprintf(buffer, "[0x%08x %3d] %16f (0x%08x)\n", cell, context->count++, (double)(cell->f), cell->i);
+    sprintf(buffer, "[0x%p %3d] %16f (0x%08lx)\n", cell, context->count++, (double)(cell->f), cell->i);
     ficlVmTextOut(context->vm, buffer);
 	return FICL_TRUE;
 }
@@ -282,12 +366,12 @@ static void ficlPrimitiveFLiteralImmediate(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveFSqrt(ficlVm *vm)
 {
-    ficlFloat f;
+    ficlFloat r;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 1);
 
-    f = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, (ficlFloat) sqrt(f));
+    r = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, (ficlFloat) sqrt(r));
 }
 
 /*******************************************************************
@@ -511,12 +595,44 @@ static void ficlPrimitiveFAbs(ficlVm *vm)
 extern char* eng(double, int, int);
 static void ficlPrimitiveEDot(ficlVm *vm)
 {
-    float f;
-
+    ficlFloat r;
+    double rDisp;
+    int len, prec, rSign, rExp, eng, scale;
+        
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
-    f = ficlStackPopFloat(vm->floatStack);
-    sprintf(vm->pad, "%s ", eng(f, (int) vm->precision, 1));
+    prec = vm->precision;
+    r = ficlStackPopFloat(vm->floatStack);
+    switch (fpclassify(r))
+    {
+        case FP_INFINITE:
+            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            break;
+        case FP_NAN:
+            sprintf(vm->pad, "nan ");
+            break;
+        case FP_ZERO:
+            sprintf(vm->pad, "%.*fE0 ", prec - 1, 0.0);
+            break;
+        default:
+            r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
+            if (rExp < 0)
+            {
+                eng = -((3 - rExp) / 3) * 3;
+                scale = rExp - eng;
+            }
+            else
+            {
+                eng = (rExp / 3) * 3;
+                scale = rExp - eng;
+            }
+            // 1 + scale '.' prec - 1 - scale
+            rDisp *= pow(10.0, 1 + scale - prec);
+            len = 0;
+            if (rSign)
+                vm->pad[len++] = '-';
+            sprintf(vm->pad + len, "%.*fE%d", prec - 1 - scale, rDisp, eng);
+    }
     ficlVmTextOut(vm, vm->pad);
 }
 
