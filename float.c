@@ -207,6 +207,74 @@ static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, do
 }
 
 /*******************************************************************
+** Place at c-addr the extern representation of the u most
+** most significant digits of r.
+** represent ( c-addr u -- n flag1 flag2 ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveRepresent(ficlVm *vm)
+{
+    ficlFloat r;
+    double rDisp;
+    int rSign, rExp, bufLen;
+    char tmp[32];
+    char *cAddr, *buffer;
+    ficlUnsigned u, valid;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 2, 3);
+
+
+    r = ficlStackPopFloat(vm->floatStack);
+    u = ficlStackPopUnsigned(vm->dataStack);
+    cAddr = ficlStackPopPointer(vm->dataStack);
+
+    valid = FICL_TRUE;
+    rSign = 0;
+    buffer = &tmp[0];
+    // limit range of significant digits
+    if (u < 1)
+        u = 1;
+    else if (u > FICL_FLOAT_PRECISION)
+        u = FICL_FLOAT_PRECISION;
+
+    switch (fpclassify(r))
+    {
+        case FP_INFINITE:
+            buffer = r < 0 ? "-inf" : "inf";
+            rSign  = r < 0 ? 1 : 0; 
+            valid  = FICL_FALSE; 
+            break;
+        case FP_NAN:
+            buffer = "nan";
+            rSign  = copysign(1.0, r) < 0 ? 1 : 0;
+            valid  = FICL_FALSE;
+            break;
+        case FP_ZERO:
+            sprintf(tmp, "%0*u", u, 0);
+            rSign = copysign(1.0, r) < 0 ? 1 : 0;
+            rExp  = 1;
+            break;
+        default:
+            ficlRepresentPriv(r, u, &rSign, &rDisp, &rExp);
+            u = (ficlUnsigned) rDisp;
+            sprintf(tmp, "%lu", u);
+            rExp += 1;
+            break;
+    }
+    // copy buffer constents to output
+    bufLen = strlen(buffer);
+    strncpy(cAddr, buffer, bufLen);
+    // implementation defined: if not a valid FP number, 
+    // the returned exponent will be the length of the stored
+    // string
+    if (!valid)
+        rExp = bufLen;
+    ficlStackPushInteger(vm->dataStack, rExp);
+    ficlStackPushInteger(vm->dataStack, rSign ? FICL_TRUE : FICL_FALSE);
+    ficlStackPushUnsigned(vm->dataStack, valid);
+}
+
+/*******************************************************************
 ** Display a float in decimal format.
 ** f. ( r -- )
 *******************************************************************/
@@ -220,6 +288,7 @@ static void ficlPrimitiveFDot(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
+    len  = 0;
     prec = vm->precision;
     r = ficlStackPopFloat(vm->floatStack);
     switch (fpclassify(r))
@@ -231,11 +300,13 @@ static void ficlPrimitiveFDot(ficlVm *vm)
             sprintf(vm->pad, "nan ");
             break;
         case FP_ZERO:
-            sprintf(vm->pad, "0. ");
+            if (copysign(1.0, r) < 0)
+              vm->pad[len++] = '-';
+            sprintf(vm->pad + len, "0. ");
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
-            len = 0; pHold = vm->pad;
+            pHold = vm->pad;
             if (rSign)
                 *pHold++ = '-';
             sprintf(tmp, "%ld", (ficlUnsigned) rDisp);
@@ -287,8 +358,9 @@ static void ficlPrimitiveSDot(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
+    len  = 0;
     prec = vm->precision;
-    r = ficlStackPopFloat(vm->floatStack);
+    r    = ficlStackPopFloat(vm->floatStack);
     switch (fpclassify(r))
     {
         case FP_INFINITE:
@@ -298,11 +370,12 @@ static void ficlPrimitiveSDot(ficlVm *vm)
             sprintf(vm->pad, "nan ");
             break;
         case FP_ZERO:
-            sprintf(vm->pad, "%.*fE0 ", prec - 1, 0.0);
+            if (copysign(1.0, r) < 0)
+                vm->pad[len++] = '-';
+            sprintf(vm->pad + len, "%.*fE0 ", prec - 1, 0.0);
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
-            len = 0;
             if (rSign)
                 vm->pad[len++] = '-';
             // 1 '.' prec - 1
@@ -628,8 +701,9 @@ static void ficlPrimitiveEDot(ficlVm *vm)
         
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
+    len  = 0;
     prec = vm->precision;
-    r = ficlStackPopFloat(vm->floatStack);
+    r    = ficlStackPopFloat(vm->floatStack);
     switch (fpclassify(r))
     {
         case FP_INFINITE:
@@ -639,7 +713,9 @@ static void ficlPrimitiveEDot(ficlVm *vm)
             sprintf(vm->pad, "nan ");
             break;
         case FP_ZERO:
-            sprintf(vm->pad, "%.*fE0 ", prec - 1, 0.0);
+            if (copysign(1.0, r) < 0)
+                vm->pad[len++] = '-';
+            sprintf(vm->pad + len, "%.*fE0 ", prec - 1, 0.0);
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
@@ -655,7 +731,6 @@ static void ficlPrimitiveEDot(ficlVm *vm)
             }
             // 1 + scale '.' prec - 1 - scale
             rDisp *= pow(10.0, 1 + scale - prec);
-            len = 0;
             if (rSign)
                 vm->pad[len++] = '-';
             sprintf(vm->pad + len, "%.*fE%d", prec - 1 - scale, rDisp, eng);
@@ -961,6 +1036,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "precision", ficlPrimitivePrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "set-precision", ficlPrimitiveSetPrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "represent", ficlPrimitiveRepresent,      FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,          FICL_WORD_DEFAULT);
@@ -975,7 +1051,6 @@ void ficlSystemCompileFloat(ficlSystem *system)
     Missing words:
 
     fvariable
-    represent
 */
 
     ficlDictionarySetConstant(environment, "floating",       FICL_FALSE);  /* not all required words are present */
