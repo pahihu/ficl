@@ -250,7 +250,7 @@ static void ficlPrimitiveRepresent(ficlVm *vm)
             valid  = FICL_FALSE;
             break;
         case FP_ZERO:
-            sprintf(tmp, "%0*u", u, 0);
+            sprintf(tmp, "%0*u", (int) u, 0);
             rSign = copysign(1.0, r) < 0 ? 1 : 0;
             rExp  = 1;
             break;
@@ -622,13 +622,33 @@ static void ficlPrimitiveFloor(ficlVm *vm)
 static void ficlPrimitiveDToF(ficlVm *vm)
 {
     ficl2Integer d;
+    ficl2Unsigned ud;
     ficlFloat r;
+    int i, sign;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 0);
     FICL_STACK_CHECK(vm->floatStack, 0, 1);
 
     d = ficlStackPop2Integer(vm->dataStack);
+
+#if FICL_PLATFORM_HAS_2INTEGER
     r = (ficlFloat) d;
+#else
+    sign = 0;
+    if (ficl2IntegerIsNegative(d))
+    {
+        sign = 1;
+        d = ficl2IntegerNegate(d);
+    }
+    ud = FICL_2INTEGER_TO_2UNSIGNED(d);
+
+    r = (ficlFloat) FICL_2UNSIGNED_GET_HIGH(ud);
+    r = ldexp(r, 8 * sizeof(ficlUnsigned));
+    r += (ficlFloat) FICL_2UNSIGNED_GET_LOW(ud);
+
+    if (sign)
+        r = -r;
+#endif
     ficlStackPushFloat(vm->floatStack, r);
 }
 
@@ -638,13 +658,33 @@ static void ficlPrimitiveDToF(ficlVm *vm)
 static void ficlPrimitiveFToD(ficlVm *vm)
 {
     ficl2Integer d;
-    ficlFloat r;
+    ficl2Unsigned ud;
+    ficlFloat r, MaxUnsigned;
+    int sign;
+    ficlUnsigned high, low;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
     FICL_STACK_CHECK(vm->dataStack, 0, 2);
 
     r = ficlStackPopFloat(vm->floatStack);
+#if FICL_PLATFORM_HAS_2INTEGER
     d = (ficl2Integer) trunc(r);
+#else
+    r = trunc(r);
+    sign = 0;
+    if (r < 0.0)
+    {
+        sign = 1;
+        r = -r;
+    }
+    MaxUnsigned = scalbn(1.0, 8 * sizeof(ficlUnsigned));
+    low  = (ficlUnsigned) remainder(r, MaxUnsigned);
+    high = (ficlUnsigned) r / MaxUnsigned ;
+    FICL_2UNSIGNED_SET(high, low, ud);
+    d = FICL_2UNSIGNED_TO_2INTEGER(ud);
+    if (sign)
+        d = ficl2IntegerNegate(d);
+#endif
     ficlStackPush2Integer(vm->dataStack, d);
 }
 
@@ -984,12 +1024,12 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
 
 static void ficlPrimitiveFLocalParen(ficlVm *vm)
 {
-   ficlLocalParen(vm, FICL_FALSE, FICL_TRUE);
+   ficlLocalParen(vm, (int) FICL_FALSE, (int) FICL_TRUE);
 }
 
 static void ficlPrimitiveF2LocalParen(ficlVm *vm)
 {
-   ficlLocalParen(vm, FICL_TRUE, FICL_TRUE);
+   ficlLocalParen(vm, (int) FICL_TRUE, (int) FICL_TRUE);
 }
 
 #endif /* FICL_WANT_LOCALS */

@@ -623,6 +623,32 @@ static void ficlPrimitiveBSwap16(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap16(u));
 }
 
+#ifdef __LP64__
+
+/* : BSWAP32 ( u1 -- u2 ) */
+static void ficlPrimitiveBSwap32(ficlVm *vm)
+{
+    ficlUnsigned32 u;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    u = ficlStackPopUnsigned(vm->dataStack);
+    ficlStackPushUnsigned(vm->dataStack, bswap32(u));
+}
+
+/* : BSWAP64 ( ud1 -- ud2 ) */
+static void ficlPrimitiveBSwap64(ficlVm *vm)
+{
+    ficlUnsigned u;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    u = ficlStackPopUnsigned(vm->dataStack);
+    ficlStackPushUnsigned(vm->dataStack, bswap64(u));
+}
+
+#else
+
 /* : BSWAP32 ( u1 -- u2 ) */
 static void ficlPrimitiveBSwap32(ficlVm *vm)
 {
@@ -644,6 +670,8 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
     u = ficlStackPop2Unsigned(vm->dataStack);
     ficlStackPush2Unsigned(vm->dataStack, bswap64(u));
 }
+
+#endif
 
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)

@@ -9,7 +9,7 @@
 void *ficlAlignPointer(void *ptr)
 {
 #if FICL_PLATFORM_ALIGNMENT > 1
-	int p = (int)ptr;
+	ficlInteger p = (ficlInteger)ptr;
 	if (p & (FICL_PLATFORM_ALIGNMENT - 1))
 		ptr = (void *)((p & ~(FICL_PLATFORM_ALIGNMENT - 1)) + FICL_PLATFORM_ALIGNMENT);
 #endif
@@ -246,7 +246,7 @@ void ficlCompatibilityTextOutCallback(ficlCallback *callback, char *text, ficlCo
 					continue;
 				case '\n':
 					text++;
-					newline = FICL_TRUE;
+					newline = (int) FICL_TRUE;
 					break;
 				default:
 					*trace++ = *text++;

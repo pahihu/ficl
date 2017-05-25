@@ -378,7 +378,7 @@ static void ficlPrimitiveSprintf(ficlVm *vm) /*  */
 	int base = 10;
 	int unsignedInteger = FICL_FALSE;
 
-	int append = FICL_TRUE;
+	int append = (int) FICL_TRUE;
 
 	while (format < formatStop)
 	{
@@ -439,7 +439,7 @@ static void ficlPrimitiveSprintf(ficlVm *vm) /*  */
 					base = 16;
 				case 'u':
 				case 'U':
-					unsignedInteger = FICL_TRUE;
+					unsignedInteger = (int) FICL_TRUE;
 				case 'd':
 				case 'D':
 				{
@@ -1362,7 +1362,7 @@ static void ficlPrimitiveSetObjectFlag(ficlVm *vm)
 
 static void ficlPrimitiveIsObject(ficlVm *vm)
 {
-    int flag;
+    ficlUnsigned flag;
     ficlWord *word = (ficlWord *)ficlStackPopPointer(vm->dataStack);
     
     flag = ((word != NULL) && (word->flags & FICL_WORD_OBJECT)) ? FICL_TRUE : FICL_FALSE;
@@ -2562,23 +2562,23 @@ void ficlLocalParenIm(ficlVm *vm, int isDouble, int isFloat)
 
 static void ficlPrimitiveDoLocalIm(ficlVm *vm)
 {
-    ficlLocalParenIm(vm, FICL_FALSE, FICL_FALSE);
+    ficlLocalParenIm(vm, (int) FICL_FALSE, (int) FICL_FALSE);
 }
 
 static void ficlPrimitiveDo2LocalIm(ficlVm *vm)
 {
-    ficlLocalParenIm(vm, FICL_TRUE, FICL_FALSE);
+    ficlLocalParenIm(vm, (int) FICL_TRUE, (int) FICL_FALSE);
 }
 
 #if FICL_WANT_FLOAT
 static void ficlPrimitiveDoFLocalIm(ficlVm *vm)
 {
-    ficlLocalParenIm(vm, FICL_FALSE, FICL_TRUE);
+    ficlLocalParenIm(vm, (int) FICL_FALSE, (int) FICL_TRUE);
 }
 
 static void ficlPrimitiveDoF2LocalIm(ficlVm *vm)
 {
-    ficlLocalParenIm(vm, FICL_TRUE, FICL_TRUE);
+    ficlLocalParenIm(vm, (int) FICL_TRUE, (int) FICL_TRUE);
 }
 #endif /* FICL_WANT_FLOAT */
 
@@ -2693,7 +2693,7 @@ static void ficlPrimitiveLocalParen(ficlVm *vm)
 
 static void ficlPrimitive2LocalParen(ficlVm *vm)
 {
-   ficlLocalParen(vm, FICL_TRUE, FICL_FALSE);
+   ficlLocalParen(vm, (int) FICL_TRUE, (int) FICL_FALSE);
 }
 
 

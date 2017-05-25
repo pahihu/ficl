@@ -101,13 +101,13 @@ int ficlVmParsePrefix(ficlVm *vm, ficlString s)
                 ficlVmSetTibIndex(vm, s.text + n - vm->tib.text);
                 ficlVmExecuteWord(vm, word);
 
-                return FICL_TRUE;
+                return (int) FICL_TRUE;
             }
             word = word->link;
         }
     }
 
-    return FICL_FALSE;
+    return (int) FICL_FALSE;
 }
 
 

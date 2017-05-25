@@ -3411,7 +3411,8 @@ static int ficlNumberSeparator(unsigned c)
 
 int ficlVmParseNumber(ficlVm *vm, ficlString s)
 {
-    ficl2Integer accumulator;
+    ficl2Unsigned accumulator;
+    ficl2Integer  d;
     char isNegative         = 0;
     char isDouble           = 0;
     unsigned base           = vm->base;
@@ -3420,7 +3421,7 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
     unsigned c;
     unsigned digit;
 
-    FICL_2INTEGER_SET(0, 0, accumulator);
+    FICL_2UNSIGNED_SET(0, 0, accumulator);
     vm->dpl = -1;
 
     if (length > 1)
@@ -3475,24 +3476,26 @@ int ficlVmParseNumber(ficlVm *vm, ficlString s)
         accumulator = ficl2UnsignedMultiplyAccumulate(accumulator,base,digit);
     }
 
+    d = FICL_2UNSIGNED_TO_2INTEGER(accumulator);
     if (isNegative)
-        accumulator = ficl2IntegerNegate(accumulator);
+        d = ficl2IntegerNegate(d);
 
     if (isDouble)
     {
-        ficlStackPush2Integer(vm->dataStack, accumulator);
+        ficlStackPush2Integer(vm->dataStack, d);
         if (vm->state == FICL_VM_STATE_COMPILE)
             ficlPrimitive2LiteralIm(vm);
     }
     else
     {
+        accumulator = FICL_2INTEGER_TO_2UNSIGNED(d);
         ficlStackPushInteger(vm->dataStack, FICL_2UNSIGNED_GET_LOW(accumulator));
         if (vm->state == FICL_VM_STATE_COMPILE)
             ficlPrimitiveLiteralIm(vm);
 
     }
 
-    return FICL_TRUE;
+    return (int) FICL_TRUE;
 }
 
 
@@ -3622,7 +3625,7 @@ int ficlVmParseWord(ficlVm *vm, ficlString name)
             }
 
             ficlVmExecuteWord(vm, tempFW);
-            return FICL_TRUE;
+            return (int) FICL_TRUE;
         }
     }
 
@@ -3641,11 +3644,11 @@ int ficlVmParseWord(ficlVm *vm, ficlString name)
 				else
 	                ficlDictionaryAppendCell(dictionary, FICL_LVALUE_TO_CELL(tempFW));
             }
-            return FICL_TRUE;
+            return (int) FICL_TRUE;
         }
     }
 
-    return FICL_FALSE;
+    return (int) FICL_FALSE;
 }
 
 
