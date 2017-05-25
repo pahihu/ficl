@@ -50,6 +50,8 @@
 
 #if FICL_WANT_FLOAT
 
+#include "ficlblas.h"
+
 #define FICL_FLOAT_ALIGNMENT    sizeof(ficlFloat)
 
 /**************************************************************************
@@ -405,77 +407,73 @@ static void ficlPrimitiveFSqrt(ficlVm *vm)
 
 /*******************************************************************
 ** FAXPY
-** faxpy ( ra f_x x_stride f_y y_stride u -- )
+** faxpy ( f_x incx f_y incy u -- ) ( F: ra -- )
 *******************************************************************/
 static void ficlPrimitiveFaxpy(ficlVm *vm)
 {
     ficlFloat ra;
     ficlFloat *x, *y;
-    ficlUnsigned ys, xs;
-    ficlUnsigned i, n;
+    ficlUnsigned incx, incy;
+    ficlUnsigned n;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
     FICL_STACK_CHECK(vm->dataStack, 5, 0);
 
     ra = ficlStackPopFloat(vm->floatStack);
 
-    n  = ficlStackPopUnsigned(vm->dataStack);
-    ys = ficlStackPopUnsigned(vm->dataStack);
-    y  = ficlStackPopPointer(vm->dataStack);
-    xs = ficlStackPopUnsigned(vm->dataStack);
-    x  = ficlStackPopPointer(vm->dataStack);
+    n   = ficlStackPopUnsigned(vm->dataStack);
+    incy = ficlStackPopUnsigned(vm->dataStack);
+    y    = ficlStackPopPointer(vm->dataStack);
+    incx = ficlStackPopUnsigned(vm->dataStack);
+    x    = ficlStackPopPointer(vm->dataStack);
 
-    if (n & 3)
-    {
-        ficlUnsigned m = n & 3;
-        n -= m;
-        for (i = 0; i < m; i++)
-            *y += ra * *x; y = (void*)y + ys; x = (void*)y + xs;
-
-    }
-    for (i = 0; i < n; i += 4)
-    {
-        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
-        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
-        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
-        *y += ra * *x; y = (void*)y + ys; x = (void*)x + xs;
-    }
+    ficlFAXPY(n, ra, x, incx, y, incy);
 }
 
 /*******************************************************************
-** FAXPY without strides.
-** faxpy-nostride ( ra f_x f_y u -- )
+** FDOT
+** fdot ( f_x incx f_y incy u -- ) ( F: -- r )
 *******************************************************************/
-static void ficlPrimitiveFaxpyNoStride(ficlVm *vm)
+static void ficlPrimitiveFdot(ficlVm *vm)
 {
-    ficlFloat ra;
+    ficlFloat r;
     ficlFloat *x, *y;
-    ficlUnsigned i, n;
+    ficlUnsigned incx, incy;
+    ficlUnsigned n;
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
-    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+    FICL_STACK_CHECK(vm->dataStack, 5, 0);
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
 
-    ra = ficlStackPopFloat(vm->floatStack);
+    n    = ficlStackPopUnsigned(vm->dataStack);
+    incy = ficlStackPopUnsigned(vm->dataStack);
+    y    = ficlStackPopPointer(vm->dataStack);
+    incx = ficlStackPopUnsigned(vm->dataStack);
+    x    = ficlStackPopPointer(vm->dataStack);
 
-    n = ficlStackPopUnsigned(vm->dataStack);
-    y = ficlStackPopPointer(vm->dataStack);
-    x = ficlStackPopPointer(vm->dataStack);
+    r = ficlFDOT(n, x, incx, y, incy);
+    ficlStackPushFloat(vm->floatStack, r);
+}
 
-    if (n & 3)
-    {
-        ficlUnsigned m = n & 3;
-        n -= m;
-        for (i = 0; i < m; i++)
-            *y++ += ra * *x++;
+/*******************************************************************
+** FMM
+** fmm ( f_a f_b f_c m k n -- )
+** C = A x B, C is (M x N), A is (M x K), B is (K x N) matrices.
+*******************************************************************/
+static void ficlPrimitiveFmm(ficlVm *vm)
+{
+    ficlFloat *a, *b, *c;
+    ficlUnsigned m, k, n;
 
-    }
-    for (i = 0; i < n; i += 4)
-    {
-        y[i+0] += ra * x[i+0];
-        y[i+1] += ra * x[i+1];
-        y[i+2] += ra * x[i+2];
-        y[i+3] += ra * x[i+3];
-    }
+    FICL_STACK_CHECK(vm->dataStack, 6, 0);
+
+    n  = ficlStackPopUnsigned(vm->dataStack);
+    k  = ficlStackPopUnsigned(vm->dataStack);
+    m  = ficlStackPopUnsigned(vm->dataStack);
+    c  = ficlStackPopPointer(vm->dataStack);
+    b  = ficlStackPopPointer(vm->dataStack);
+    a  = ficlStackPopPointer(vm->dataStack);
+
+    ficlFMM(m, n, k, a, b, c);
 }
 
 /*******************************************************************
@@ -965,7 +963,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,      FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary,  "faxpy-nostride",  ficlPrimitiveFaxpyNoStride,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fmm",       ficlPrimitiveFmm,          FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,     FICL_WORD_COMPILE_ONLY);
