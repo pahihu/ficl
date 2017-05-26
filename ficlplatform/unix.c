@@ -1,12 +1,10 @@
+#include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "../ficl.h"
-
-#ifdef darwin
-#include <unistd.h>
-#endif
 
 
 int ficlFileTruncate(ficlFile *ff, ficlUnsigned size)

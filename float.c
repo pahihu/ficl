@@ -41,6 +41,8 @@
 ** SUCH DAMAGE.
 */
 
+#define _ISOC99_SOURCE  1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -61,7 +63,7 @@
 **************************************************************************/
 void *ficlFAlignPointer(void *ptr)
 {
-	int p = (int)ptr;
+	ficlInteger p = (ficlInteger)ptr;
 	if (p & (FICL_FLOAT_ALIGNMENT - 1))
 		ptr = (void *)((p & ~(FICL_FLOAT_ALIGNMENT - 1)) + FICL_FLOAT_ALIGNMENT);
     return ptr;
