@@ -623,8 +623,6 @@ static void ficlPrimitiveBSwap16(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap16(u));
 }
 
-#ifdef __LP64__
-
 /* : BSWAP32 ( u1 -- u2 ) */
 static void ficlPrimitiveBSwap32(ficlVm *vm)
 {
@@ -635,6 +633,8 @@ static void ficlPrimitiveBSwap32(ficlVm *vm)
     u = ficlStackPopUnsigned(vm->dataStack);
     ficlStackPushUnsigned(vm->dataStack, bswap32(u));
 }
+
+#ifdef __LP64__
 
 /* : BSWAP64 ( ud1 -- ud2 ) */
 static void ficlPrimitiveBSwap64(ficlVm *vm)
@@ -649,26 +649,29 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
 
 #else
 
-/* : BSWAP32 ( u1 -- u2 ) */
-static void ficlPrimitiveBSwap32(ficlVm *vm)
-{
-    ficlUnsigned32 u;
-
-    FICL_STACK_CHECK(vm->dataStack, 1, 1);
-
-    u = ficlStackPopUnsigned(vm->dataStack);
-    ficlStackPushUnsigned(vm->dataStack, bswap32(u));
-}
-
 /* : BSWAP64 ( ud1 -- ud2 ) */
 static void ficlPrimitiveBSwap64(ficlVm *vm)
 {
-    ficl2Unsigned u;
+    ficl2Unsigned ud;
+#if FICL_PLATFORM_HAS_2INTEGER
+#else
+    ficlUnsigned high, low, tmp;
+#endif
 
     FICL_STACK_CHECK(vm->dataStack, 2, 2);
 
-    u = ficlStackPop2Unsigned(vm->dataStack);
-    ficlStackPush2Unsigned(vm->dataStack, bswap64(u));
+    ud = ficlStackPop2Unsigned(vm->dataStack);
+#if FICL_PLATFORM_HAS_2INTEGER
+    ud = bswap64(ud);
+#else
+    low  = FICL_2UNSIGNED_GET_LOW(ud);
+    high = FICL_2UNSIGNED_GET_HIGH(ud);
+    tmp  = bswap32(low);
+    low  = bswap32(high);
+    high = tmp;
+    FICL_2UNSIGNED_SET(high, low, ud);
+#endif
+    ficlStackPush2Unsigned(vm->dataStack, ud);
 }
 
 #endif

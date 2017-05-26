@@ -18,9 +18,6 @@
 
 #ifdef __LP64__
 
-#define FICL_PLATFORM_ALIGNMENT       (8)
-#define FICL_PLATFORM_HAS_2INTEGER    (0)
-
 typedef char ficlInteger8;
 typedef unsigned char ficlUnsigned8;
 typedef short ficlInteger16;
@@ -34,10 +31,10 @@ typedef ficlInteger64 ficlInteger;
 typedef ficlUnsigned64 ficlUnsigned;
 typedef double ficlFloat;
 
-#else
+#define FICL_PLATFORM_HAS_2INTEGER    (0)
+#define FICL_PLATFORM_ALIGNMENT       (8)
 
-#define FICL_PLATFORM_ALIGNMENT       (4)
-#define FICL_PLATFORM_HAS_2INTEGER    (1)
+#else
 
 typedef char ficlInteger8;
 typedef unsigned char ficlUnsigned8;
@@ -52,7 +49,13 @@ typedef ficlInteger32 ficlInteger;
 typedef ficlUnsigned32 ficlUnsigned;
 typedef float ficlFloat;
 
+#define FICL_PLATFORM_HAS_2INTEGER    (1)
+
+#if FICL_PLATFORM_HAS_2INTEGER
 typedef ficlInteger64 ficl2Integer;
 typedef ficlUnsigned64 ficl2Unsigned;
+#endif
+
+#define FICL_PLATFORM_ALIGNMENT       (4)
 
 #endif

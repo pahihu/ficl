@@ -652,38 +652,65 @@ static void ficlPrimitiveDToF(ficlVm *vm)
     ficlStackPushFloat(vm->floatStack, r);
 }
 
+#define FICL_UNSIGNED_MSB   ((ficlUnsigned)1 << (8*sizeof(ficlUnsigned) - 1))
+#define FICL_MAX_INTEGER    (FICL_UNSIGNED_MSB - 1)
+
+static double r2IntegerMax;;
+
 /*******************************************************************
 ** f>d ( -- d ) ( F: r -- )
 *******************************************************************/
 static void ficlPrimitiveFToD(ficlVm *vm)
 {
+    ficlFloat r;
+    double frac, ipart;
     ficl2Integer d;
-    ficl2Unsigned ud;
-    ficlFloat r, MaxUnsigned;
+#if FICL_PLATFORM_HAS_2INTEGER
+#else
     int sign;
     ficlUnsigned high, low;
+    ficl2Unsigned ud;
+    double rUnsignedMax;
+#endif
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
     FICL_STACK_CHECK(vm->dataStack, 0, 2);
 
     r = ficlStackPopFloat(vm->floatStack);
+    frac = modf(r, &ipart);
 #if FICL_PLATFORM_HAS_2INTEGER
-    d = (ficl2Integer) trunc(r);
+    d = (ficl2Integer) ipart;
 #else
-    r = trunc(r);
     sign = 0;
-    if (r < 0.0)
+    if (ipart < 0.0)
     {
         sign = 1;
-        r = -r;
+        ipart = -ipart;
     }
-    MaxUnsigned = scalbn(1.0, 8 * sizeof(ficlUnsigned));
-    low  = (ficlUnsigned) remainder(r, MaxUnsigned);
-    high = (ficlUnsigned) r / MaxUnsigned ;
+    if (ipart > r2IntegerMax)
+    {
+        low  = 0;
+        high = FICL_UNSIGNED_MSB;
+        sign = 0;
+    }
+    else
+    {
+        rUnsignedMax = (double) (~ (ficlUnsigned) 0);
+        low  = remainder(ipart, rUnsignedMax);
+        high = ipart / rUnsignedMax;
+        if (high > (ficlUnsigned) FICL_MAX_INTEGER)
+        {
+            low  = 0;
+            high = FICL_UNSIGNED_MSB;
+            sign = 0;
+        }
+    }
+
     FICL_2UNSIGNED_SET(high, low, ud);
     d = FICL_2UNSIGNED_TO_2INTEGER(ud);
     if (sign)
         d = ficl2IntegerNegate(d);
+
 #endif
     ficlStackPush2Integer(vm->dataStack, d);
 }
@@ -1043,6 +1070,9 @@ static void ficlPrimitiveF2LocalParen(ficlVm *vm)
 void ficlSystemCompileFloat(ficlSystem *system)
 {
 #if FICL_WANT_FLOAT
+
+    r2IntegerMax = ldexp(1.0, 2 * 8 * sizeof(ficlUnsigned) - 1) - 1.0;
+
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
     ficlDictionary *environment = ficlSystemGetEnvironment(system);
 

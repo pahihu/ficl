@@ -9,9 +9,9 @@
 void *ficlAlignPointer(void *ptr)
 {
 #if FICL_PLATFORM_ALIGNMENT > 1
-	ficlInteger p = (ficlInteger)ptr;
-	if (p & (FICL_PLATFORM_ALIGNMENT - 1))
-		ptr = (void *)((p & ~(FICL_PLATFORM_ALIGNMENT - 1)) + FICL_PLATFORM_ALIGNMENT);
+    ficlInteger p = (ficlInteger)ptr;
+    if (p & (FICL_PLATFORM_ALIGNMENT - 1))
+        ptr = (void *)((p & ~(FICL_PLATFORM_ALIGNMENT - 1)) + FICL_PLATFORM_ALIGNMENT);
 #endif
     return ptr;
 }
