@@ -55,14 +55,15 @@ int ficlLzUncompress(const unsigned char *compressed, unsigned char **uncompress
 	window = buffer = uncompressed;
 	initialWindow = buffer + FICL_LZ_WINDOW_SIZE;
 
+	// while (inputPosition != bitstreamLength)
 	while (inputPosition != bitstreamLength)
-		{
+	{
 		int length;
 		int token = ficlBitGet(compressed, inputPosition);
 		inputPosition++;
 
 		if (token)
-			{
+		{
 			/* phrase token */
 			int offset = 0;
 			ficlBitGetString((unsigned char *)&offset, compressed, inputPosition, FICL_LZ_PHRASE_BITS - (1 + FICL_LZ_NEXT_BITS), sizeof(offset) * 8);
@@ -75,7 +76,7 @@ int ficlLzUncompress(const unsigned char *compressed, unsigned char **uncompress
 			memmove(buffer, window + offset, length);
 			buffer += length;
 			length++;
-			}
+		}
 		else
 			length = 1;
 
@@ -85,10 +86,10 @@ int ficlLzUncompress(const unsigned char *compressed, unsigned char **uncompress
 		inputPosition += FICL_LZ_NEXT_BITS;
 		if (buffer > initialWindow)
 			window = buffer - FICL_LZ_WINDOW_SIZE;
-		}
+	}
 
 	*uncompressed_p = uncompressed;
 	*uncompressedSize_p = uncompressedSize;
 
 	return 0;
-	}
+}

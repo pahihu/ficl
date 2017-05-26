@@ -10,9 +10,9 @@ LIB = ar cr
 RANLIB = ranlib
 
 MAJOR = 4
-MINOR = 0.31
+MINOR = 2.0
 
-ficla.exe: main.o $(HEADERS) libficl.a
+ficla.exe: $(HEADERS) main.o libficl.a
 	$(CC) main.o -o $@ -L. -lficl -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
@@ -52,8 +52,8 @@ ansi.o: ficlplatform/ansi.c $(HEADERS)
 #       generic cleanup code
 #
 clean:
-	rm -f *.o *.a libficl.*
+	$(RM) *.o *.a libficl.*
 
 clobber: clean
-   rm -f ficla.exe
+	$(RM) ficla.exe
 

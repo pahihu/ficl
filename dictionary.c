@@ -306,7 +306,7 @@ ficlWord *ficlDictionarySetConstantString(ficlDictionary *dictionary, char *name
 {
     ficlString s;
     ficl2Integer valueAs2Integer;
-    FICL_2INTEGER_SET(strlen(value), (int)value, valueAs2Integer);
+    FICL_2INTEGER_SET(strlen(value), (ficlInteger)value, valueAs2Integer);
     FICL_STRING_SET_FROM_CSTRING(s, name);
 
 	return ficlDictionarySet2ConstantInstruction(dictionary, s, ficlInstruction2ConstantParen, valueAs2Integer);

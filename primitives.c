@@ -989,7 +989,7 @@ static void ficlPrimitiveAddParseStep(ficlVm *vm)
 void ficlPrimitiveLiteralIm(ficlVm *vm)
 {
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
-	int value;
+    ficlInteger value;
 
 	value = ficlStackPopInteger(vm->dataStack);
 

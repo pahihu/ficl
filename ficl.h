@@ -158,6 +158,7 @@ extern "C" {
 #include "ficllocal.h"
 
 
+#include "ficlplatform.h"
 
 
 #if defined(FICL_ANSI)
@@ -633,7 +634,7 @@ FICL_PLATFORM_EXTERN void *ficlRealloc(void *p, size_t size);
 /* 
 ** the Good Stuff starts here...
 */
-#define FICL_VERSION    "4.0.31"
+#define FICL_VERSION    "4.2.0alpha"
 
 #if !defined (FICL_PROMPT)
 #define FICL_PROMPT		"ok> "
@@ -651,7 +652,7 @@ FICL_PLATFORM_EXTERN void *ficlRealloc(void *p, size_t size);
 
 
 #if !defined FICL_IGNORE     /* Macro to silence unused param warnings */
-#define FICL_IGNORE(x) &x
+#define FICL_IGNORE(x)  (void)x
 #endif /*  !defined FICL_IGNORE */
 
 
@@ -1029,7 +1030,7 @@ FICL_PLATFORM_EXTERN void ficlCompatibilityTextOutCallback(ficlCallback *callbac
 ** and words are (more or less) arrays of these constants.  In Ficl
 ** these constants are an enumerated type called ficlInstruction.
 */
-typedef enum
+enum ficlInstruction
 {
     #define FICL_TOKEN(token, description) token,
     #define FICL_INSTRUCTION_TOKEN(token, description, flags) token,
@@ -1040,7 +1041,8 @@ typedef enum
     ficlInstructionLast,
 
     ficlInstructionFourByteTrick = 0x10000000
-} ficlInstruction;
+};
+typedef ficlInteger ficlInstruction;
 
 
 /* 
@@ -1523,7 +1525,7 @@ FICL_PLATFORM_EXTERN ficlWord        *ficlDictionaryFindEnclosingWord(ficlDictio
 #if FICL_MULTITHREAD
 FICL_PLATFORM_EXTERN int ficlDictionaryLock(ficlDictionary *dictionary, short lockIncrement);
 #else
-#define ficlDictionaryLock(dictionary, lock) 0 /* ignore */
+#define ficlDictionaryLock(dictionary, lock) (void)0 /* ignore */
 #endif
 
 

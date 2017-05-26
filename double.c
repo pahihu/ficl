@@ -69,7 +69,7 @@ ficl2UnsignedQR ficl2UnsignedDivide(ficl2Unsigned q, ficlUnsigned y)
 #else  /* FICL_PLATFORM_HAS_2INTEGER */
 
 
-#define FICL_CELL_HIGH_BIT  (1L << (FICL_BITS_PER_CELL-1))
+#define FICL_CELL_HIGH_BIT  ((ficlUnsigned)1 << (FICL_BITS_PER_CELL-1))
 #define UMOD_SHIFT (FICL_BITS_PER_CELL / 2)
 #define UMOD_MASK ((1L << (FICL_BITS_PER_CELL / 2)) - 1)
 

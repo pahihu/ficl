@@ -133,10 +133,10 @@ ficlSystem *ficlSystemCreate(ficlSystemInformation *fsi)
 	callback.system = NULL;
 	callback.vm = NULL;
 
-    FICL_ASSERT(&callback, sizeof(ficlInteger) == sizeof(void *));
-    FICL_ASSERT(&callback, sizeof(ficlUnsigned) == sizeof(void *));
+    FICL_ASSERT(&callback, sizeof(ficlInteger) >= sizeof(void *));
+    FICL_ASSERT(&callback, sizeof(ficlUnsigned) >= sizeof(void *));
 #if (FICL_WANT_FLOAT)
-    FICL_ASSERT(&callback, sizeof(ficlFloat) == sizeof(void *));
+    FICL_ASSERT(&callback, sizeof(ficlFloat) <= sizeof(ficlInteger));
 #endif
 
     system = ficlMalloc(sizeof(ficlSystem));

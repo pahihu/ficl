@@ -298,13 +298,13 @@ static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 
     clearerr(ff->f);
 #ifdef DEBUG
-	 fprintf(stderr,"ficlPrimitiveWriteFile: length   = %d\n", length);
-	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %d\n", ftell(ff->f));
+	 fprintf(stderr,"ficlPrimitiveWriteFile: length   = %ld\n", (long) length);
+	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %ld\n", (long) ftell(ff->f));
 #endif
     written = fwrite(address, 1, length, ff->f);
 #ifdef DEBUG
-	 fprintf(stderr,"ficlPrimitiveWriteFile: written  = %d\n", written);
-	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %d\n", ftell(ff->f));
+	 fprintf(stderr,"ficlPrimitiveWriteFile: written  = %ld\n", (long) written);
+	 fprintf(stderr,"ficlPrimitiveWriteFile: position = %ld\n", (long) ftell(ff->f));
 #endif
     pushIor(vm, ferror(ff->f) == 0);
 }

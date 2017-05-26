@@ -12,6 +12,26 @@
 
 #include "../ficl.h"
 
+void dumpData(unsigned char *uncompressed, size_t size)
+{
+        int c;
+        int count = 0;
+
+        fprintf(stderr,"--- D U M P  D A T A ---\n");
+        if (size)
+        while (count < size) {
+                c = *uncompressed++;
+                if (count++ % 8 == 0) fprintf(stderr,"\n");
+                fprintf(stderr, "0x%02X, ", c);
+        }
+        else
+        while ((c = *uncompressed++)) {
+                if (count++ % 8 == 0) fprintf(stderr,"\n");
+                fprintf(stderr, "0x%02X, ", c);
+        }
+        fprintf(stderr,"\n--- ================ ---\n");
+}
+
 
 void fprintDataAsHex(FILE *f, char *data, int length)
 	{
@@ -34,7 +54,7 @@ void fprintDataAsHex(FILE *f, char *data, int length)
 void fprintDataAsQuotedString(FILE *f, char *data)
 	{
 	int i;
-	int lineIsBlank = FICL_TRUE;
+	int lineIsBlank = 1;
 
 	while (*data)
 		{
@@ -42,7 +62,7 @@ void fprintDataAsQuotedString(FILE *f, char *data)
 			{
 			if (!lineIsBlank)
 				fprintf(f, "\\n\"\n");
-			lineIsBlank = FICL_TRUE;
+			lineIsBlank = 1;
 			}
 		else
 			{
@@ -50,7 +70,7 @@ void fprintDataAsQuotedString(FILE *f, char *data)
 				{
 				fputc('\t', f);
 				fputc('"', f);
-				lineIsBlank = FICL_FALSE;
+				lineIsBlank = 0;
 				}
 
 			if (*data == '"')
@@ -68,13 +88,13 @@ void fprintDataAsQuotedString(FILE *f, char *data)
 
 int main(int argc, char *argv[])
 	{
-	char *uncompressed = (char *)malloc(128 * 1024);
-	char *compressed;
-	char *trace = uncompressed;
+	unsigned char *uncompressed = (unsigned char *)malloc(128 * 1024);
+	unsigned char *compressed;
+	unsigned char *trace = uncompressed;
 	int i;
-	int compressedSize;
-	int uncompressedSize;
-	char *src, *dst;
+	size_t compressedSize;
+	size_t uncompressedSize;
+	unsigned char *src, *dst;
 	FILE *f;
 	time_t currentTimeT;
 	struct tm *currentTime;
@@ -187,20 +207,22 @@ int main(int argc, char *argv[])
 	cleverTime);
 	
 	uncompressedSize = dst - uncompressed;
+dumpData(uncompressed,0);
 	ficlLzCompress(uncompressed, uncompressedSize, &compressed, &compressedSize);
+dumpData(compressed,compressedSize);
 
-	fprintf(f, "static size_t ficlSoftcoreUncompressedSize = %d; /* not including trailing null */\n", uncompressedSize);
+	fprintf(f, "static size_t ficlSoftcoreUncompressedSize = %lu; /* not including trailing null */\n", uncompressedSize);
 	fprintf(f, "\n");
 	fprintf(f, "#if !FICL_WANT_LZ_SOFTCORE\n");
 	fprintf(f, "\n");
 	fprintf(f, "static char ficlSoftcoreUncompressed[] =\n");
-	fprintDataAsQuotedString(f, uncompressed);
+	fprintDataAsQuotedString(f, (char *) uncompressed);
 	fprintf(f, ";\n");
 	fprintf(f, "\n");
 	fprintf(f, "#else /* !FICL_WANT_LZ_SOFTCORE */\n");
 	fprintf(f, "\n");
-	fprintf(f, "static unsigned char ficlSoftcoreCompressed[%d] = {\n", compressedSize);
-	fprintDataAsHex(f, compressed, compressedSize);
+	fprintf(f, "static unsigned char ficlSoftcoreCompressed[%lu] = {\n", compressedSize);
+	fprintDataAsHex(f, (char *) compressed, compressedSize);
 	fprintf(f, "\t};\n");
 	fprintf(f, "\n");
 	fprintf(f, "#endif /* !FICL_WANT_LZ_SOFTCORE */\n");

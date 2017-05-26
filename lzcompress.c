@@ -87,7 +87,7 @@ void ficlLzEncodeHeaderField(unsigned char *data, unsigned int input, int *byteO
 			}
 
 		input = ficlNetworkUnsigned32(input);
-		inputPosition = (sizeof(unsigned long) * 8) - (length * 8);
+		inputPosition = (sizeof(unsigned int) * 8) - (length * 8);
 		bitsOffset;
 
 		data[(*byteOffset)++] = (unsigned char)id;
@@ -158,7 +158,7 @@ int ficlLzCompress(const unsigned char *uncompressed, size_t uncompressedSize, u
 		token = ficlNetworkUnsigned32(token);
 		for (i = 0; i < tokenLength; i++)
 			{
-			int inputPosition = (sizeof(unsigned long) * 8) - tokenLength + i;
+			int inputPosition = (sizeof(unsigned int) * 8) - tokenLength + i;
 			ficlBitSet(compressed, outputPosition, ficlBitGet((unsigned char *)&token, inputPosition));
 			outputPosition++;
 			}
@@ -186,6 +186,10 @@ int ficlLzCompress(const unsigned char *uncompressed, size_t uncompressedSize, u
 	memset(&headerBuffer, 0, sizeof(headerBuffer));
 	ficlLzEncodeHeaderField(headerBuffer, outputPosition, &headerLength);
 	ficlLzEncodeHeaderField(headerBuffer, uncompressedSize, &headerLength);
+    
+    fprintf(stderr, "headerLength     = %d\n", headerLength);
+    fprintf(stderr, "outputPosition   = %d\n", outputPosition);
+    fprintf(stderr, "uncompressedSize = %d\n", uncompressedSize);
 
 	/* plug in header */
 	compressedSize = (((outputPosition - 1) / 8) + 1);
@@ -196,6 +200,8 @@ int ficlLzCompress(const unsigned char *uncompressed, size_t uncompressedSize, u
 
 	*compressed_p = compressed;
 	*compressedSize_p = totalSize;
+
+    fprintf(stderr, "totalSize  = %d\n", totalSize);
 
 	return 0;
 	}

@@ -1,5 +1,5 @@
 OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o unix.o utility.o hash.o callback.o word.o curterm.o extras.o bswap.o ficlblas.o
-HEADERS= ficl.h ficlplatform/unix.h
+HEADERS= ficlplatform.h ficl.h ficlplatform/unix.h
 #
 # Flags for shared library
 TARGET =  -Ddarwin # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
@@ -7,15 +7,14 @@ SHFLAGS = # -fPIC
 #OPTFLAGS= -g -O0 -DDEBUG
 OPTFLAGS= -Ofast
 CFLAGS = $(OPTFLAGS) $(SHFLAGS) $(TARGET)
-CC     = cc -m32
-# CC     = cc -m64
+CC     = cc
 LIB    = ar cr
 RANLIB = ranlib
 
 MAJOR = 4
-MINOR = 0.31
+MINOR = 2.0
 
-ficld.exe: main.o $(HEADERS) libficl.a
+ficld.exe: $(HEADERS) main.o libficl.a
 	$(CC) main.o -o $@ -L. -lficl -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
@@ -38,6 +37,11 @@ main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 unix.o: ficlplatform/unix.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ficlplatform/unix.c
 
+ficlplatform.h: Makefile
+	$(RM) $@
+	echo "#define FICL_PLATFORM_OS \"`uname`\"" >>$@
+	echo "#define FICL_PLATFORM_ARCHITECTURE \"`uname -m`\"" >>$@
+
 #
 #       generic object code
 #
@@ -55,8 +59,9 @@ unix.o: ficlplatform/unix.c $(HEADERS)
 #       generic cleanup code
 #
 clean:
-	rm -f *.o *.a libficl.*
+	$(RM) *.o *.a libficl.*
+	$(RM) ficlplatform.h
 
 clobber: clean
-	rm -f ficld.exe
+	$(RM) ficld.exe
 
