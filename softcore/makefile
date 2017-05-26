@@ -11,8 +11,7 @@ SOURCES += circ-pad.fs missing.fs strarray.fs numcvt.fs words.fs
 	./makesoftcore $(SOURCES)
 
 makesoftcore: makesoftcore.c ../lzcompress.c ../bit.c
-	# $(CC) -m32 -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
-	$(CC) -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
+	$(CC) -m64 -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
 
 clean: 
 	- rm ../softcore.c *.o makesoftcore

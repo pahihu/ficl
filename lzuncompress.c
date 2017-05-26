@@ -8,22 +8,25 @@
 int ficlLzDecodeHeaderField(const unsigned char *data, int *byteOffset)
 	{
 	unsigned char id;
-	int networkOrder;
+    union {
+	    unsigned int ui;
+        unsigned char uc[sizeof(unsigned char)];
+    } u_networkOrder;
 	int length;
 
 	id = data[(*byteOffset)++];
 	if (id < 252)
 		return id;
 
-	networkOrder = 0;
+	u_networkOrder.ui = 0;
 	length = (id == 253) ? 2: 4;
 
-	ficlBitGetString(((unsigned char *)&networkOrder), data,
+	ficlBitGetString(((unsigned char *)&u_networkOrder.uc[0]), data,
 		(*byteOffset) * 8,
-		length * 8, sizeof(networkOrder) * 8);
+		length * 8, sizeof(u_networkOrder.ui) * 8);
 	(*byteOffset) += length;
 
-	return ficlNetworkUnsigned32(networkOrder);
+	return ficlNetworkUnsigned32(u_networkOrder.ui);
 	}
 
 
@@ -55,19 +58,23 @@ int ficlLzUncompress(const unsigned char *compressed, unsigned char **uncompress
 	window = buffer = uncompressed;
 	initialWindow = buffer + FICL_LZ_WINDOW_SIZE;
 
-	// while (inputPosition != bitstreamLength)
 	while (inputPosition != bitstreamLength)
 	{
 		int length;
-		int token = ficlBitGet(compressed, inputPosition);
+		unsigned int token = ficlBitGet(compressed, inputPosition);
 		inputPosition++;
 
 		if (token)
 		{
 			/* phrase token */
+            union {
+                unsigned int ui;
+                unsigned char uc[sizeof(unsigned int)];
+            } u_offset;
 			int offset = 0;
-			ficlBitGetString((unsigned char *)&offset, compressed, inputPosition, FICL_LZ_PHRASE_BITS - (1 + FICL_LZ_NEXT_BITS), sizeof(offset) * 8);
-			offset = ficlNetworkUnsigned32(offset);
+            u_offset.ui = 0;
+			ficlBitGetString((unsigned char *)&u_offset.uc[0], compressed, inputPosition, FICL_LZ_PHRASE_BITS - (1 + FICL_LZ_NEXT_BITS), sizeof(offset) * 8);
+			offset = ficlNetworkUnsigned32(u_offset.ui);
 			inputPosition += FICL_LZ_PHRASE_BITS - (1 + FICL_LZ_NEXT_BITS);
 
 			length = (offset & ((1 << FICL_LZ_LENGTH_BITS) - 1)) + FICL_LZ_MINIMUM_USEFUL_MATCH;

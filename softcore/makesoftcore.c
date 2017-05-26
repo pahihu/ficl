@@ -207,9 +207,9 @@ int main(int argc, char *argv[])
 	cleverTime);
 	
 	uncompressedSize = dst - uncompressed;
-dumpData(uncompressed,0);
+// dumpData(uncompressed,0);
 	ficlLzCompress(uncompressed, uncompressedSize, &compressed, &compressedSize);
-dumpData(compressed,compressedSize);
+// dumpData(compressed,compressedSize);
 
 	fprintf(f, "static size_t ficlSoftcoreUncompressedSize = %lu; /* not including trailing null */\n", uncompressedSize);
 	fprintf(f, "\n");
