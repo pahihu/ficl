@@ -159,7 +159,7 @@ static void ficlVmOptimizeJumpToJump(ficlVm *vm, ficlIp ip)
 			*ip = (ficlWord *)ficlInstructionBranch0Paren;
 RUNTIME_FIXUP:
 			ip++;
-			destination = ip + *(int *)ip;
+			destination = ip + *(ficlInteger *)ip;
 			switch ((ficlInstruction)*destination)
 			{
 				case ficlInstructionBranchParenWithCheck:
@@ -168,7 +168,7 @@ RUNTIME_FIXUP:
 				case ficlInstructionBranchParen:
 				{
 					destination++;
-					destination += *(int *)destination;
+					destination += *(ficlInteger *)destination;
 					*ip = (ficlWord *)(destination - ip);
 					break;
 				}
@@ -476,7 +476,7 @@ AGAIN:
 		#define POP_CELL_POINTER(cp)         cell = (cp); goto POP_CELL_POINTER_MINIPROC
 
 		BRANCH_MINIPROC:
-			ip += *(int *)ip;
+			ip += *(ficlInteger *)ip;
 			continue;
 
 		#define BRANCH()         goto BRANCH_MINIPROC
@@ -1205,14 +1205,14 @@ MINUSROLL:
 			**************************************************************************/
 			case ficlInstructionCompare:
 			{
-				i = FICL_FALSE;
+				u = FICL_FALSE;
 				goto COMPARE;
 			}
 
 
 			case ficlInstructionCompareInsensitive:
 			{
-				i = FICL_TRUE;
+				u = FICL_TRUE;
 				goto COMPARE;
 			}
 
@@ -1233,7 +1233,7 @@ COMPARE:
 				{
 					char c1 = *cp1++;
 					char c2 = *cp2++;
-					if (i)
+					if (u)
 					{
 						c1 = (char)tolower(c1);
 						c2 = (char)tolower(c2);
