@@ -1,5 +1,5 @@
-FICL 4.0.31
-June 2003
+FICL 4.2.0alpha
+May 2017
 
 ________
 OVERVIEW
@@ -16,8 +16,10 @@ ____________
 INSTALLATION
 
 Ficl builds out-of-the-box on the following platforms:
+    * macOs: use "Makefile.darwin".
 	* Linux: use "Makefile.linux".
-	* Win32: use "ficl.dsw" / "ficl.dsp".
+    * Linux-PPC: use "Makefile.linux-ppc".
+	* Win32: use "Makefile.mingw".
 To port to other platforms, we suggest you start with the Linux
 makefile and the "unix.c" / "unix.h" platform-specific implementation
 files.  (And please--feel free to submit your portability changes!)
