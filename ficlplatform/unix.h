@@ -49,4 +49,5 @@ typedef ficlUnsigned64 ficl2Unsigned;
 
 #define FICL_PLATFORM_ALIGNMENT       (4)
 
+
 #endif

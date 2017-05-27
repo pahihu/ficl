@@ -1260,7 +1260,7 @@ COMPARE:
 			**************************************************************************/
 			case ficlInstructionRandom:
 			{
-				(++dataTop)->i = rand();
+				(++dataTop)->i = genrand_INT();
 				continue;
 			}
 
@@ -1271,7 +1271,7 @@ COMPARE:
 			**************************************************************************/
 			case ficlInstructionSeedRandom:
 			{
-				srand((dataTop--)->i);
+				init_genrand((dataTop--)->u);
 				continue;
 			}
 

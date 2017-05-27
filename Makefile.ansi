@@ -1,4 +1,4 @@
-OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o ansi.o utility.o hash.o callback.o word.o extras.o bswap.o ficlblas.o
+OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o ansi.o utility.o hash.o callback.o word.o extras.o bswap.o ficlblas.o mt19937ar.o mt19937-64.o
 HEADERS= ficl.h ficlplatform/ansi.h
 #
 # Flags for shared library
