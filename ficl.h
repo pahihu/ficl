@@ -1859,6 +1859,8 @@ FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsig
 
 #define FICL_INTEGER_HEX_DIGITS     ((int) (2*sizeof(ficlInteger)))
 #define FICL_INTEGER_DIGITS         ((int) (4 == sizeof(ficlInteger) ? 9 : 19))
+#define FICL_UNSIGNED_MAX           (~ (ficlUnsigned) 0)
+#define FICL_INTEGER_MAX            (((ficlUnsigned)1 << (8 * sizeof(ficlUnsigned) - 1)) - 1)
 
 
 

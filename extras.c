@@ -716,8 +716,12 @@ void ficlSystemCompileExtras(ficlSystem *system)
 
     addPrimitive(dictionary, "bswap16",   ficlPrimitiveBSwap16);
     addPrimitive(dictionary, "bswap32",   ficlPrimitiveBSwap32);
-    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
     addPrimitive(dictionary, "bswap64",   ficlPrimitiveBSwap64);
+#ifdef __LP64__
+    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap64);
+#else
+    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
+#endif
 
     return;
 }

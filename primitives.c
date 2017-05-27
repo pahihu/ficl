@@ -3388,13 +3388,13 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetConstant(environment, "core-ext",          FICL_FALSE);
     ficlDictionarySetConstant(environment, "floored",           FICL_FALSE);
     ficlDictionarySetConstant(environment, "max-char",          UCHAR_MAX);
-    ficlDictionarySetConstant(environment, "max-n",             0x7fffffff);
-    ficlDictionarySetConstant(environment, "max-u",             0xffffffff);
+    ficlDictionarySetConstant(environment, "max-n",             FICL_INTEGER_MAX);
+    ficlDictionarySetConstant(environment, "max-u",             FICL_UNSIGNED_MAX);
 	{
 	ficl2Unsigned combined;
-	FICL_2UNSIGNED_SET(INT_MAX, UINT_MAX, combined);
+	FICL_2UNSIGNED_SET(FICL_INTEGER_MAX, FICL_UNSIGNED_MAX, combined);
     ficlDictionarySet2Constant(environment,"max-d",             FICL_2UNSIGNED_TO_2INTEGER(combined));
-	FICL_2UNSIGNED_SET(UINT_MAX, UINT_MAX, combined);
+	FICL_2UNSIGNED_SET(FICL_UNSIGNED_MAX, FICL_UNSIGNED_MAX, combined);
     ficlDictionarySet2Constant(environment,"max-ud",            FICL_2UNSIGNED_TO_2INTEGER(combined));
 	}
 	// 150509AP
