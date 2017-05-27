@@ -1,6 +1,5 @@
 #include <unistd.h>
 
-
 #define FICL_WANT_PLATFORM (1)
 
 #define FICL_PLATFORM_BASIC_TYPES     (1)

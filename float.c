@@ -401,8 +401,12 @@ struct stackContext
 static ficlInteger ficlFloatStackDisplayCallback(void *c, ficlCell *cell)
 {
     struct stackContext *context = (struct stackContext *)c;
-    char buffer[64];
-    sprintf(buffer, "[0x%p %3d] %16f (0x%08lx)\n", cell, context->count++, (double)(cell->f), cell->i);
+    char buffer[128];
+    sprintf(buffer, "[%p %3d] %16f (0x%0*lx)\n",
+            cell,
+            context->count++,
+            (double)(cell->f),
+            FICL_INTEGER_HEX_DIGITS, cell->i);
     ficlVmTextOut(context->vm, buffer);
 	return FICL_TRUE;
 }

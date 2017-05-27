@@ -1857,6 +1857,9 @@ FICL_PLATFORM_EXTERN ficlUnsigned32 ficlNetworkUnsigned32(ficlUnsigned32 number)
 FICL_PLATFORM_EXTERN int ficlLzCompress(const unsigned char *uncompressed, size_t uncompressedSize, unsigned char **compressed, size_t *compressedSize);
 FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsigned char **uncompressed, size_t *uncompressedSize);
 
+#define FICL_INTEGER_HEX_DIGITS     ((int) (2*sizeof(ficlInteger)))
+#define FICL_INTEGER_DIGITS         ((int) (4 == sizeof(ficlInteger) ? 9 : 19))
+
 
 
 #if FICL_WANT_COMPATIBILITY

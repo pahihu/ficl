@@ -566,8 +566,12 @@ struct stackContext
 static ficlInteger ficlStackDisplayCallback(void *c, ficlCell *cell)
 {
     struct stackContext *context = (struct stackContext *)c;
-    char buffer[64];
-    sprintf(buffer, "[%p %3d]: %12ld (0x%08lx)\n", cell, context->count++, cell->i, cell->i);
+    char buffer[128];
+    sprintf(buffer, "[%p %3d]: %*ld (0x%0*lx)\n",
+            cell,
+            context->count++, 
+            3 + FICL_INTEGER_DIGITS, cell->i,
+            FICL_INTEGER_HEX_DIGITS, cell->i);
 	ficlVmTextOut(context->vm, buffer);
 	return FICL_TRUE;
 }
@@ -644,7 +648,11 @@ static ficlInteger ficlReturnStackDisplayCallback(void *c, ficlCell *cell)
     struct stackContext *context = (struct stackContext *)c;
     char buffer[128];
 
-    sprintf(buffer, "[%p %3d] %12ld (0x%08lx)", cell, context->count++, cell->i, cell->i);
+    sprintf(buffer, "[%p %3d] %*ld (0x%0*lx)",
+            cell,
+            context->count++,
+            FICL_INTEGER_DIGITS, cell->i,
+            FICL_INTEGER_HEX_DIGITS, cell->i);
 
     /*
     ** Attempt to find the word that contains the return
