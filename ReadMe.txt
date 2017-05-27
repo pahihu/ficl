@@ -16,10 +16,10 @@ ____________
 INSTALLATION
 
 Ficl builds out-of-the-box on the following platforms:
-    * macOs: use "Makefile.darwin".
-	* Linux: use "Makefile.linux".
+    * macOS: use "Makefile.darwin".
+    * Linux: use "Makefile.linux".
     * Linux-PPC: use "Makefile.linux-ppc".
-	* Win32: use "Makefile.mingw".
+    * Win32: use "Makefile.mingw".
 To port to other platforms, we suggest you start with the Linux
 makefile and the "unix.c" / "unix.h" platform-specific implementation
 files.  (And please--feel free to submit your portability changes!)
