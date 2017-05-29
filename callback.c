@@ -10,15 +10,19 @@ extern ficlSystem *ficlSystemGlobal;
 void ficlCallbackTextOut(ficlCallback *callback, char *text)
 {
 	ficlOutputFunction textOut = NULL;
+    ficlCallback *callback_in = callback;
 
+AGAIN:
 	if (callback != NULL)
 	{
 		if (callback->textOut != NULL)
 			textOut = callback->textOut;
 		else if ((callback->system != NULL) && (callback != &(callback->system->callback)))
 		{
-			ficlCallbackTextOut(&(callback->system->callback), text);
-			return;
+			// ficlCallbackTextOut(&(callback->system->callback), text);
+			// return;
+            callback = &(callback->system->callback);
+            goto AGAIN;
 		}
 	}
 
@@ -31,7 +35,7 @@ void ficlCallbackTextOut(ficlCallback *callback, char *text)
 	if (textOut == NULL)
 		textOut = ficlCallbackDefaultTextOut;
 
-    (textOut)(callback, text);
+    (textOut)(callback_in, text);
 
     return;
 }

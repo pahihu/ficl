@@ -3255,13 +3255,13 @@ int ficlVmEvaluate(ficlVm *vm, char *s)
 **************************************************************************/
 int ficlVmExecuteString(ficlVm *vm, ficlString s)
 {
-    ficlSystem *system = vm->callback.system;
-    ficlDictionary   *dictionary   = system->dictionary;
+    ficlSystem      *system = vm->callback.system;
+    ficlDictionary  *dictionary = system->dictionary;
 
     int        except;
     jmp_buf    vmState;
     jmp_buf   *oldState;
-    ficlTIB        saveficlTIB;
+    ficlTIB    saveficlTIB;
 
     FICL_VM_ASSERT(vm, vm);
     FICL_VM_ASSERT(vm, system->interpreterLoop[0]);
@@ -3359,10 +3359,10 @@ int ficlVmExecuteString(ficlVm *vm, ficlString s)
 **************************************************************************/
 int ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord)
 {
-    int        except;
-    jmp_buf    vmState;
-    jmp_buf   *oldState;
-    ficlWord *oldRunningWord;
+    int          except;
+    jmp_buf      vmState;
+    jmp_buf     *oldState;
+    ficlWord    *oldRunningWord;
 
     FICL_VM_ASSERT(vm, vm);
     FICL_VM_ASSERT(vm, vm->callback.system->exitInnerWord);

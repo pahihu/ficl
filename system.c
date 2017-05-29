@@ -343,8 +343,7 @@ ficlVm *ficlSystemCreateVm(ficlSystem *system)
 	memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
 	vm->callback.vm = vm;
 	vm->callback.system  = system;
-    // vm->callback.textOut = system->callback.textOut;
-    // vm->outFile          = 0;
+    vm->outFile          = 0;
 
     system->vmList = vm;
 
