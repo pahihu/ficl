@@ -7,7 +7,7 @@
 #include "../ficl.h"
 
 
-int ficlFileTruncate(ficlFile *ff, ficlUnsigned size)
+int ficlFileTruncate(ficlFile *ff, off_t size)
 {
 	return ftruncate(fileno(ff->f), size);
 }
@@ -54,7 +54,7 @@ int ficlFileStatus(char *filename, int *status)
 }
 
 
-long ficlFileSize(ficlFile *ff)
+off_t ficlFileSize(ficlFile *ff)
 {
     struct stat statbuf;
     if (ff == NULL)

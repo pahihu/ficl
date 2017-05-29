@@ -1809,11 +1809,11 @@ ficlFile *ficlStdOut;
 ficlFile *ficlStdErr;
 
 #if defined (FICL_PLATFORM_HAS_FTRUNCATE)
-FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, ficlUnsigned size);
+FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, off_t size);
 #endif
 
 FICL_PLATFORM_EXTERN int ficlFileStatus(char *filename, int *status);
-FICL_PLATFORM_EXTERN long ficlFileSize(ficlFile *ff);
+FICL_PLATFORM_EXTERN off_t ficlFileSize(ficlFile *ff);
 
 
 /*

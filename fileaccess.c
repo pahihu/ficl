@@ -25,10 +25,46 @@ static void pushIor(ficlVm *vm, int success)
 }
 
 
+static ficl2Unsigned ficlOffsTo2Unsigned(off_t offs)
+{
+    ficl2Unsigned ud;
+
+#ifdef __LP64__
+    FICL_2UNSIGNED_SET((ficlUnsigned) 0, (ficlUnsigned) offs, ud);
+#else
+    {
+        ficlUnsigned high, low;
+
+        high = FICL_UNSIGNED_MAX & (offs >> (8 * sizeof(ficlUnsigned)));
+        low  = FICL_UNSIGNED_MAX & offs;
+        FICL_2UNSIGNED_SET(high, low, ud);
+    }
+#endif
+
+    return ud;
+}
+
+
+static off_t ficl2UnsignedToOffs(ficl2Unsigned ud)
+{
+    off_t offs;
+
+#ifdef __LP64__
+    offs = (off_t) FICL_2UNSIGNED_GET_LOW(ud);
+#else
+    offs   = FICL_2UNSIGNED_GET_HIGH(ud);
+    offs <<= 8 * sizeof(ficlUnsigned);
+    offs  += FICL_2UNSIGNED_GET_LOW(ud);
+#endif
+
+    return offs;
+}
+
+
 static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- fileid ior ) */
 {
     int fam;
-    int length;
+    ficlUnsigned length;
     void *address;
     char mode[4];
     FILE *f;
@@ -37,7 +73,7 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
     FICL_STACK_CHECK(vm->dataStack, 3, 2);
 
     fam = ficlStackPopInteger(vm->dataStack);
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     filename = (char *)malloc(length + 1);
@@ -122,13 +158,13 @@ static void ficlPrimitiveCloseFile(ficlVm *vm) /* ( fileid -- ior ) */
 
 static void ficlPrimitiveDeleteFile(ficlVm *vm) /* ( c-addr u -- ior ) */
 {
-    int length;
+    ficlUnsigned length;
     void *address;
     char *filename;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 1);
 
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     filename = (char *)malloc(length + 1);
@@ -142,20 +178,20 @@ static void ficlPrimitiveDeleteFile(ficlVm *vm) /* ( c-addr u -- ior ) */
 
 static void ficlPrimitiveRenameFile(ficlVm *vm) /* ( c-addr1 u1 c-addr2 u2 -- ior ) */
 {
-    int length;
+    ficlUnsigned length;
     void *address;
     char *from;
     char *to;
 
     FICL_STACK_CHECK(vm->dataStack, 4, 1);
 
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
     to = (char *)malloc(length + 1);
     memcpy(to, address, length);
     to[length] = 0;
 
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     from = (char *)malloc(length + 1);
@@ -172,13 +208,13 @@ static void ficlPrimitiveFileStatus(ficlVm *vm) /* ( c-addr u -- x ior ) */
 {
 	int status;
 	int ior;
-    int length;
+    ficlUnsigned length;
     void *address;
     char *filename;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 2);
 
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     filename = (char *)malloc(length + 1);
@@ -197,30 +233,36 @@ static void ficlPrimitiveFileStatus(ficlVm *vm) /* ( c-addr u -- x ior ) */
 static void ficlPrimitiveFilePosition(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
     ficlFile *ff;
-    long ud;
+    off_t offs;
+    ficl2Unsigned ud;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 2);
 
-    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    ud = ftell(ff->f); // XXX
+    ff   = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    offs = ftello(ff->f);
 
-    ficlStackPushInteger(vm->dataStack, ud);
-    pushIor(vm, ud != -1);
+    ud = ficlOffsTo2Unsigned(offs);
+
+    ficlStackPush2Unsigned(vm->dataStack, ud);
+    pushIor(vm, offs != (off_t) -1);
 }
 
 
 static void ficlPrimitiveFileSize(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
     ficlFile *ff;
-    long ud;
+    off_t size;
+    ficl2Unsigned ud;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 2);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    ud = ficlFileSize(ff); // XXX
+    size = ficlFileSize(ff);
 
-    ficlStackPushInteger(vm->dataStack, ud);
-    pushIor(vm, ud != -1);
+    ud = ficlOffsTo2Unsigned(size);
+
+    ficlStackPush2Unsigned(vm->dataStack, ud);
+    pushIor(vm, size != (off_t) -1);
 }
 
 
@@ -230,8 +272,8 @@ static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
     ficlFile *ff;
     ficlCell id = vm->sourceId;
     int  except = FICL_VM_STATUS_OUT_OF_TEXT;
-    long currentPosition, totalSize;
-    long size;
+    off_t currentPosition, totalSize;
+    off_t size;
 	ficlString s;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
@@ -240,14 +282,14 @@ static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
 
     vm->sourceId.p = (void *)ff;
 
-    currentPosition = ftell(ff->f); // XXX
-    totalSize = ficlFileSize(ff); // XXX
+    currentPosition = ftello(ff->f);
+    totalSize = ficlFileSize(ff);
     size = totalSize - currentPosition;
 
     if ((totalSize != -1) && (currentPosition != -1) && (size > 0))
     {
         char *buffer = (char *)malloc(size);
-        long got = fread(buffer, 1, size, ff->f);
+        size_t got = fread(buffer, 1, size, ff->f);
         if (got == size)
 		{
 			FICL_STRING_SET_POINTER(s, buffer);
@@ -276,20 +318,20 @@ static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
 static void ficlPrimitiveReadFile(ficlVm *vm) /* ( c-addr u1 fileid -- u2 ior ) */
 {
     ficlFile *ff;
-    int length;
+    ficlUnsigned length;
     void *address;
-    int result;
+    ficlUnsigned result;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 2);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
     result = fread(address, 1, length, ff->f);
 
-    ficlStackPushInteger(vm->dataStack, result);
+    ficlStackPushUnsigned(vm->dataStack, result);
     pushIor(vm, ferror(ff->f) == 0);
 }
 
@@ -298,7 +340,7 @@ static void ficlPrimitiveReadFile(ficlVm *vm) /* ( c-addr u1 fileid -- u2 ior ) 
 static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag ior ) */
 {
     ficlFile *ff;
-    int length;
+    ficlUnsigned length;
     char *address;
     int error;
     int flag;
@@ -306,16 +348,16 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
     FICL_STACK_CHECK(vm->dataStack, 3, 3);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (char *)ficlStackPopPointer(vm->dataStack);
 
     if (feof(ff->f))
-        {
-        ficlStackPushInteger(vm->dataStack, -1);
+    {
+        ficlStackPushUnsigned(vm->dataStack, (ficlUnsigned) -1);
         ficlStackPushInteger(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, 0);
         return;
-        }
+    }
 
     clearerr(ff->f);
     *address = 0;
@@ -323,19 +365,19 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 
     error = ferror(ff->f);
     if (error != 0)
-        {
-        ficlStackPushInteger(vm->dataStack, -1);
+    {
+        ficlStackPushUnsigned(vm->dataStack, (ficlUnsigned) -1);
         ficlStackPushInteger(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, error);
         return;
-        }
+    }
 
     length = strlen(address);
     flag = (length > 0);
     if (length && ((address[length - 1] == '\r') || (address[length - 1] == '\n')))
         length--;
     
-    ficlStackPushInteger(vm->dataStack, length);
+    ficlStackPushUnsigned(vm->dataStack, length);
     ficlStackPushInteger(vm->dataStack, flag);
     ficlStackPushInteger(vm->dataStack, 0); /* ior */
 }
@@ -345,13 +387,13 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 {
     ficlFile *ff;
-    int written, length;
+    ficlUnsigned written, length;
     void *address;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 1);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    length = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
@@ -372,13 +414,13 @@ static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 static void ficlPrimitiveWriteLine(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 {
     ficlFile *ff;
-    size_t length;
+    ficlUnsigned length;
     void *address;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 1);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    length = (size_t)ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopUnsigned(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
@@ -392,14 +434,17 @@ static void ficlPrimitiveWriteLine(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 static void ficlPrimitiveRepositionFile(ficlVm *vm) /* ( ud fileid -- ior ) */
 {
     ficlFile *ff;
-    size_t ud;
+    ficl2Unsigned ud;
+    off_t offs;
 
-    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
 
     ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    ud = (size_t)ficlStackPopInteger(vm->dataStack);
+    ud = ficlStackPop2Unsigned(vm->dataStack);
 
-    pushIor(vm, fseek(ff->f, ud, SEEK_SET) == 0);
+    offs = ficl2UnsignedToOffs(ud);
+
+    pushIor(vm, fseeko(ff->f, offs, SEEK_SET) == 0);
 }
 
 
@@ -432,10 +477,18 @@ ficlFile *ficlStdIn, *ficlStdOut, *ficlStdErr;
 
 static void ficlPrimitiveResizeFile(ficlVm *vm) /* ( ud fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    size_t ud = (size_t)ficlStackPopInteger(vm->dataStack);
+    ficlFile *ff;
+    ficl2Unsigned ud;
+    off_t offs;
 
-    pushIor(vm, ficlFileTruncate(ff, ud) == 0);
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ud = ficlStackPop2Unsigned(vm->dataStack);
+
+    offs = ficl2UnsignedToOffs(ud);
+
+    pushIor(vm, ficlFileTruncate(ff, offs) == 0);
 }
 
 #endif /* FICL_PLATFORM_HAS_FTRUNCATE */
