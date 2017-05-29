@@ -340,9 +340,11 @@ ficlVm *ficlSystemCreateVm(ficlSystem *system)
     ficlVm *vm = ficlVmCreate(NULL, system->stackSize, system->stackSize);
     vm->link = system->vmList;
 
-	 memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
-	 vm->callback.vm = vm;
-	 vm->callback.system = system;
+	memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
+	vm->callback.vm = vm;
+	vm->callback.system  = system;
+    // vm->callback.textOut = system->callback.textOut;
+    // vm->outFile          = 0;
 
     system->vmList = vm;
 
