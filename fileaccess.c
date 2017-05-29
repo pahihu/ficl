@@ -40,7 +40,7 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
     *mode = 0;
 
     switch (FICL_FAM_OPEN_MODE(fam))
-        {
+    {
         case 0:
             ficlStackPushPointer(vm->dataStack, NULL);
             ficlStackPushInteger(vm->dataStack, EINVAL);
@@ -60,7 +60,7 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
             strcat(mode, writeMode);
             strcat(mode, "+");
             break;
-        }
+    }
 
     strcat(mode, (fam & FICL_FAM_BINARY) ? "b" : "t");
 
@@ -68,14 +68,14 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
     if (f == NULL)
         ficlStackPushPointer(vm->dataStack, NULL);
     else
-        {
+    {
         ficlFile *ff = (ficlFile *)malloc(sizeof(ficlFile));
         strcpy(ff->filename, filename);
         ff->f = f;
         ficlStackPushPointer(vm->dataStack, ff);
 
         fseek(f, 0, SEEK_SET);
-        }
+    }
     pushIor(vm, f != NULL);
 	
 EXIT:
@@ -341,6 +341,7 @@ static void ficlPrimitiveFlushFile(ficlVm *vm) /* ( fileid -- ior ) */
     pushIor(vm, fflush(ff->f) == 0);
 }
 
+ficlFile ficlStdIn, ficlStdOut, ficlStdErr;
 
 
 #if FICL_PLATFORM_HAS_FTRUNCATE
@@ -370,6 +371,15 @@ void ficlSystemCompileFile(ficlSystem *system)
     FICL_SYSTEM_ASSERT(system, dictionary);
     FICL_SYSTEM_ASSERT(system, environment);
 
+    ficlStdIn.f = stdin;
+    strcpy(&ficlStdIn.filename[0], "<stdin>");
+
+    ficlStdOut.f = stdout;
+    strcpy(&ficlStdOut.filename[0], "<stdout>");
+
+    ficlStdErr.f = stderr;
+    strcpy(&ficlStdErr.filename[0], "<stderr>");
+
     ficlDictionarySetPrimitive(dictionary, "create-file", ficlPrimitiveCreateFile,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "open-file", ficlPrimitiveOpenFile,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "close-file", ficlPrimitiveCloseFile,  FICL_WORD_DEFAULT);
@@ -386,6 +396,10 @@ void ficlSystemCompileFile(ficlSystem *system)
 
     ficlDictionarySetPrimitive(dictionary, "delete-file", ficlPrimitiveDeleteFile,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "rename-file", ficlPrimitiveRenameFile,  FICL_WORD_DEFAULT);
+
+    ficlDictionarySetConstant(dictionary, "stdin",  (ficlUnsigned) &ficlStdIn);
+    ficlDictionarySetConstant(dictionary, "stdout", (ficlUnsigned) &ficlStdOut);
+    ficlDictionarySetConstant(dictionary, "stderr", (ficlUnsigned) &ficlStdErr);
 
 #if FICL_PLATFORM_HAS_FTRUNCATE
     ficlDictionarySetPrimitive(dictionary, "resize-file", ficlPrimitiveResizeFile,  FICL_WORD_DEFAULT);
