@@ -1132,6 +1132,7 @@ FICL_PLATFORM_EXTERN void        ficlVmPopIP        (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmPushIP       (ficlVm *vm, ficlIp newIP);
 FICL_PLATFORM_EXTERN void        ficlVmQuit         (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmReset        (ficlVm *vm);
+FICL_PLATFORM_EXTERN void        ficlVmAbort        (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmSetTextOut   (ficlVm *vm, ficlOutputFunction textOut);
 FICL_PLATFORM_EXTERN void        ficlVmThrow        (ficlVm *vm, int except);
 FICL_PLATFORM_EXTERN void        ficlVmThrowError   (ficlVm *vm, char *fmt, ...);

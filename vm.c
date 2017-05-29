@@ -3115,16 +3115,28 @@ void ficlVmQuit(ficlVm *vm)
 
 
 /**************************************************************************
+                        v m A b o r t 
+** 
+**************************************************************************/
+void ficlVmAbort(ficlVm *vm)
+{
+    ficlStackReset(vm->dataStack);
+#if FICL_WANT_FLOAT
+    ficlStackReset(vm->floatStack);
+#endif
+    ficlVmQuit(vm);
+    return;
+}
+
+
+/**************************************************************************
                         v m R e s e t 
 ** 
 **************************************************************************/
 void ficlVmReset(ficlVm *vm)
 {
-    //fprintf(stderr,"called ficlVmReset()\n");
-    ficlVmQuit(vm);
-    ficlStackReset(vm->dataStack);
+    ficlVmAbort(vm); 
 #if FICL_WANT_FLOAT
-    ficlStackReset(vm->floatStack);
     vm->precision   =  FICL_FLOAT_PRECISION;
 #endif
     vm->base        = 10;
@@ -3304,9 +3316,8 @@ int ficlVmExecuteString(ficlVm *vm, ficlString s)
             ficlDictionaryEmpty(system->locals, system->locals->forthWordlist->size);
 #endif
         }
-        /* 160603AP do NOT reset search order on error */
-        /* ficlDictionaryResetSearchOrder(dictionary); */
-        ficlVmReset(vm);
+        /* do NOT reset search order, BASE and PRECISION */
+        ficlVmAbort(vm);
         break;
    }
 

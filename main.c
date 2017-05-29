@@ -84,7 +84,8 @@ jmp_buf mainLoop;
 
 static void sig_handler(int sig)
 {
-	if (SIG_ERR == signal (sig, sig_handler)) {
+	if (SIG_ERR == signal (sig, sig_handler))
+    {
 		sprintf(f_vm->pad, "Error: signal reinstall failed\n");
 		ficlVmErrorOut(f_vm, f_vm->pad);
 	}
@@ -95,9 +96,8 @@ static void install_handlers(void)
 {
 	int i;
 
-	for (i = 0; i < sizeof(signals) / sizeof(int); i++) {
+	for (i = 0; i < sizeof(signals) / sizeof(int); i++)
 		signal (signals[i], sig_handler);
-	}
 }
 
 static void usage()
@@ -108,8 +108,8 @@ static void usage()
 
 int main(int argc, char **argv)
 {
-   int returnValue = 0;
-   char buffer[256];
+    int returnValue = 0;
+    char buffer[256];
 	int sig;
 	int done;
 	int narg;
@@ -119,7 +119,8 @@ int main(int argc, char **argv)
 	ficlSystemInformationInitialize(&fsi);
 
 	narg = 1;
-	while ((narg < argc) && ('-' == *argv[narg])) {
+	while ((narg < argc) && ('-' == *argv[narg]))
+    {
 		switch (argv[narg][1]) {
 		case 's': fsi.stackSize = atoi(argv[narg]+2); break;
 		case 'e': fsi.environmentSize = atoi(argv[narg]+2); break;
@@ -129,21 +130,23 @@ int main(int argc, char **argv)
 		narg++;
 	}
 
-   f_system = ficlSystemCreate(&fsi);
-   f_vm = ficlSystemCreateVm(f_system);
+    f_system = ficlSystemCreate(&fsi);
+    f_vm = ficlSystemCreateVm(f_system);
 
-   returnValue = ficlVmEvaluate(f_vm, ".ver .( " __DATE__ " ) cr quit");
+    returnValue = ficlVmEvaluate(f_vm, ".ver .( " __DATE__ " ) cr quit");
 
-   /*
-   ** load files specified on command-line
-   */
-	while (narg < argc) {
-		sprintf(buffer, ".( loading %s ) cr load %s\n cr", argv[narg], argv[narg]);
+    /*
+    ** load files specified on command-line
+    */
+    while (narg < argc)
+    {
+        sprintf(buffer, ".( loading %s ) cr load %s\n cr", argv[narg], argv[narg]);
 		returnValue = ficlVmEvaluate(f_vm, buffer);
 		narg++;
 	}
 
-	if ((sig = setjmp(mainLoop))) {
+	if ((sig = setjmp(mainLoop)))
+    {
 		sprintf(f_vm->pad, "Error: got signal (%d)\n", sig);
 		ficlVmErrorOut(f_vm, f_vm->pad);
 	}
@@ -155,17 +158,18 @@ int main(int argc, char **argv)
 		fputs(FICL_PROMPT, stdout);
 		fgets(buffer, sizeof(buffer), stdin);
 		returnValue = ficlVmEvaluate(f_vm, buffer);
-		switch (returnValue) {
-		case FICL_VM_STATUS_OUT_OF_TEXT:
-		case FICL_VM_STATUS_ERROR_EXIT:
-			break;
-		case FICL_VM_STATUS_USER_EXIT:
-			done = 1;
-			break;
-		default:
-			sprintf(f_vm->pad, "Error: got exception (%d)\n", returnValue);
-			ficlVmErrorOut(f_vm, f_vm->pad);
-			break;
+		switch (returnValue)
+        {
+		    case FICL_VM_STATUS_OUT_OF_TEXT:
+		    case FICL_VM_STATUS_ERROR_EXIT:
+			    break;
+		    case FICL_VM_STATUS_USER_EXIT:
+			    done = 1;
+			    break;
+		    default:
+			    sprintf(f_vm->pad, "Error: got exception (%d)\n", returnValue);
+			    ficlVmErrorOut(f_vm, f_vm->pad);
+			    break;
 		}
     }
 
