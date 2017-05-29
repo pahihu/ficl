@@ -608,6 +608,8 @@ struct ficlCountedString;
 typedef struct ficlCountedString ficlCountedString;
 struct ficlString;
 typedef struct ficlString ficlString;
+struct ficlFile;
+typedef struct ficlFile ficlFile;
 
 
 /*
@@ -1060,29 +1062,30 @@ typedef ficlInteger ficlInstruction;
 
 struct ficlVm
 {
-    ficlCallback   callback;
-    ficlVm        *link;        /* Ficl keeps a VM list for simple teardown */
-    jmp_buf       *exceptionHandler;    /* crude exception mechanism...     */
-    short          restart;     /* Set TRUE to restart runningWord  */
-    ficlIp         ip;          /* instruction pointer              */
-    ficlWord      *runningWord; /* address of currently running word (often just *(ip-1) ) */
-    ficlUnsigned   state;       /* compiling or interpreting        */
-    ficlUnsigned   base;        /* number conversion base           */
-    ficlInteger    dpl;         /* decimal point location           */
-    ficlCell       areg;        /* A reg                            */
-    ficlCell       breg;        /* B reg                            */
-    ficlStack     *dataStack;
-    ficlStack     *returnStack;     /* return stack                     */
+    ficlCallback    callback;
+    ficlVm         *link;        /* Ficl keeps a VM list for simple teardown */
+    jmp_buf        *exceptionHandler;    /* crude exception mechanism...     */
+    short           restart;     /* Set TRUE to restart runningWord  */
+    ficlIp          ip;          /* instruction pointer              */
+    ficlWord       *runningWord; /* address of currently running word (often just *(ip-1) ) */
+    ficlUnsigned    state;       /* compiling or interpreting        */
+    ficlUnsigned    base;        /* number conversion base           */
+    ficlInteger     dpl;         /* decimal point location           */
+    ficlCell        areg;        /* A reg                            */
+    ficlCell        breg;        /* B reg                            */
+    ficlStack      *dataStack;
+    ficlStack      *returnStack;     /* return stack                     */
 #if FICL_WANT_FLOAT
-    ficlStack     *floatStack;     /* float stack (optional)           */
-    ficlUnsigned   precision;      /* precision used in F. FE. FS.     */
+    ficlStack      *floatStack;  /* float stack (optional)           */
+    ficlUnsigned    precision;   /* precision used in F. FE. FS.     */
 #endif
-    ficlCell       sourceId;   /* -1 if EVALUATE, 0 if normal input, >0 if a file */
-    ficlTIB        tib;        /* address of incoming text string  */
+    ficlCell        sourceId;    /* -1 if EVALUATE, 0 if normal input, >0 if a file */
+    ficlTIB         tib;         /* address of incoming text string  */
 #if FICL_WANT_USER
-    ficlCell       user[FICL_USER_CELLS];
+    ficlCell        user[FICL_USER_CELLS];
 #endif
-    char           pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
+    char            pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
+    ficlFile       *outFile;     /* output file                      */ 
 #if FICL_WANT_COMPATIBILITY
     ficlCompatibilityOutputFunction thunkedTextout;
 #endif /* FICL_WANT_COMPATIBILITY */
@@ -1134,6 +1137,7 @@ FICL_PLATFORM_EXTERN void        ficlVmQuit         (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmReset        (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmAbort        (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmSetTextOut   (ficlVm *vm, ficlOutputFunction textOut);
+FICL_PLATFORM_EXTERN void        ficlVmSetOutFile   (ficlVm *vm, ficlFile *outFile);
 FICL_PLATFORM_EXTERN void        ficlVmThrow        (ficlVm *vm, int except);
 FICL_PLATFORM_EXTERN void        ficlVmThrowError   (ficlVm *vm, char *fmt, ...);
 FICL_PLATFORM_EXTERN void        ficlVmThrowErrorVararg(ficlVm *vm, char *fmt, va_list list);
@@ -1800,6 +1804,9 @@ typedef struct ficlFile
     char filename[256];
 } ficlFile;
 
+ficlFile *ficlStdIn;
+ficlFile *ficlStdOut;
+ficlFile *ficlStdErr;
 
 #if defined (FICL_PLATFORM_HAS_FTRUNCATE)
 FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, ficlUnsigned size);

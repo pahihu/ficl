@@ -25,15 +25,22 @@ static void pushIor(ficlVm *vm, int success)
 }
 
 
-
 static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- fileid ior ) */
 {
-    int fam = ficlStackPopInteger(vm->dataStack);
-    int length = ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    int fam;
+    int length;
+    void *address;
     char mode[4];
     FILE *f;
-    char *filename = (char *)malloc(length + 1);
+    char *filename;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 2);
+
+    fam = ficlStackPopInteger(vm->dataStack);
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
+
+    filename = (char *)malloc(length + 1);
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -54,7 +61,7 @@ static void ficlFileOpen(ficlVm *vm, char *writeMode) /* ( c-addr u fam -- filei
 			// 	r/o		"r"			 -
 			// 	w/o		 -			"w"
 			// 	r/w		"r+"		"w+"
-            strcat(mode, "w"/*writeMode*/);
+            strcat(mode, "w" /*writeMode*/);
             break;
         case FICL_FAM_READ | FICL_FAM_WRITE:
             strcat(mode, writeMode);
@@ -86,7 +93,6 @@ EXIT:
 
 static void ficlPrimitiveOpenFile(ficlVm *vm) /* ( c-addr u fam -- fileid ior ) */
 {
-	// 150510AP
     ficlFileOpen(vm, "r" /*"a"*/);
 }
 
@@ -106,16 +112,27 @@ static int ficlFileClose(ficlFile *ff) /* ( fileid -- ior ) */
 
 static void ficlPrimitiveCloseFile(ficlVm *vm) /* ( fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
     pushIor(vm, ficlFileClose(ff));
 }
 
 static void ficlPrimitiveDeleteFile(ficlVm *vm) /* ( c-addr u -- ior ) */
 {
-    int length = ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    int length;
+    void *address;
+    char *filename;
 
-    char *filename = (char *)malloc(length + 1);
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
+
+    filename = (char *)malloc(length + 1);
+
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -129,6 +146,8 @@ static void ficlPrimitiveRenameFile(ficlVm *vm) /* ( c-addr1 u1 c-addr2 u2 -- io
     void *address;
     char *from;
     char *to;
+
+    FICL_STACK_CHECK(vm->dataStack, 4, 1);
 
     length = ficlStackPopInteger(vm->dataStack);
     address = (void *)ficlStackPopPointer(vm->dataStack);
@@ -153,11 +172,17 @@ static void ficlPrimitiveFileStatus(ficlVm *vm) /* ( c-addr u -- x ior ) */
 {
 	int status;
 	int ior;
-	
-    int length = ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    int length;
+    void *address;
+    char *filename;
 
-    char *filename = (char *)malloc(length + 1);
+    FICL_STACK_CHECK(vm->dataStack, 2, 2);
+
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
+
+    filename = (char *)malloc(length + 1);
+
     memcpy(filename, address, length);
     filename[length] = 0;
 
@@ -171,37 +196,52 @@ static void ficlPrimitiveFileStatus(ficlVm *vm) /* ( c-addr u -- x ior ) */
 
 static void ficlPrimitiveFilePosition(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    long ud = ftell(ff->f);
+    ficlFile *ff;
+    long ud;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 2);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ud = ftell(ff->f); // XXX
+
     ficlStackPushInteger(vm->dataStack, ud);
     pushIor(vm, ud != -1);
 }
-
 
 
 static void ficlPrimitiveFileSize(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    long ud = ficlFileSize(ff);
+    ficlFile *ff;
+    long ud;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 2);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ud = ficlFileSize(ff); // XXX
+
     ficlStackPushInteger(vm->dataStack, ud);
     pushIor(vm, ud != -1);
 }
-
 
 
 #define nLINEBUF 256
 static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
     ficlCell id = vm->sourceId;
     int  except = FICL_VM_STATUS_OUT_OF_TEXT;
     long currentPosition, totalSize;
     long size;
 	ficlString s;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+
     vm->sourceId.p = (void *)ff;
 
-    currentPosition = ftell(ff->f);
-    totalSize = ficlFileSize(ff);
+    currentPosition = ftell(ff->f); // XXX
+    totalSize = ficlFileSize(ff); // XXX
     size = totalSize - currentPosition;
 
     if ((totalSize != -1) && (currentPosition != -1) && (size > 0))
@@ -235,10 +275,16 @@ static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
 
 static void ficlPrimitiveReadFile(ficlVm *vm) /* ( c-addr u1 fileid -- u2 ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    int length = ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+    int length;
+    void *address;
     int result;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 2);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
     result = fread(address, 1, length, ff->f);
@@ -251,11 +297,17 @@ static void ficlPrimitiveReadFile(ficlVm *vm) /* ( c-addr u1 fileid -- u2 ior ) 
 
 static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    int length = ficlStackPopInteger(vm->dataStack);
-    char *address = (char *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+    int length;
+    char *address;
     int error;
     int flag;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 3);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (char *)ficlStackPopPointer(vm->dataStack);
 
     if (feof(ff->f))
         {
@@ -292,9 +344,15 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 
 static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    int written, length = ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+    int written, length;
+    void *address;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    length = ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
 #ifdef DEBUG
@@ -313,9 +371,15 @@ static void ficlPrimitiveWriteFile(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 
 static void ficlPrimitiveWriteLine(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    size_t length = (size_t)ficlStackPopInteger(vm->dataStack);
-    void *address = (void *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+    size_t length;
+    void *address;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    length = (size_t)ficlStackPopInteger(vm->dataStack);
+    address = (void *)ficlStackPopPointer(vm->dataStack);
 
     clearerr(ff->f);
     if (fwrite(address, 1, length, ff->f) == length)
@@ -327,21 +391,41 @@ static void ficlPrimitiveWriteLine(ficlVm *vm) /* ( c-addr u1 fileid -- ior ) */
 
 static void ficlPrimitiveRepositionFile(ficlVm *vm) /* ( ud fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
-    size_t ud = (size_t)ficlStackPopInteger(vm->dataStack);
+    ficlFile *ff;
+    size_t ud;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ud = (size_t)ficlStackPopInteger(vm->dataStack);
 
     pushIor(vm, fseek(ff->f, ud, SEEK_SET) == 0);
 }
 
 
-
 static void ficlPrimitiveFlushFile(ficlVm *vm) /* ( fileid -- ior ) */
 {
-    ficlFile *ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ficlFile *ff;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
     pushIor(vm, fflush(ff->f) == 0);
 }
 
-ficlFile ficlStdIn, ficlStdOut, ficlStdErr;
+
+static void ficlPrimitiveUse(ficlVm *vm) /* ( fileid -- ) */
+{
+    ficlFile *ff;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    ff = (ficlFile *)ficlStackPopPointer(vm->dataStack);
+    ficlVmSetOutFile(vm, ff);
+}
+
+
+ficlFile *ficlStdIn, *ficlStdOut, *ficlStdErr;
 
 
 #if FICL_PLATFORM_HAS_FTRUNCATE
@@ -371,14 +455,17 @@ void ficlSystemCompileFile(ficlSystem *system)
     FICL_SYSTEM_ASSERT(system, dictionary);
     FICL_SYSTEM_ASSERT(system, environment);
 
-    ficlStdIn.f = stdin;
-    strcpy(&ficlStdIn.filename[0], "<stdin>");
+    ficlStdIn = (ficlFile*) malloc(sizeof(ficlFile));
+    ficlStdIn->f = stdin;
+    strcpy(&ficlStdIn->filename[0], "<stdin>");
 
-    ficlStdOut.f = stdout;
-    strcpy(&ficlStdOut.filename[0], "<stdout>");
+    ficlStdOut = (ficlFile*) malloc(sizeof(ficlFile));
+    ficlStdOut->f = stdout;
+    strcpy(&ficlStdOut->filename[0], "<stdout>");
 
-    ficlStdErr.f = stderr;
-    strcpy(&ficlStdErr.filename[0], "<stderr>");
+    ficlStdErr = (ficlFile*) malloc(sizeof(ficlFile));
+    ficlStdErr->f = stderr;
+    strcpy(&ficlStdErr->filename[0], "<stderr>");
 
     ficlDictionarySetPrimitive(dictionary, "create-file", ficlPrimitiveCreateFile,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "open-file", ficlPrimitiveOpenFile,  FICL_WORD_DEFAULT);
@@ -397,9 +484,10 @@ void ficlSystemCompileFile(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "delete-file", ficlPrimitiveDeleteFile,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "rename-file", ficlPrimitiveRenameFile,  FICL_WORD_DEFAULT);
 
-    ficlDictionarySetConstant(dictionary, "stdin",  (ficlUnsigned) &ficlStdIn);
-    ficlDictionarySetConstant(dictionary, "stdout", (ficlUnsigned) &ficlStdOut);
-    ficlDictionarySetConstant(dictionary, "stderr", (ficlUnsigned) &ficlStdErr);
+    ficlDictionarySetConstant(dictionary,  "stdin",  (ficlUnsigned) ficlStdIn);
+    ficlDictionarySetConstant(dictionary,  "stdout", (ficlUnsigned) ficlStdOut);
+    ficlDictionarySetConstant(dictionary,  "stderr", (ficlUnsigned) ficlStdErr);
+    ficlDictionarySetPrimitive(dictionary, "use",    ficlPrimitiveUse,  FICL_WORD_DEFAULT);
 
 #if FICL_PLATFORM_HAS_FTRUNCATE
     ficlDictionarySetPrimitive(dictionary, "resize-file", ficlPrimitiveResizeFile,  FICL_WORD_DEFAULT);

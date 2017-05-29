@@ -3124,6 +3124,7 @@ void ficlVmAbort(ficlVm *vm)
 #if FICL_WANT_FLOAT
     ficlStackReset(vm->floatStack);
 #endif
+    vm->outFile = ficlStdOut;
     ficlVmQuit(vm);
     return;
 }
@@ -3156,19 +3157,31 @@ void ficlVmSetTextOut(ficlVm *vm, ficlOutputFunction textOut)
 }
 
 
+/**************************************************************************
+                        v m S e t O u t F i l e
+** Binds the specified file to the vm. If you pass NULL,
+** binds the default output file (ficlStdOut)
+**************************************************************************/
+void ficlVmSetOutFile(ficlVm *vm, ficlFile *outFile)
+{
+    vm->outFile = outFile;
+    return;
+}
+
+
 void ficlVmTextOut(ficlVm *vm, char *text)
-	{
+{
 	ficlCallbackTextOut((ficlCallback *)vm, text);
-	}
+}
 
 
 void ficlVmErrorOut(ficlVm *vm, char *text)
-	{
+{
 	ficlCallbackErrorOut((ficlCallback *)vm, text);
-	}
+}
 
 
-	/**************************************************************************
+/**************************************************************************
                         v m T h r o w
 ** 
 **************************************************************************/
