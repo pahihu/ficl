@@ -1798,11 +1798,11 @@ ficlWordKind   ficlWordClassify(ficlWord *word);
 #define FICL_FAM_OPEN_MODE(fam)	((fam) & (FICL_FAM_READ | FICL_FAM_WRITE | FICL_FAM_APPEND))
 
 
-typedef struct ficlFile
+struct ficlFile
 {
     FILE *f;
     char filename[256];
-} ficlFile;
+};
 
 ficlFile *ficlStdIn;
 ficlFile *ficlStdOut;
