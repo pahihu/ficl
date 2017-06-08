@@ -9,6 +9,18 @@
 #include "../ficl.h"
 #include "gw.h"
 
+char* ficlIntegerToString(char *buf, ficlInteger n)
+{
+  sprintf(buf, "%lld", n);
+  return buf;
+}
+
+char* ficlUnsignedToString(char *buf, ficlUnsigned u)
+{
+  sprintf(buf, "%llu", u);
+  return buf;
+}
+
 int ficlFileTruncate(ficlFile *ff, ficlOff_t size)
 {
     HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(ff->f));

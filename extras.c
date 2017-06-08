@@ -634,7 +634,7 @@ static void ficlPrimitiveBSwap32(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap32(u));
 }
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
 
 /* : BSWAP64 ( ud1 -- ud2 ) */
 static void ficlPrimitiveBSwap64(ficlVm *vm)
@@ -717,7 +717,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "bswap16",   ficlPrimitiveBSwap16);
     addPrimitive(dictionary, "bswap32",   ficlPrimitiveBSwap32);
     addPrimitive(dictionary, "bswap64",   ficlPrimitiveBSwap64);
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
     addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap64);
 #else
     addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);

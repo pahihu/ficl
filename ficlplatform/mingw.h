@@ -37,6 +37,10 @@ typedef double ficlFloat;
 
 #else
 
+typedef ficlInteger32 ficlInteger;
+typedef ficlUnsigned32 ficlUnsigned;
+typedef float ficlFloat;
+
 typedef ficlInteger64 ficl2Integer;
 typedef ficlUnsigned64 ficl2Unsigned;
 

@@ -6,13 +6,22 @@
 
 #include "../ficl.h"
 
+char* ficlIntegerToString(char *buf, ficlInteger n)
+{
+  sprintf(buf, "%ld", n);
+  return buf;
+}
+
+char* ficlUnsignedToString(char *buf, ficlUnsigned u)
+{
+  sprintf(buf, "%lu", u);
+  return buf;
+}
 
 int ficlFileTruncate(ficlFile *ff, ficlOff_t size)
 {
 	return ftruncate(fileno(ff->f), size);
 }
-
-
 
 void *ficlMalloc(size_t size)
 {

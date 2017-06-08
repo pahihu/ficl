@@ -259,7 +259,7 @@ static void ficlPrimitiveRepresent(ficlVm *vm)
         default:
             ficlRepresentPriv(r, u, &rSign, &rDisp, &rExp);
             u = (ficlUnsigned) rDisp;
-            sprintf(tmp, "%lu", u);
+            ficlUnsignedToString(tmp, u);
             rExp += 1;
             break;
     }
@@ -311,7 +311,7 @@ static void ficlPrimitiveFDot(ficlVm *vm)
             pHold = vm->pad;
             if (rSign)
                 *pHold++ = '-';
-            sprintf(tmp, "%ld", (ficlUnsigned) rDisp);
+            ficlUnsignedToString(tmp, (ficlUnsigned) rDisp);
             if (rExp + 1 > prec)
             {
                 for (i = 0; i < prec; i++)

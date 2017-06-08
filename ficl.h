@@ -790,6 +790,8 @@ FICL_PLATFORM_EXTERN ficl2IntegerQR   ficl2IntegerDivideFloored(ficl2Integer num
 FICL_PLATFORM_EXTERN ficl2IntegerQR   ficl2IntegerDivideSymmetric(ficl2Integer num, ficlInteger den);
 
 FICL_PLATFORM_EXTERN ficl2UnsignedQR  ficl2UnsignedDivide(ficl2Unsigned q, ficlUnsigned y);
+FICL_PLATFORM_EXTERN char*            ficlIntegerToString(char *buf, ficlInteger n);
+FICL_PLATFORM_EXTERN char*            ficlUnsignedToString(char *buf, ficlUnsigned u);
 
 
 
@@ -1882,7 +1884,7 @@ unsigned long genrand_int32(void);
 extern void init_genrand64(unsigned long long);
 unsigned long long genrand64_int64(void);
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
 #define init_genrand    init_genrand64
 #define genrand_INT     genrand64_int64
 #else
