@@ -164,7 +164,7 @@ extern "C" {
 #if defined(FICL_ANSI)
 	#include "ficlplatform/ansi.h"
 #elif defined(__MINGW32__)
-	#include "ficlplatform/mingw32.h"
+	#include "ficlplatform/mingw.h"
 #elif defined(_WIN32)
 	#include "ficlplatform/win32.h"
 #elif defined (FREEBSD_ALPHA)
@@ -1808,12 +1808,18 @@ ficlFile *ficlStdIn;
 ficlFile *ficlStdOut;
 ficlFile *ficlStdErr;
 
+#ifdef __MINGW64__
+#  define ficlOff_t off64_t
+#else
+#  define ficlOff_t off_t
+#endif
+
 #if defined (FICL_PLATFORM_HAS_FTRUNCATE)
-FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, off_t size);
+FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, ficlOff_t size);
 #endif
 
 FICL_PLATFORM_EXTERN int ficlFileStatus(char *filename, int *status);
-FICL_PLATFORM_EXTERN off_t ficlFileSize(ficlFile *ff);
+FICL_PLATFORM_EXTERN ficlOff_t ficlFileSize(ficlFile *ff);
 
 
 /*
