@@ -29,7 +29,7 @@ static ficl2Unsigned ficlOffsTo2Unsigned(off_t offs)
 {
     ficl2Unsigned ud;
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
     FICL_2UNSIGNED_SET((ficlUnsigned) 0, (ficlUnsigned) offs, ud);
 #else
     {
@@ -49,7 +49,7 @@ static off_t ficl2UnsignedToOffs(ficl2Unsigned ud)
 {
     off_t offs;
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
     offs = (off_t) FICL_2UNSIGNED_GET_LOW(ud);
 #else
     offs   = FICL_2UNSIGNED_GET_HIGH(ud);

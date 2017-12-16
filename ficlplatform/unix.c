@@ -6,13 +6,22 @@
 
 #include "../ficl.h"
 
+char* ficlIntegerToString(char *buf, ficlInteger n)
+{
+  sprintf(buf, "%ld", n);
+  return buf;
+}
 
-int ficlFileTruncate(ficlFile *ff, off_t size)
+char* ficlUnsignedToString(char *buf, ficlUnsigned u)
+{
+  sprintf(buf, "%lu", u);
+  return buf;
+}
+
+int ficlFileTruncate(ficlFile *ff, ficlOff_t size)
 {
 	return ftruncate(fileno(ff->f), size);
 }
-
-
 
 void *ficlMalloc(size_t size)
 {
@@ -60,7 +69,7 @@ int ficlFileStatus(char *filename, int *status)
 }
 
 
-off_t ficlFileSize(ficlFile *ff)
+ficlOff_t ficlFileSize(ficlFile *ff)
 {
     struct stat statbuf;
     if (ff == NULL)

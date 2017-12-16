@@ -164,7 +164,7 @@ extern "C" {
 #if defined(FICL_ANSI)
 	#include "ficlplatform/ansi.h"
 #elif defined(__MINGW32__)
-	#include "ficlplatform/mingw32.h"
+	#include "ficlplatform/mingw.h"
 #elif defined(_WIN32)
 	#include "ficlplatform/win32.h"
 #elif defined (FREEBSD_ALPHA)
@@ -790,6 +790,8 @@ FICL_PLATFORM_EXTERN ficl2IntegerQR   ficl2IntegerDivideFloored(ficl2Integer num
 FICL_PLATFORM_EXTERN ficl2IntegerQR   ficl2IntegerDivideSymmetric(ficl2Integer num, ficlInteger den);
 
 FICL_PLATFORM_EXTERN ficl2UnsignedQR  ficl2UnsignedDivide(ficl2Unsigned q, ficlUnsigned y);
+FICL_PLATFORM_EXTERN char*            ficlIntegerToString(char *buf, ficlInteger n);
+FICL_PLATFORM_EXTERN char*            ficlUnsignedToString(char *buf, ficlUnsigned u);
 
 
 
@@ -1798,22 +1800,28 @@ ficlWordKind   ficlWordClassify(ficlWord *word);
 #define FICL_FAM_OPEN_MODE(fam)	((fam) & (FICL_FAM_READ | FICL_FAM_WRITE | FICL_FAM_APPEND))
 
 
-typedef struct ficlFile
+struct ficlFile
 {
     FILE *f;
     char filename[256];
-} ficlFile;
+};
 
 ficlFile *ficlStdIn;
 ficlFile *ficlStdOut;
 ficlFile *ficlStdErr;
 
+#ifdef __MINGW64__
+#  define ficlOff_t off64_t
+#else
+#  define ficlOff_t off_t
+#endif
+
 #if defined (FICL_PLATFORM_HAS_FTRUNCATE)
-FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, off_t size);
+FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, ficlOff_t size);
 #endif
 
 FICL_PLATFORM_EXTERN int ficlFileStatus(char *filename, int *status);
-FICL_PLATFORM_EXTERN off_t ficlFileSize(ficlFile *ff);
+FICL_PLATFORM_EXTERN ficlOff_t ficlFileSize(ficlFile *ff);
 
 
 /*
@@ -1876,7 +1884,7 @@ unsigned long genrand_int32(void);
 extern void init_genrand64(unsigned long long);
 unsigned long long genrand64_int64(void);
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(__MINGW64__)
 #define init_genrand    init_genrand64
 #define genrand_INT     genrand64_int64
 #else

@@ -9,10 +9,28 @@
 #include "../ficl.h"
 #include "gw.h"
 
-int ficlFileTruncate(ficlFile *ff, ficlUnsigned size)
+char* ficlIntegerToString(char *buf, ficlInteger n)
+{
+  sprintf(buf, "%lld", n);
+  return buf;
+}
+
+char* ficlUnsignedToString(char *buf, ficlUnsigned u)
+{
+  sprintf(buf, "%llu", u);
+  return buf;
+}
+
+int ficlFileTruncate(ficlFile *ff, ficlOff_t size)
 {
     HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(ff->f));
-    if (SetFilePointer(hFile, size, NULL, FILE_BEGIN) != size)
+    LARGE_INTEGER liOffset;
+    LARGE_INTEGER liNewOffset;
+
+    liOffset.QuadPart = size;
+    if (FALSE == SetFilePointerEx(hFile, liOffset, &liNewOffset, FILE_BEGIN))
+        return 0;
+    if (liOffset.QuadPart != liNewOffset.QuadPart)
         return 0;
     return !SetEndOfFile(hFile);
 }
@@ -24,7 +42,7 @@ int ficlFileStatus(char *filename, int *status)
     ** INVALID_FILE_ATTRIBUTES on error.  There's no such #define.  The
     ** return value for error is -1, so we'll just use that.
 	*/
-    DWORD attributes = GetFileAttributes(filename);
+  DWORD attributes = GetFileAttributes(filename);
 	if (attributes == -1)
 	{
 		*status = GetLastError();
@@ -34,7 +52,20 @@ int ficlFileStatus(char *filename, int *status)
     return 0;
 }
 
-long ficlFileSize(ficlFile *ff)
+
+#ifdef __MINGW64__
+
+ficlOff_t ficlFileSize(ficlFile *ff)
+{
+	if (ff == NULL)
+		return -1ULL;
+
+	return _filelengthi64(_fileno(ff->f));
+}
+
+#else
+
+ficlOff_t ficlFileSize(ficlFile *ff)
 {
     struct stat statbuf;
     if (ff == NULL)
@@ -47,14 +78,7 @@ long ficlFileSize(ficlFile *ff)
     return statbuf.st_size;
 }
 
-off64_t ficlFileSize64(ficlFile *ff)
-{
-	if (ff == NULL)
-		return -1ULL;
-
-	return _filelengthi64(_fileno(ff->f));
-}
-
+#endif
 
 
 void *ficlMalloc(size_t size)
