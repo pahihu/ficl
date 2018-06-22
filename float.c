@@ -877,6 +877,79 @@ static void ficlPrimitiveFProximate(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, flag);
 }
 
+/*******************************************************************
+** f<= ( F: r1 r2 -- ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFLessEqual(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack, 2, 0);
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(r1 <= r2));
+}
+
+/*******************************************************************
+** f>= ( F: r1 r2 -- ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFGreaterEqual(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack, 2, 0);
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(r1 >= r2));
+}
+
+/*******************************************************************
+** f<> ( F: r1 r2 -- ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFNotEqual(ficlVm *vm)
+{
+    ficlFloat r1, r2;
+
+    FICL_STACK_CHECK(vm->floatStack, 2, 0);
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+
+    r2 = ficlStackPopFloat(vm->floatStack);
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(r1 != r2));
+}
+
+/*******************************************************************
+** fnan? ( r -- ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFNaNQ(ficlVm *vm)
+{
+    ficlFloat r;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(isnan(r)));
+}
+
+/*******************************************************************
+** finfinite? ( r -- ) ( -- flag )
+*******************************************************************/
+static void ficlPrimitiveFInfiniteQ(ficlVm *vm)
+{
+    ficlFloat r;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(isinf(r)));
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -1111,15 +1184,20 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "precision", ficlPrimitivePrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "set-precision", ficlPrimitiveSetPrecision,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "represent", ficlPrimitiveRepresent,      FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,          FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fmm",       ficlPrimitiveFmm,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fmm",       ficlPrimitiveFmm,            FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f<=",	ficlPrimitiveFLessEqual,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f>=",	ficlPrimitiveFGreaterEqual,  FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f<>",	ficlPrimitiveFNotEqual,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fnan?",	ficlPrimitiveFNaNQ,    	     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "finfinite?",ficlPrimitiveFInfiniteQ,     FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
-    ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,     FICL_WORD_COMPILE_ONLY);
+    ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
     ficlDictionarySetPrimitive(dictionary, "(f2local)",  ficlPrimitiveF2LocalParen,  FICL_WORD_COMPILE_ONLY);
 #endif /* FICL_WANT_LOCALS */
 
