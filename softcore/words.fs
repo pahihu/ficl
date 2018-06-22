@@ -11,5 +11,6 @@ ANEW -words
 \ *G List those word names in the current word list that partly
 \ *G match name.
    parse-word
-   ['] contains-string  get-current  traverse-wordlist CR ;
+   ['] contains-string  get-current  traverse-wordlist
+   2drop CR ;
 
