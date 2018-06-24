@@ -4,7 +4,7 @@ HEADERS= ficlplatform.h ficl.h ficlplatform/mingw.h
 # Flags for shared library
 TARGET =  -DWIN32 # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = # -fPIC
-CFLAGS = -march=native -O3 -ffast-math -mavx -DNDEBUG -s -Ificlplatform $(SHFLAGS) $(TARGET)
+CFLAGS = -march=native -O3 -mavx -DNDEBUG -s -Ificlplatform $(SHFLAGS) $(TARGET)
 CC     = gcc -m64
 LIB    = ar cr
 RANLIB = ranlib
