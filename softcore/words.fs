@@ -3,7 +3,7 @@ ANEW -words
 
 : contains-string ( ca1 u1 nt -- ff )
    dup >R name>string 2over search-nc
-   IF    R> name>string 20 $.f
+   IF    R> name>string 20 $.r
    ELSE  R> drop  THEN
    2drop true ;
 

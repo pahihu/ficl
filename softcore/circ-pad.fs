@@ -5,10 +5,14 @@
 
 ANEW -circ-pad
 
+hide
+
 7 CONSTANT /pad-area	\ number of circular PADs
   VARIABLE #pad		\ current PAD index
 
 CREATE pad-area /pad-area 80 * allot
+
+set-current
 
 : RESET-PAD ( -- ) 0 #pad ! ;
 
@@ -21,5 +25,7 @@ CREATE pad-area /pad-area 80 * allot
 
 : +PAD, ( ca n -- ca' n ) \ move sc to PAD increment
 	+pad swap dup >r move  pad r> ;
+
+previous
 
 reset-pad

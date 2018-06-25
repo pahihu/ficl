@@ -137,10 +137,16 @@ WINNT? 0=
 
 \ DUMP
 : ?PRINTABLE ( c -- f ) 32 128 within ;
+
+hide
+
 : PRINTABLE ( c -- c' )
 	dup ?printable 0= IF  drop [char] .  THEN ;
 
+: 16*K ( n -- 16*k ) 4 rshift  4 lshift ;
+
 : HH. ( u -- ) 0 <# # # #> type ;
+
 : DUMP-LINE ( addr -- )
 	dup  8 u.r [char] : emit \ "hhhhhhhh:"
 	16 0 DO
@@ -156,12 +162,15 @@ WINNT? 0=
 		dup i cTH c@  printable emit \ "c"
 	LOOP  drop cr ;
 
-: 16*K ( n -- 16*k ) 4 rshift  4 lshift ;
+set-current
+
 : DUMP ( addr u -- )
 	base @ >r hex
 	>r 16*k  r> 15 + 16*k  bounds DO
 		i dump-line
 	16 +LOOP  r> base ! ;
+
+previous
 
 \ strings
 : $VARIABLE ( len "name" -- ) CREATE 0 , allot ;
@@ -182,7 +191,12 @@ WINNT? 0=
 : $PAD ( -- ca u ) pad $@ ;
 
 \ development support
+hide
+
 80 $VARIABLE source.fs
+
+set-current
+
 : SOURCE! ( ca u -- ) source.fs $! ;
 : IN ( -- ) \ include source.fs
 	s" include "  $pad!
@@ -203,3 +217,5 @@ WINNT? 0=
 	s" system rm " $pad!
 	bl word count  $pad+!
 	$pad evaluate ;
+
+previous

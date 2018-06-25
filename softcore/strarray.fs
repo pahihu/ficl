@@ -158,7 +158,7 @@
         ELSE  zero
         THEN ;
 
-: $.F ( ca u n -- )
+: $.R ( ca u n -- )
 \ *G Display ca/u in a field of n chars width.
    over - >R  type  R> spaces ;
 
