@@ -113,6 +113,7 @@ int main(int argc, char **argv)
 	int sig;
 	int done;
 	int narg;
+	int prompt;
 	ficlSystemInformation fsi;
 
 	install_handlers();
@@ -152,14 +153,20 @@ int main(int argc, char **argv)
 	}
 
 	done = 0;
+	prompt = 1;
     /* while (returnValue != FICL_VM_STATUS_USER_EXIT) */
 	while (!done)
 	{
-		fputs(FICL_PROMPT, stdout);
+		if (prompt)
+			fputs(FICL_PROMPT, stdout);
 		fgets(buffer, sizeof(buffer), stdin);
+		prompt = 1;
 		returnValue = ficlVmEvaluate(f_vm, buffer);
 		switch (returnValue)
         {
+		    case FICL_VM_STATUS_RESTART:
+				prompt = 0;
+				break;
 		    case FICL_VM_STATUS_OUT_OF_TEXT:
 		    case FICL_VM_STATUS_ERROR_EXIT:
 			    break;
@@ -177,3 +184,4 @@ int main(int argc, char **argv)
     return 0;
 }
 
+// vim:ts=4:sw=4:et
