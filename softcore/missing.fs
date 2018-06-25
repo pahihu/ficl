@@ -69,13 +69,19 @@ DECIMAL
 
 : $DUMP ( ca n -- ca n ) 2dup cr ." [" type ." ]" ;
 
-: (u.) ( n -- ca n ) <# 0 #s #> +pad, ;
+: DABS ( d -- d ) dup 0< IF  dnegate  THEN ;
+: (UD.) ( ud -- ca n ) <# #s #> +pad, ;
+: (D.) ( d -- ca n ) dup >r dabs <# #s r> sign #> +pad, ;
+: (.)  ( n -- ca n ) s>d (d.) ;
+: (U.) ( n -- ca n ) 0 (ud.) ;
 : TYPE.R ( ca n m -- ) over - 0 max spaces  type ;
 : U.R ( u m -- ) >r (u.) r> type.r ;
+: .R ( n m -- ) >r (.) r> type.r ;
 
-: DABS ( d -- d ) dup 0< IF  dnegate  THEN ;
-: UD. ( u -- ) <# #s #>  type space ;
-: D. ( d -- ) dup >r dabs <# #s r> sign #>  type space ;
+: UD. ( u -- ) (ud.) type space ;
+: D. ( d -- ) (d.) type space ;
+: UD.R ( d m -- ) >r (ud.) r> type.r ;
+: D.R ( d m -- ) >r (d.) r> type.r ;
 \ tuck dabs <# ... rot sign #>
 
 : UMAX ( u1 u2 -- u ) 2dup u< IF swap THEN drop ;
