@@ -379,6 +379,9 @@ extern "C" {
 ** These indicate attributes about the local platform.
 */
 
+#if FICL_WANT_MULTITHREADED
+#include <pthread.h>
+#endif
 
 /*
 ** FICL_PLATFORM_OS
@@ -1076,7 +1079,7 @@ struct ficlVm
     ficlCell        areg;        /* A reg                            */
     ficlCell        breg;        /* B reg                            */
     ficlStack      *dataStack;
-    ficlStack      *returnStack;     /* return stack                     */
+    ficlStack      *returnStack; /* return stack                     */
 #if FICL_WANT_FLOAT
     ficlStack      *floatStack;  /* float stack (optional)           */
     ficlUnsigned    precision;   /* precision used in F. FE. FS.     */
@@ -1088,6 +1091,13 @@ struct ficlVm
 #endif
     char            pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
     ficlFile       *outFile;     /* output file                      */ 
+    ficlUnsigned    static_alloc;    /* TRUE if statically allocated */
+#if FICL_WANT_MULTITHREADED
+    volatile ficlUnsigned    threadActive;
+    pthread_t       threadID;
+    pthread_mutex_t threadStopMutex; /* STOP/AWAKEN support          */
+    pthread_cond_t  threadAwake;
+#endif
 #if FICL_WANT_COMPATIBILITY
     ficlCompatibilityOutputFunction thunkedTextout;
 #endif /* FICL_WANT_COMPATIBILITY */
@@ -1197,8 +1207,8 @@ FICL_PLATFORM_EXTERN int        ficlVmEvaluate(ficlVm *vm, char *s);
 */
 FICL_PLATFORM_EXTERN int        ficlVmExecuteString(ficlVm *vm, ficlString s);
 FICL_PLATFORM_EXTERN int        ficlVmExecuteXT(ficlVm *vm, ficlWord *pWord);
-FICL_PLATFORM_EXTERN void        ficlVmExecuteInstruction(ficlVm *vm, ficlInstruction i);
-FICL_PLATFORM_EXTERN void        ficlVmExecuteWord(ficlVm *vm, ficlWord *pWord);
+FICL_PLATFORM_EXTERN void       ficlVmExecuteInstruction(ficlVm *vm, ficlInstruction i);
+FICL_PLATFORM_EXTERN void       ficlVmExecuteWord(ficlVm *vm, ficlWord *pWord);
 
 FICL_PLATFORM_EXTERN void ficlVmDictionaryAllot(ficlVm *vm, ficlDictionary *dictionary, int n);
 FICL_PLATFORM_EXTERN void ficlVmDictionaryAllotCells(ficlVm *vm, ficlDictionary *dictionary, int cells);
@@ -1529,10 +1539,15 @@ FICL_PLATFORM_EXTERN ficlWord        *ficlDictionaryFindEnclosingWord(ficlDictio
 ** NOTE: this function must be implemented with lock counting
 ** semantics: nested calls must behave properly.
 */
-#if FICL_MULTITHREAD
-FICL_PLATFORM_EXTERN int ficlDictionaryLock(ficlDictionary *dictionary, short lockIncrement);
+#if FICL_WANT_MULTITHREADED
+FICL_PLATFORM_EXTERN ficlUnsigned ficlVmIsThreadActive(ficlVm *vm);
+FICL_PLATFORM_EXTERN void ficlVmSetThreadActive(ficlVm *vm, ficlUnsigned flag);
+FICL_PLATFORM_EXTERN void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel);
+FICL_PLATFORM_EXTERN int ficlDictionaryLock(ficlDictionary *dictionary, ficlUnsigned lockIncrement);
+FICL_PLATFORM_EXTERN int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement);
 #else
 #define ficlDictionaryLock(dictionary, lock) (void)0 /* ignore */
+#define ficlSystemLock(dictionary, lock) (void)0 /* ignore */
 #endif
 
 
@@ -1667,6 +1682,13 @@ FICL_PLATFORM_EXTERN void       ficlSystemDestroy(ficlSystem *system);
 ** Precondition: successful execution of ficlInitSystem
 */
 FICL_PLATFORM_EXTERN ficlVm   *ficlSystemCreateVm(ficlSystem *system);
+
+/*
+** Initializes the VM and binds default sized stacks to it. Returns the
+** address of the VM, or NULL if an error occurs.
+** Precondition: successful execution of ficlInitSystem
+*/ 
+FICL_PLATFORM_EXTERN ficlVm   *ficlSystemInitVm(ficlSystem *system, ficlVm *vm);
 
 /*
 ** Force deletion of a VM. You do not need to do this 
@@ -1902,3 +1924,5 @@ unsigned long long genrand64_int64(void);
 #endif
 
 #endif /* __FICL_H__ */
+
+// vim:ts=4:sw=4:et

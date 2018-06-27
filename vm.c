@@ -114,6 +114,13 @@ void ficlVmDestroy(ficlVm *vm)
 {
     if (vm)
     {
+#if FICL_WANT_MULTITHREADED
+	if (FICL_TRUE == ficlVmIsThreadActive(vm))
+        {
+	    ficlVmSetThreadActive(vm, FICL_FALSE);
+	    ficlVmTerminateThread(vm, FICL_TRUE);
+        }
+#endif
         ficlStackDestroy(vm->dataStack);
         ficlStackDestroy(vm->returnStack);
 #if FICL_WANT_FLOAT
@@ -122,7 +129,8 @@ void ficlVmDestroy(ficlVm *vm)
 #if defined(DEBUG)
         memset(vm, 0xEF, sizeof(ficlVm));
 #endif
-        ficlFree(vm);
+	if (FICL_FALSE == vm->static_alloc)
+            ficlFree(vm);
     }
 
     return;

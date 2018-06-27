@@ -6,10 +6,24 @@
 S" FICL_WANT_USER" ENVIRONMENT? drop [if]
 \ ** Ficl USER variables
 \ ** See words.c for primitive def'n of USER
-variable nUser  0 nUser ! 
-: user   \ name ( -- )  
-    nUser dup @ user 1 swap +! ; 
+\ variable nUser  0 nUser ! 
+\ : user   \ name ( -- )  
+\     nUser dup @ user 1 swap +! ; 
+\ 
+0 value #user
+: +user    \ name ( n1 n2 -- n1+n2 )
+    over + swap user ;
+[endif]
 
+S" FICL_WANT_MULTITHREADED" ENVIRONMENT? drop [if]
+\ ** Ficl multi-threading
+\ ** See extras.c for definitions
+: /allot ( n -- )
+    here  over erase  allot ;
+: task \ name ( -- )
+    create  here /task /allot  construct ;
+: mutex \ name ( -- )
+    create  here /mutex /allot  mutex-init ;
 [endif]
 
 

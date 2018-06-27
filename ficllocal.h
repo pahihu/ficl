@@ -9,7 +9,7 @@
 #define FICL_WANT_EXTENDED_PREFIX       (1)
 #define FICL_DEFAULT_DICTIONARY_SIZE    (32768)
 #define FICL_USER_CELLS                 (64)
-#define FICL_WANT_TASKING               (1)
+#define FICL_WANT_MULTITHREADED		(1)
 
 #ifdef darwin
 #define FICL_OS   1

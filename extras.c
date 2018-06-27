@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 #include "ficl.h"
 
@@ -454,6 +455,7 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
 }
 
+#if 0
 static ficlVm *gShadowVm  = NULL;
 static ficlVm *gRunningVm = NULL;
 
@@ -611,6 +613,339 @@ static void ficlPrimitiveStop(ficlVm *vm)
       ficlSystemDestroyVm(pList);
    }
 }
+#endif
+
+#if FICL_WANT_MULTITHREADED
+
+
+static void* runThread(void *arg)
+{
+   ficlVm *vm = (ficlVm *) arg;
+
+   ficlVmExecuteXT(vm, vm->runningWord); 
+   return NULL;
+}
+
+
+static void checkReturnCode(ficlVm *vm, const char* where, int rc)
+{
+   char msg[128];
+
+   if (rc)
+   {
+      sprintf(msg, "%s(): %s", where, strerror(rc));
+      if (vm)
+          ficlVmThrowError(vm, msg);
+      fprintf(stderr, "%s\n", msg);
+   }
+}
+
+
+void ficlVmSetThreadActive(ficlVm *vm, ficlUnsigned flag)
+{
+   vm->threadActive = flag;
+   __sync_synchronize();
+}
+
+
+ficlUnsigned ficlVmIsThreadActive(ficlVm *vm)
+{
+   __sync_synchronize();
+   return vm->threadActive;
+}
+
+
+void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel)
+{
+   int  rc;
+   void *ptr;
+
+   if (FICL_TRUE == doCancel)
+   {
+      rc = pthread_cancel(vm->threadID);
+      checkReturnCode(0, "pthread_cancel", rc);
+
+      // rc = pthread_join(vm->threadID, &ptr);
+      // checkReturnCode(0, "pthread_join", rc);
+   }
+
+   pthread_cond_destroy(&vm->threadAwake);
+   pthread_mutex_destroy(&vm->threadStopMutex);
+}
+
+
+int recursiveMutexInit(pthread_mutex_t *mutex)
+{
+   pthread_mutexattr_t mutexAttr;
+   int                 rc;
+
+   pthread_mutexattr_init(&mutexAttr);
+   pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE);
+   rc = pthread_mutex_init(mutex, &mutexAttr);
+   pthread_mutexattr_destroy(&mutexAttr);
+
+   return rc;
+}
+
+
+/* : /TASK ( -- n ) */
+static void ficlPrimitiveSlashTask(ficlVm *vm)
+{
+   FICL_STACK_CHECK(vm->dataStack, 0, 1);
+   ficlStackPushInteger(vm->dataStack, sizeof(ficlVm));
+}
+
+
+/* : CONSTRUCT ( addr -- ) */
+static void ficlPrimitiveConstruct(ficlVm *vm)
+{
+   ficlSystem *system = vm->callback.system;
+   ficlVm     *otherVm;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   otherVm = ficlStackPopPointer(vm->dataStack);
+
+   // memset(otherVm, 0, sizeof(ficlVm));
+   otherVm = ficlVmCreate(otherVm, system->stackSize, system->stackSize);
+   otherVm->static_alloc = FICL_TRUE;
+   ficlSystemInitVm(system, otherVm);
+}
+
+
+/* : ACTIVATE ( xt addr -- ) */
+static void ficlPrimitiveActivate(ficlVm *vm)
+{
+   ficlVm     *otherVm;
+   ficlWord   *word;
+
+   int        rc;
+   const char *where;
+   pthread_attr_t threadAttr;
+
+   FICL_STACK_CHECK(vm->dataStack, 2, 0);
+   otherVm = ficlStackPopPointer(vm->dataStack);
+   word    = ficlStackPopPointer(vm->dataStack);
+
+   otherVm->runningWord = word;
+   // newVm->ip = (ficlIp)(word->param);
+
+   where = "pthread_mutex_init";
+   rc = pthread_mutex_init(&otherVm->threadStopMutex, NULL);
+   if (rc)
+      goto errout;
+
+   where = "pthread_cond_init";
+   rc = pthread_cond_init(&otherVm->threadAwake, NULL);
+   if (rc) 
+   {
+      pthread_mutex_destroy(&otherVm->threadStopMutex);
+      goto errout;
+   }
+
+   pthread_attr_init(&threadAttr);
+   pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+
+   where = "pthread_create";
+   ficlVmSetThreadActive(otherVm, FICL_TRUE);
+   rc = pthread_create(&otherVm->threadID, &threadAttr, runThread, otherVm);
+   pthread_attr_destroy(&threadAttr);
+   if (rc)
+   {
+      pthread_mutex_destroy(&otherVm->threadStopMutex);
+      pthread_cond_destroy(&otherVm->threadAwake);
+      ficlVmSetThreadActive(otherVm, FICL_FALSE);
+   }
+
+errout:
+   checkReturnCode(vm, where, rc);
+}
+
+
+/* : PAUSE ( -- ) */
+static void ficlPrimitivePause(ficlVm *vm)
+{
+   if (FICL_TRUE == ficlVmIsThreadActive(vm))
+   {
+      pthread_testcancel();
+   }
+   sched_yield();
+}
+
+
+/* : STOP ( -- ) */
+static void ficlPrimitiveStop(ficlVm *vm)
+{
+   int rc;
+
+   if (FICL_TRUE == ficlVmIsThreadActive(vm))
+   {
+      rc = pthread_mutex_lock(&vm->threadStopMutex);
+      checkReturnCode(vm, "pthread_mutex_lock", rc);
+
+      rc = pthread_cond_wait(&vm->threadAwake, &vm->threadStopMutex);
+      checkReturnCode(vm, "pthread_cond_wait", rc);
+
+      rc = pthread_mutex_unlock(&vm->threadStopMutex);
+      checkReturnCode(vm, "pthread_cond_wait", rc);
+   }
+}
+
+
+/* : AWAKE ( addr -- ) */
+static void ficlPrimitiveAwake(ficlVm *vm)
+{
+   ficlVm *otherVm;
+   int    rc;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   otherVm = ficlStackPopPointer(vm->dataStack);
+
+   if (FICL_TRUE == ficlVmIsThreadActive(otherVm))
+   {
+      rc = pthread_cond_signal(&otherVm->threadAwake);
+      checkReturnCode(vm, "pthread_cond_signal", rc);
+   }
+}
+
+
+/* : HALT ( -- ) */
+static void ficlPrimitiveHalt(ficlVm *vm)
+{
+   if (FICL_TRUE == ficlVmIsThreadActive(vm))
+   {
+      ficlVmSetThreadActive(vm, FICL_FALSE);
+      ficlVmTerminateThread(vm, FICL_FALSE);
+      pthread_exit(NULL);
+   }
+}
+
+
+/* : TERMINATE ( addr -- ) */
+static void ficlPrimitiveTerminate(ficlVm *vm)
+{
+   ficlVm *otherVm;
+   int    rc;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   otherVm = ficlStackPopPointer(vm->dataStack);
+
+   if (FICL_TRUE == ficlVmIsThreadActive(otherVm))
+   {
+      ficlVmSetThreadActive(otherVm, FICL_FALSE);
+      ficlVmTerminateThread(otherVm, FICL_TRUE);
+   }
+}
+
+
+/* : /MUTEX ( -- n ) */
+static void ficlPrimitiveSlashMutex(ficlVm *vm)
+{
+   FICL_STACK_CHECK(vm->dataStack, 0, 1);
+   ficlStackPushInteger(vm->dataStack, sizeof(pthread_mutex_t));
+}
+
+
+/* : MUTEX-INIT ( addr -- ) */
+static void ficlPrimitiveMutexInit(ficlVm *vm)
+{
+   pthread_mutex_t     *mutex;
+   pthread_mutexattr_t mutexAttr;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   mutex = ficlStackPopPointer(vm->dataStack);
+
+   recursiveMutexInit(mutex);
+}
+
+
+/* : GET ( addr -- ) */
+static void ficlPrimitiveMutexGet(ficlVm *vm)
+{
+   pthread_mutex_t *mutex;
+   int             rc;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   mutex = ficlStackPopPointer(vm->dataStack);
+
+   rc = pthread_mutex_lock(mutex);
+   checkReturnCode(vm, "pthread_mutex_lock", rc);
+}
+
+
+/* : RELEASE ( addr -- ) */
+static void ficlPrimitiveMutexRelease(ficlVm *vm)
+{
+   pthread_mutex_t *mutex;
+   int             rc;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 0);
+   mutex = ficlStackPopPointer(vm->dataStack);
+
+   rc = pthread_mutex_unlock(mutex);
+   checkReturnCode(vm, "pthread_mutex_unlock", rc);
+}
+
+
+/* : ATOMIC@ ( addr -- x ) */
+static void ficlPrimitiveAtomicFetch(ficlVm *vm)
+{
+   ficlCell *cell;
+
+   FICL_STACK_CHECK(vm->dataStack, 1, 1);
+   cell = (ficlCell *) ficlStackPopPointer(vm->dataStack);
+
+   __sync_synchronize();
+   ficlStackPush(vm->dataStack, cell[0]);
+}
+
+
+/* : ATOMIC! ( x addr -- ) */
+static void ficlPrimitiveAtomicStore(ficlVm *vm)
+{
+   ficlCell *cell, x;
+
+   FICL_STACK_CHECK(vm->dataStack, 2, 0);
+   cell = (ficlCell *) ficlStackPopPointer(vm->dataStack);
+   x    = ficlStackPop(vm->dataStack);
+
+   cell[0] = x;
+   __sync_synchronize();
+}
+
+
+/* : ATOMIC-XCHG ( x1 a-addr -- x2 ) */
+static void ficlPrimitiveAtomicXchg(ficlVm *vm)
+{
+   ficlUnsigned *addr, x1, x2;
+
+   FICL_STACK_CHECK(vm->dataStack, 2, 1);
+   addr = (ficlUnsigned *) ficlStackPopPointer(vm->dataStack);
+   x1   = ficlStackPopUnsigned(vm->dataStack);
+
+   x2   = __sync_lock_test_and_set(addr, x1);
+
+   ficlStackPushUnsigned(vm->dataStack, x2);
+}
+
+
+/* : ATOMIC-CAS ( expected desired a-addr -- prev ) */
+static void ficlPrimitiveAtomicCas(ficlVm *vm)
+{
+   ficlUnsigned *addr, desired, expected, prev;
+
+   FICL_STACK_CHECK(vm->dataStack, 3, 1);
+   addr     = (ficlUnsigned *) ficlStackPopPointer(vm->dataStack);
+   desired  = ficlStackPopUnsigned(vm->dataStack);
+   expected = ficlStackPopUnsigned(vm->dataStack);
+
+   prev = __sync_val_compare_and_swap(addr, expected, desired);
+
+   ficlStackPushUnsigned(vm->dataStack, prev);
+}
+
+
+#endif /* FICL_WANT_MULTITHREADED */
+
 
 /* : BSWAP16 ( uw1 -- uw2 ) */
 static void ficlPrimitiveBSwap16(ficlVm *vm)
@@ -708,11 +1043,34 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
     addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
 
+#if 0
     addPrimitive(dictionary, "(init-multi)", ficlPrimitiveInitMulti);
     addPrimitive(dictionary, "(process)", ficlPrimitiveProcess);
     addPrimitive(dictionary, "(run)",     ficlPrimitiveRun);
     addPrimitive(dictionary, "(stop)",    ficlPrimitiveStop);
     addPrimitive(dictionary, "(pause)",   ficlPrimitivePause);
+#endif
+
+#if FICL_WANT_MULTITHREADED
+    addPrimitive(dictionary, "/task",     ficlPrimitiveSlashTask);
+    addPrimitive(dictionary, "construct", ficlPrimitiveConstruct);
+    addPrimitive(dictionary, "activate",  ficlPrimitiveActivate);
+    addPrimitive(dictionary, "awake",     ficlPrimitiveAwake);
+    addPrimitive(dictionary, "terminate", ficlPrimitiveTerminate);
+    addPrimitive(dictionary, "pause",     ficlPrimitivePause);
+    addPrimitive(dictionary, "stop",      ficlPrimitiveStop);
+    addPrimitive(dictionary, "halt", 	  ficlPrimitiveHalt);
+
+    addPrimitive(dictionary, "atomic@",   ficlPrimitiveAtomicFetch);
+    addPrimitive(dictionary, "atomic!",   ficlPrimitiveAtomicStore);
+    addPrimitive(dictionary, "atomic-xchg", ficlPrimitiveAtomicXchg);
+    addPrimitive(dictionary, "atomic-cas", ficlPrimitiveAtomicCas);
+
+    addPrimitive(dictionary, "/mutex", 	  ficlPrimitiveSlashMutex);
+    addPrimitive(dictionary, "mutex-init",ficlPrimitiveMutexInit);
+    addPrimitive(dictionary, "get",	  ficlPrimitiveMutexGet);
+    addPrimitive(dictionary, "release",	  ficlPrimitiveMutexRelease);
+#endif
 
     addPrimitive(dictionary, "bswap16",   ficlPrimitiveBSwap16);
     addPrimitive(dictionary, "bswap32",   ficlPrimitiveBSwap32);

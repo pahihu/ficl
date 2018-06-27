@@ -106,6 +106,40 @@ static void usage()
 	exit(1);
 }
 
+#if FICL_WANT_MULTITHREADED
+
+pthread_mutex_t dictionaryMutex;
+pthread_mutex_t systemMutex;
+
+extern int recursiveMutexInit(pthread_mutex_t *mutex);
+
+int ficlDictionaryLock(ficlDictionary *dictionary, ficlUnsigned lockIncrement)
+{
+    int rc = 0;
+
+    if (FICL_FALSE == lockIncrement)
+        rc = pthread_mutex_unlock(&dictionaryMutex);
+    else
+        rc = pthread_mutex_lock(&dictionaryMutex);
+
+    return rc;
+}
+
+int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
+{
+    int rc = 0;
+
+    if (FICL_FALSE == lockIncrement)
+        rc = pthread_mutex_unlock(&systemMutex);
+    else
+        rc = pthread_mutex_lock(&systemMutex);
+
+    return rc;
+}
+
+#endif
+
+
 int main(int argc, char **argv)
 {
     int returnValue = 0;
@@ -130,6 +164,11 @@ int main(int argc, char **argv)
 		}
 		narg++;
 	}
+
+#if FICL_WANT_MULTITHREADED
+    recursiveMutexInit(&dictionaryMutex);
+    recursiveMutexInit(&systemMutex);
+#endif
 
     f_system = ficlSystemCreate(&fsi);
     f_vm = ficlSystemCreateVm(f_system);
@@ -179,6 +218,11 @@ int main(int argc, char **argv)
 			    break;
 		}
     }
+
+#if FICL_WANT_MULTITHREADED
+    pthread_mutex_destroy(&dictionaryMutex);
+    pthread_mutex_destroy(&systemMutex);
+#endif
 
     ficlSystemDestroy(f_system);
     return 0;

@@ -264,6 +264,8 @@ ficlSystem *ficlSystemCreate(ficlSystemInformation *fsi)
 **************************************************************************/
 void ficlSystemDestroy(ficlSystem *system)
 {
+    ficlSystemLock(system, FICL_TRUE);
+
     if (system->dictionary)
         ficlDictionaryDestroy(system->dictionary);
     system->dictionary = NULL;
@@ -284,6 +286,7 @@ void ficlSystemDestroy(ficlSystem *system)
         system->vmList = system->vmList->link;
         ficlVmDestroy(vm);
     }
+    ficlSystemLock(system, FICL_FALSE);
 
     ficlFree(system);
     system = NULL;
@@ -330,6 +333,30 @@ void ficlSystemAddPrimitiveParseStep(ficlSystem *system, char *name, ficlParseSt
     ficlDictionaryAppendCell(dictionary, FICL_LVALUE_TO_CELL(pStep));
     ficlSystemAddParseStep(system, word);
 }
+
+
+/**************************************************************************
+                        f i c l I n i t V M
+** Initialize a new virtual machine and link it into the system list
+** of VMs for later cleanup by ficlTermSystem.
+**************************************************************************/
+ficlVm *ficlSystemInitVm(ficlSystem *system, ficlVm *vm)
+{
+    ficlSystemLock(system, FICL_TRUE);
+    vm->link = system->vmList;
+
+    memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
+    vm->callback.vm      = vm;
+	vm->callback.system  = system;
+    vm->outFile          = 0;
+
+    system->vmList = vm;
+    ficlSystemLock(system, FICL_FALSE);
+
+    return vm;
+}
+
+
 /**************************************************************************
                         f i c l N e w V M
 ** Create a new virtual machine and link it into the system list
@@ -338,16 +365,7 @@ void ficlSystemAddPrimitiveParseStep(ficlSystem *system, char *name, ficlParseSt
 ficlVm *ficlSystemCreateVm(ficlSystem *system)
 {
     ficlVm *vm = ficlVmCreate(NULL, system->stackSize, system->stackSize);
-    vm->link = system->vmList;
-
-	memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
-	vm->callback.vm = vm;
-	vm->callback.system  = system;
-    vm->outFile          = 0;
-
-    system->vmList = vm;
-
-    return vm;
+    return ficlSystemInitVm(system, vm);
 }
 
 
@@ -365,6 +383,8 @@ void ficlSystemDestroyVm(ficlVm *vm)
 
     FICL_VM_ASSERT(vm, vm != NULL);
 
+    ficlSystemLock(system, FICL_TRUE);
+
     if (system->vmList == vm)
     {
         system->vmList = system->vmList->link;
@@ -380,6 +400,8 @@ void ficlSystemDestroyVm(ficlVm *vm)
 
     if (pList)
         ficlVmDestroy(vm);
+
+    ficlSystemLock(system, FICL_FALSE);
     return;
 }
 
@@ -470,4 +492,4 @@ ficlWord *ficlSystemLookupLocal(ficlSystem *system, ficlString name)
 }
 #endif
 
-
+// vim:ts=4:sw=4:et
