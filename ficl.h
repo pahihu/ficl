@@ -381,6 +381,11 @@ extern "C" {
 
 #if FICL_WANT_MULTITHREADED
 #include <pthread.h>
+#ifndef __FreeBSD__
+#ifndef PTHREAD_MUTEX_RECURSIVE
+#define PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
+#endif
+#endif
 #endif
 
 /*
