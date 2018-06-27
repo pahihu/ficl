@@ -266,6 +266,14 @@ void ficlSystemDestroy(ficlSystem *system)
 {
     ficlSystemLock(system, FICL_TRUE);
 
+    /* NB. cannot release first dictionary space, because of static VMs */
+    while (system->vmList != NULL)
+    {
+        ficlVm *vm = system->vmList;
+        system->vmList = system->vmList->link;
+        ficlVmDestroy(vm);
+    }
+
     if (system->dictionary)
         ficlDictionaryDestroy(system->dictionary);
     system->dictionary = NULL;
@@ -280,12 +288,6 @@ void ficlSystemDestroy(ficlSystem *system)
     system->locals = NULL;
 #endif
 
-    while (system->vmList != NULL)
-    {
-        ficlVm *vm = system->vmList;
-        system->vmList = system->vmList->link;
-        ficlVmDestroy(vm);
-    }
     ficlSystemLock(system, FICL_FALSE);
 
     ficlFree(system);
