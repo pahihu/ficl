@@ -837,6 +837,22 @@ static void ficlPrimitiveTerminate(ficlVm *vm)
 }
 
 
+/* : HIS ( task addr1 -- addr2 ) */
+static void ficlPrimitiveHis(ficlVm *vm)
+{
+   void   *addr1, *addr2;
+   ficlVm *otherVm;
+
+   FICL_STACK_CHECK(vm->dataStack, 2, 1);
+   addr1    = ficlStackPopPointer(vm->dataStack);
+   otherVm  = ficlStackPopPointer(vm->dataStack);
+
+   addr2    = (void *)&otherVm->user[0] + (addr1 - (void *)&vm->user[0]);
+
+   ficlStackPushPointer(vm->dataStack, addr2);
+}
+
+
 /* : /MUTEX ( -- n ) */
 static void ficlPrimitiveSlashMutex(ficlVm *vm)
 {
@@ -1060,6 +1076,8 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "pause",     ficlPrimitivePause);
     addPrimitive(dictionary, "stop",      ficlPrimitiveStop);
     addPrimitive(dictionary, "halt", 	  ficlPrimitiveHalt);
+
+    addPrimitive(dictionary, "his",       ficlPrimitiveHis);
 
     addPrimitive(dictionary, "atomic@",   ficlPrimitiveAtomicFetch);
     addPrimitive(dictionary, "atomic!",   ficlPrimitiveAtomicStore);
