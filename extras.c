@@ -622,6 +622,7 @@ static void* runThread(void *arg)
 {
    ficlVm *vm = (ficlVm *) arg;
 
+   pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
    ficlVmExecuteXT(vm, vm->runningWord); 
    return NULL;
 }
@@ -664,7 +665,10 @@ void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel)
    {
       rc = pthread_cancel(vm->threadID);
       /* NB. may return 'no such process' */
-      // checkReturnCode(0, "pthread_cancel", rc);
+      checkReturnCode(0, "pthread_cancel", rc);
+
+      rc = pthread_join(vm->threadID, &ptr);
+      checkReturnCode(0, "pthread_join", rc);
    }
 
 #ifdef FICL_USE_CONDWAIT
@@ -723,7 +727,6 @@ static void ficlPrimitiveActivate(ficlVm *vm)
 
    int        rc;
    const char *where;
-   pthread_attr_t threadAttr;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 0);
    otherVm = ficlStackPopPointer(vm->dataStack);
@@ -750,13 +753,9 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    __sync_synchronize();
 #endif
 
-   pthread_attr_init(&threadAttr);
-   pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-
    where = "pthread_create";
    ficlVmSetThreadActive(otherVm, FICL_TRUE);
-   rc = pthread_create(&otherVm->threadID, &threadAttr, runThread, otherVm);
-   pthread_attr_destroy(&threadAttr);
+   rc = pthread_create(&otherVm->threadID, NULL, runThread, otherVm);
    if (rc)
    {
 #ifdef FICL_USE_CONDWAIT
