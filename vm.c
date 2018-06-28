@@ -2828,7 +2828,7 @@ case ficlInstructionFBPlusStorePlus:
 			case ficlInstructionUserParen:
 			{
 				ficlInteger i = fw->param[0].i;
-				(++dataTop)->p = &vm->user[i];
+				(++dataTop)->p = i + (void*)&vm->user[0];
 				continue;
 			}
 #endif

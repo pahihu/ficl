@@ -2479,7 +2479,7 @@ static void ficlPrimitiveUser(ficlVm *vm)
     ficlCell c;
 
     c = ficlStackPop(vm->dataStack);
-    if (c.i >= FICL_USER_CELLS)
+    if (c.i >= FICL_USER_CELLS * sizeof(ficlCell))
     {
         ficlVmThrowError(vm, "Error - out of user space");
     }

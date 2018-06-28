@@ -1092,7 +1092,7 @@ struct ficlVm
     ficlCell        sourceId;    /* -1 if EVALUATE, 0 if normal input, >0 if a file */
     ficlTIB         tib;         /* address of incoming text string  */
 #if FICL_WANT_USER
-    ficlCell        user[FICL_USER_CELLS];
+    char            user[FICL_USER_CELLS * sizeof(ficlCell)];
 #endif
     char            pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
     ficlFile       *outFile;     /* output file                      */ 
