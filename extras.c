@@ -663,14 +663,17 @@ void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel)
    if (FICL_TRUE == doCancel)
    {
       rc = pthread_cancel(vm->threadID);
-      checkReturnCode(0, "pthread_cancel", rc);
-
-      // rc = pthread_join(vm->threadID, &ptr);
-      // checkReturnCode(0, "pthread_join", rc);
+      /* NB. may return 'no such process' */
+      // checkReturnCode(0, "pthread_cancel", rc);
    }
 
+#ifdef FICL_USE_CONDWAIT
    pthread_cond_destroy(&vm->threadAwake);
    pthread_mutex_destroy(&vm->threadStopMutex);
+#else
+   vm->threadStopMutex = FICL_FALSE;
+   __sync_synchronize();
+#endif
 }
 
 
@@ -729,6 +732,7 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    otherVm->runningWord = word;
    // newVm->ip = (ficlIp)(word->param);
 
+#ifdef FICL_USE_CONDWAIT
    where = "pthread_mutex_init";
    rc = pthread_mutex_init(&otherVm->threadStopMutex, NULL);
    if (rc)
@@ -741,6 +745,10 @@ static void ficlPrimitiveActivate(ficlVm *vm)
       pthread_mutex_destroy(&otherVm->threadStopMutex);
       goto errout;
    }
+#else
+   otherVm->threadStopMutex = FICL_FALSE;
+   __sync_synchronize();
+#endif
 
    pthread_attr_init(&threadAttr);
    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
@@ -751,8 +759,10 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    pthread_attr_destroy(&threadAttr);
    if (rc)
    {
+#ifdef FICL_USE_CONDWAIT
       pthread_mutex_destroy(&otherVm->threadStopMutex);
       pthread_cond_destroy(&otherVm->threadAwake);
+#endif
       ficlVmSetThreadActive(otherVm, FICL_FALSE);
    }
 
@@ -779,6 +789,7 @@ static void ficlPrimitiveStop(ficlVm *vm)
 
    if (FICL_TRUE == ficlVmIsThreadActive(vm))
    {
+#ifdef FICL_USE_CONDWAIT
       rc = pthread_mutex_lock(&vm->threadStopMutex);
       checkReturnCode(vm, "pthread_mutex_lock", rc);
 
@@ -787,12 +798,25 @@ static void ficlPrimitiveStop(ficlVm *vm)
 
       rc = pthread_mutex_unlock(&vm->threadStopMutex);
       checkReturnCode(vm, "pthread_cond_wait", rc);
+#else
+      rc = 0;
+      while (!__sync_bool_compare_and_swap(&vm->threadStopMutex,
+                                           FICL_TRUE,
+                                           FICL_FALSE))
+      { 
+         if (0 == (++rc & 1023))
+         {
+            pthread_testcancel();
+            sched_yield();
+         }
+      }
+#endif
    }
 }
 
 
-/* : AWAKE ( addr -- ) */
-static void ficlPrimitiveAwake(ficlVm *vm)
+/* : AWAKEN ( addr -- ) */
+static void ficlPrimitiveAwaken(ficlVm *vm)
 {
    ficlVm *otherVm;
    int    rc;
@@ -802,8 +826,13 @@ static void ficlPrimitiveAwake(ficlVm *vm)
 
    if (FICL_TRUE == ficlVmIsThreadActive(otherVm))
    {
+#ifdef FICL_USE_CONDWAIT
       rc = pthread_cond_signal(&otherVm->threadAwake);
       checkReturnCode(vm, "pthread_cond_signal", rc);
+#else
+      otherVm->threadStopMutex = FICL_TRUE;
+      __sync_synchronize();
+#endif
    }
 }
 
@@ -1071,7 +1100,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "/task",     ficlPrimitiveSlashTask);
     addPrimitive(dictionary, "construct", ficlPrimitiveConstruct);
     addPrimitive(dictionary, "activate",  ficlPrimitiveActivate);
-    addPrimitive(dictionary, "awake",     ficlPrimitiveAwake);
+    addPrimitive(dictionary, "awaken",    ficlPrimitiveAwaken);
     addPrimitive(dictionary, "terminate", ficlPrimitiveTerminate);
     addPrimitive(dictionary, "pause",     ficlPrimitivePause);
     addPrimitive(dictionary, "stop",      ficlPrimitiveStop);

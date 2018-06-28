@@ -1100,8 +1100,12 @@ struct ficlVm
 #if FICL_WANT_MULTITHREADED
     volatile ficlUnsigned    threadActive;
     pthread_t       threadID;
+#ifdef FICL_USE_CONDWAIT
     pthread_mutex_t threadStopMutex; /* STOP/AWAKEN support          */
     pthread_cond_t  threadAwake;
+#else
+    volatile ficlUnsigned threadStopMutex;
+#endif
 #endif
 #if FICL_WANT_COMPATIBILITY
     ficlCompatibilityOutputFunction thunkedTextout;
