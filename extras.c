@@ -711,7 +711,7 @@ static void ficlPrimitiveConstruct(ficlVm *vm)
    if (ficlDictionaryIncludes(system->dictionary, otherVm))
       ficlVmThrowError(vm, "Error: task space is not ALLOCATEd.");
 
-   // memset(otherVm, 0, sizeof(ficlVm));
+   memset(otherVm, 0, sizeof(ficlVm));
    otherVm = ficlVmCreate(otherVm, system->stackSize, system->stackSize);
    ficlSystemInitVm(system, otherVm);
 }
