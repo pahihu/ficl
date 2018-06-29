@@ -340,19 +340,39 @@ void ficlSystemAddPrimitiveParseStep(ficlSystem *system, char *name, ficlParseSt
 /**************************************************************************
                         f i c l I n i t V M
 ** Initialize a new virtual machine and link it into the system list
-** of VMs for later cleanup by ficlTermSystem.
+** of VMs for later cleanup by ficlTermSystem.  If the system list
+** of VMs already contains the virtual machine, do not link into again.
 **************************************************************************/
 ficlVm *ficlSystemInitVm(ficlSystem *system, ficlVm *vm)
 {
+    int doInsert;
+    ficlVm *pVm;
+
     ficlSystemLock(system, FICL_TRUE);
-    vm->link = system->vmList;
+    
+    doInsert = 1;
+    pVm = system->vmList;
+    while (pVm != NULL)
+    {
+        if (pVm == vm)
+        {
+            doInsert = 0;
+            break;
+        }
+        pVm = pVm->link;
+    }
+
+    if (doInsert)
+        vm->link = system->vmList;
 
     memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
     vm->callback.vm      = vm;
 	vm->callback.system  = system;
     vm->outFile          = 0;
 
-    system->vmList = vm;
+    if (doInsert)
+        system->vmList = vm;
+
     ficlSystemLock(system, FICL_FALSE);
 
     return vm;
