@@ -71,6 +71,23 @@ void ficlVmBranchRelative(ficlVm *vm, int offset)
 }
 
 
+static ficlStack *ficlVmResizeStack(ficlVm *vm, ficlStack *stack, char *name, unsigned size)
+{
+    if (stack)
+    {
+	    if (stack->size != size)
+        {
+            ficlStackDestroy(stack);
+            stack = 0;
+        }
+    }
+    if (!stack)
+        stack = ficlStackCreate(vm, name, size);
+
+    return stack;
+}
+
+
 /**************************************************************************
                         v m C r e a t e
 ** Creates a virtual machine either from scratch (if vm is NULL on entry)
@@ -86,18 +103,11 @@ ficlVm *ficlVmCreate(ficlVm *vm, unsigned nPStack, unsigned nRStack)
         memset(vm, 0, sizeof (ficlVm));
     }
 
-    if (vm->dataStack)
-        ficlStackDestroy(vm->dataStack);
-    vm->dataStack = ficlStackCreate(vm, "data", nPStack);
-
-    if (vm->returnStack)
-        ficlStackDestroy(vm->returnStack);
-    vm->returnStack = ficlStackCreate(vm, "return", nRStack);
+    vm->dataStack   = ficlVmResizeStack(vm, vm->dataStack,   "data",   nPStack);
+    vm->returnStack = ficlVmResizeStack(vm, vm->returnStack, "return", nRStack);
 
 #if FICL_WANT_FLOAT
-    if (vm->floatStack)
-        ficlStackDestroy(vm->floatStack);
-    vm->floatStack = ficlStackCreate(vm, "float", nPStack);
+    vm->floatStack  = ficlVmResizeStack(vm, vm->floatStack,  "float",  nPStack);
 #endif
 
     ficlVmReset(vm);
@@ -112,6 +122,8 @@ ficlVm *ficlVmCreate(ficlVm *vm, unsigned nPStack, unsigned nRStack)
 **************************************************************************/
 void ficlVmDestroy(ficlVm *vm)
 {
+    ficlSystem *system = vm->callback.system;
+
     if (vm)
     {
 #if FICL_WANT_MULTITHREADED
@@ -129,7 +141,7 @@ void ficlVmDestroy(ficlVm *vm)
 #if defined(DEBUG)
         memset(vm, 0xEF, sizeof(ficlVm));
 #endif
-	if (FICL_FALSE == vm->static_alloc)
+	if (!ficlDictionaryIncludes(system->dictionary, vm))
             ficlFree(vm);
     }
 

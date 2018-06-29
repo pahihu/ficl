@@ -380,7 +380,6 @@ extern "C" {
 */
 
 #if FICL_WANT_MULTITHREADED
-#define FICL_USE_CONDWAIT   (1)
 #include <pthread.h>
 #ifndef __FreeBSD__
 #ifndef PTHREAD_MUTEX_RECURSIVE
@@ -1097,16 +1096,12 @@ struct ficlVm
 #endif
     char            pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
     ficlFile       *outFile;     /* output file                      */ 
-    ficlUnsigned    static_alloc;    /* TRUE if statically allocated */
 #if FICL_WANT_MULTITHREADED
     volatile ficlUnsigned    threadActive;
     pthread_t       threadID;
-#ifdef FICL_USE_CONDWAIT
-    pthread_mutex_t threadStopMutex; /* STOP/AWAKEN support          */
+    volatile ficlUnsigned threadWake; /* STOP/AWAKEN support   */
+    pthread_mutex_t threadStopMutex;
     pthread_cond_t  threadAwake;
-#else
-    volatile ficlUnsigned threadStopMutex;
-#endif
 #endif
 #if FICL_WANT_COMPATIBILITY
     ficlCompatibilityOutputFunction thunkedTextout;

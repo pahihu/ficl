@@ -665,19 +665,16 @@ void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel)
    {
       rc = pthread_cancel(vm->threadID);
       /* NB. may return 'no such process' */
-      checkReturnCode(0, "pthread_cancel", rc);
+      checkReturnCode(0, "ficlVmTerminateThread - pthread_cancel", rc);
 
       rc = pthread_join(vm->threadID, &ptr);
-      checkReturnCode(0, "pthread_join", rc);
+      checkReturnCode(0, "ficlVmTerminateThread - pthread_join", rc);
    }
 
-#ifdef FICL_USE_CONDWAIT
    pthread_cond_destroy(&vm->threadAwake);
    pthread_mutex_destroy(&vm->threadStopMutex);
-#else
-   vm->threadStopMutex = FICL_FALSE;
+   vm->threadWake = FICL_FALSE;
    __sync_synchronize();
-#endif
 }
 
 
@@ -714,7 +711,6 @@ static void ficlPrimitiveConstruct(ficlVm *vm)
 
    // memset(otherVm, 0, sizeof(ficlVm));
    otherVm = ficlVmCreate(otherVm, system->stackSize, system->stackSize);
-   otherVm->static_alloc = FICL_TRUE;
    ficlSystemInitVm(system, otherVm);
 }
 
@@ -736,33 +732,28 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    otherVm->runningWord = word;
    // newVm->ip = (ficlIp)(word->param);
 
-#ifdef FICL_USE_CONDWAIT
-   where = "pthread_mutex_init";
+   where = "ACTIVATE - pthread_mutex_init";
    rc = pthread_mutex_init(&otherVm->threadStopMutex, NULL);
    if (rc)
       goto errout;
 
-   where = "pthread_cond_init";
+   where = "ACTIVATE - pthread_cond_init";
    rc = pthread_cond_init(&otherVm->threadAwake, NULL);
    if (rc) 
    {
       pthread_mutex_destroy(&otherVm->threadStopMutex);
       goto errout;
    }
-#else
-   otherVm->threadStopMutex = FICL_FALSE;
+   otherVm->threadWake = FICL_FALSE;
    __sync_synchronize();
-#endif
 
-   where = "pthread_create";
+   where = "ACTIVATE - pthread_create";
    ficlVmSetThreadActive(otherVm, FICL_TRUE);
    rc = pthread_create(&otherVm->threadID, NULL, runThread, otherVm);
    if (rc)
    {
-#ifdef FICL_USE_CONDWAIT
       pthread_mutex_destroy(&otherVm->threadStopMutex);
       pthread_cond_destroy(&otherVm->threadAwake);
-#endif
       ficlVmSetThreadActive(otherVm, FICL_FALSE);
    }
 
@@ -775,43 +766,57 @@ errout:
 static void ficlPrimitivePause(ficlVm *vm)
 {
    if (FICL_TRUE == ficlVmIsThreadActive(vm))
-   {
       pthread_testcancel();
-   }
+
    sched_yield();
 }
+
+#define FICL_CAS(x,y,z)	__sync_bool_compare_and_swap(x,y,z)
 
 
 /* : STOP ( -- ) */
 static void ficlPrimitiveStop(ficlVm *vm)
 {
    int rc;
+   int i;
+   ficlUnsigned awake;
 
-   if (FICL_TRUE == ficlVmIsThreadActive(vm))
+   if (FICL_FALSE == ficlVmIsThreadActive(vm))
+      return;
+
+   awake = FICL_FALSE;
+   for (i = 0; i < 1024; i++)
    {
-#ifdef FICL_USE_CONDWAIT
-      rc = pthread_mutex_lock(&vm->threadStopMutex);
-      checkReturnCode(vm, "pthread_mutex_lock", rc);
-
-      rc = pthread_cond_wait(&vm->threadAwake, &vm->threadStopMutex);
-      checkReturnCode(vm, "pthread_cond_wait", rc);
-
-      rc = pthread_mutex_unlock(&vm->threadStopMutex);
-      checkReturnCode(vm, "pthread_cond_wait", rc);
-#else
-      rc = 0;
-      while (!__sync_bool_compare_and_swap(&vm->threadStopMutex,
-                                           FICL_TRUE,
-                                           FICL_FALSE))
-      { 
-         if (0 == (++rc & 3))
-         {
-            pthread_testcancel();
-            sched_yield();
-         }
+      if (FICL_CAS(&vm->threadWake, FICL_TRUE, FICL_FALSE))
+      {
+         awake = FICL_TRUE;
+         break;
       }
-#endif
+      if (0 == (i & 3))
+      {
+         pthread_testcancel();
+         sched_yield();
+      }
    }
+
+   if (FICL_TRUE == awake)
+      return;
+
+   rc = pthread_mutex_lock(&vm->threadStopMutex);
+   checkReturnCode(0, "STOP - pthread_mutex_lock", rc);
+
+   do
+   {
+      rc = pthread_cond_wait(&vm->threadAwake, &vm->threadStopMutex);
+      checkReturnCode(0, "STOP - pthread_cond_wait", rc);
+      __sync_synchronize();
+   } while (FICL_FALSE == vm->threadWake);
+
+   vm->threadWake = FICL_FALSE;
+   __sync_synchronize();
+
+   rc = pthread_mutex_unlock(&vm->threadStopMutex);
+   checkReturnCode(0, "STOP - pthread_mutex_unlock", rc);
 }
 
 
@@ -824,28 +829,32 @@ static void ficlPrimitiveAwaken(ficlVm *vm)
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
    otherVm = ficlStackPopPointer(vm->dataStack);
 
-   if (FICL_TRUE == ficlVmIsThreadActive(otherVm))
-   {
-#ifdef FICL_USE_CONDWAIT
-      rc = pthread_cond_signal(&otherVm->threadAwake);
-      checkReturnCode(vm, "pthread_cond_signal", rc);
-#else
-      otherVm->threadStopMutex = FICL_TRUE;
-      __sync_synchronize();
-#endif
-   }
+   if (FICL_FALSE == ficlVmIsThreadActive(otherVm))
+      return;
+
+   rc = pthread_mutex_lock(&otherVm->threadStopMutex);
+   checkReturnCode(0, "AWAKEN - pthread_mutex_lock", rc);
+
+   otherVm->threadWake = FICL_TRUE;
+   __sync_synchronize();
+
+   rc = pthread_cond_signal(&otherVm->threadAwake);
+   checkReturnCode(0, "AWAKEN - pthread_cond_signal", rc);
+
+   rc = pthread_mutex_unlock(&otherVm->threadStopMutex);
+   checkReturnCode(0, "AWAKEN - pthread_mutex_unlock", rc);
 }
 
 
 /* : HALT ( -- ) */
 static void ficlPrimitiveHalt(ficlVm *vm)
 {
-   if (FICL_TRUE == ficlVmIsThreadActive(vm))
-   {
-      ficlVmSetThreadActive(vm, FICL_FALSE);
-      ficlVmTerminateThread(vm, FICL_FALSE);
-      pthread_exit(NULL);
-   }
+   if (FICL_FALSE == ficlVmIsThreadActive(vm))
+      return;
+
+   ficlVmSetThreadActive(vm, FICL_FALSE);
+   ficlVmTerminateThread(vm, FICL_FALSE);
+   pthread_exit(NULL);
 }
 
 
@@ -858,11 +867,11 @@ static void ficlPrimitiveTerminate(ficlVm *vm)
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
    otherVm = ficlStackPopPointer(vm->dataStack);
 
-   if (FICL_TRUE == ficlVmIsThreadActive(otherVm))
-   {
-      ficlVmSetThreadActive(otherVm, FICL_FALSE);
-      ficlVmTerminateThread(otherVm, FICL_TRUE);
-   }
+   if (FICL_FALSE == ficlVmIsThreadActive(otherVm))
+      return;
+
+   ficlVmSetThreadActive(otherVm, FICL_FALSE);
+   ficlVmTerminateThread(otherVm, FICL_TRUE);
 }
 
 
