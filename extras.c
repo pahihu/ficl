@@ -732,6 +732,7 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    otherVm = ficlStackPopPointer(vm->dataStack);
    word    = ficlStackPopPointer(vm->dataStack);
 
+   ficlVmReset(otherVm);
    otherVm->runningWord = word;
    // newVm->ip = (ficlIp)(word->param);
 
