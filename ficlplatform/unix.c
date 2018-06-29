@@ -44,7 +44,7 @@ void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
     ficlFile *outFile;
     FILE *out;
 
-    vm = (ficlVm*) callback;
+    vm = (ficlVm*) callback->vm;
     outFile = vm ? vm->outFile : 0;
     out = outFile ? outFile->f : stdout;
     if (message != NULL) {
