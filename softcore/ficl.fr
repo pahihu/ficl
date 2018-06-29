@@ -20,8 +20,12 @@ S" FICL_WANT_MULTITHREADED" ENVIRONMENT? drop [if]
 \ ** See extras.c for definitions
 : /allot ( n -- )
     here  over erase  allot ;
+: /allocate ( n -- )
+    dup allocate abort" allocate failed"
+    dup rot erase ;
 : task \ name ( -- )
-    create  here /task /allot  construct ;
+    /task /allocate
+    dup construct  value ;
 : mutex \ name ( -- )
     create  here /mutex /allot  mutex-init ;
 [endif]

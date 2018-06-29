@@ -266,14 +266,6 @@ void ficlSystemDestroy(ficlSystem *system)
 {
     ficlSystemLock(system, FICL_TRUE);
 
-    /* NB. cannot release first dictionary space, because of static VMs */
-    while (system->vmList != NULL)
-    {
-        ficlVm *vm = system->vmList;
-        system->vmList = system->vmList->link;
-        ficlVmDestroy(vm);
-    }
-
     if (system->dictionary)
         ficlDictionaryDestroy(system->dictionary);
     system->dictionary = NULL;
@@ -287,6 +279,13 @@ void ficlSystemDestroy(ficlSystem *system)
         ficlDictionaryDestroy(system->locals);
     system->locals = NULL;
 #endif
+
+    while (system->vmList != NULL)
+    {
+        ficlVm *vm = system->vmList;
+        system->vmList = system->vmList->link;
+        ficlVmDestroy(vm);
+    }
 
     ficlSystemLock(system, FICL_FALSE);
 
@@ -349,30 +348,14 @@ ficlVm *ficlSystemInitVm(ficlSystem *system, ficlVm *vm)
     ficlVm *pVm;
 
     ficlSystemLock(system, FICL_TRUE);
-    
-    doInsert = 1;
-    pVm = system->vmList;
-    while (pVm != NULL)
-    {
-        if (pVm == vm)
-        {
-            doInsert = 0;
-            break;
-        }
-        pVm = pVm->link;
-    }
-
-    if (doInsert)
-        vm->link = system->vmList;
+    vm->link = system->vmList;
 
     memcpy(&(vm->callback), &(system->callback), sizeof(system->callback));
     vm->callback.vm      = vm;
 	vm->callback.system  = system;
     vm->outFile          = 0;
 
-    if (doInsert)
-        system->vmList = vm;
-
+    system->vmList = vm;
     ficlSystemLock(system, FICL_FALSE);
 
     return vm;

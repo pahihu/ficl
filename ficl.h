@@ -1101,7 +1101,7 @@ struct ficlVm
     pthread_t       threadID;
     volatile ficlUnsigned threadWake; /* STOP/AWAKEN support   */
     pthread_mutex_t threadStopMutex;
-    pthread_cond_t  threadAwake;
+    pthread_cond_t  threadSignal;
 #endif
 #if FICL_WANT_COMPATIBILITY
     ficlCompatibilityOutputFunction thunkedTextout;

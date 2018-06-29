@@ -122,8 +122,6 @@ ficlVm *ficlVmCreate(ficlVm *vm, unsigned nPStack, unsigned nRStack)
 **************************************************************************/
 void ficlVmDestroy(ficlVm *vm)
 {
-    ficlSystem *system = vm->callback.system;
-
     if (vm)
     {
 #if FICL_WANT_MULTITHREADED
@@ -141,8 +139,7 @@ void ficlVmDestroy(ficlVm *vm)
 #if defined(DEBUG)
         memset(vm, 0xEF, sizeof(ficlVm));
 #endif
-	if (!ficlDictionaryIncludes(system->dictionary, vm))
-            ficlFree(vm);
+        ficlFree(vm);
     }
 
     return;

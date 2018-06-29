@@ -671,7 +671,7 @@ void ficlVmTerminateThread(ficlVm *vm, ficlUnsigned doCancel)
       checkReturnCode(0, "ficlVmTerminateThread - pthread_join", rc);
    }
 
-   pthread_cond_destroy(&vm->threadAwake);
+   pthread_cond_destroy(&vm->threadSignal);
    pthread_mutex_destroy(&vm->threadStopMutex);
    vm->threadWake = FICL_FALSE;
    __sync_synchronize();
@@ -708,6 +708,8 @@ static void ficlPrimitiveConstruct(ficlVm *vm)
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
    otherVm = ficlStackPopPointer(vm->dataStack);
+   if (ficlDictionaryIncludes(system->dictionary, otherVm))
+      ficlVmThrowError(vm, "Error: task space is not ALLOCATEd.");
 
    // memset(otherVm, 0, sizeof(ficlVm));
    otherVm = ficlVmCreate(otherVm, system->stackSize, system->stackSize);
@@ -738,7 +740,7 @@ static void ficlPrimitiveActivate(ficlVm *vm)
       goto errout;
 
    where = "ACTIVATE - pthread_cond_init";
-   rc = pthread_cond_init(&otherVm->threadAwake, NULL);
+   rc = pthread_cond_init(&otherVm->threadSignal, NULL);
    if (rc) 
    {
       pthread_mutex_destroy(&otherVm->threadStopMutex);
@@ -753,7 +755,7 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    if (rc)
    {
       pthread_mutex_destroy(&otherVm->threadStopMutex);
-      pthread_cond_destroy(&otherVm->threadAwake);
+      pthread_cond_destroy(&otherVm->threadSignal);
       ficlVmSetThreadActive(otherVm, FICL_FALSE);
    }
 
@@ -779,41 +781,21 @@ static void ficlPrimitiveStop(ficlVm *vm)
 {
    int rc;
    int i;
-   ficlUnsigned awake;
 
    if (FICL_FALSE == ficlVmIsThreadActive(vm))
       return;
 
-   awake = FICL_FALSE;
-   for (i = 0; i < 1024; i++)
-   {
-      if (FICL_CAS(&vm->threadWake, FICL_TRUE, FICL_FALSE))
-      {
-         awake = FICL_TRUE;
-         break;
-      }
-      if (0 == (i & 3))
-      {
-         pthread_testcancel();
-         sched_yield();
-      }
-   }
-
-   if (FICL_TRUE == awake)
+   if (FICL_CAS(&vm->threadWake, FICL_TRUE, FICL_FALSE))
       return;
 
    rc = pthread_mutex_lock(&vm->threadStopMutex);
    checkReturnCode(0, "STOP - pthread_mutex_lock", rc);
 
-   do
+   while (!FICL_CAS(&vm->threadWake, FICL_TRUE, FICL_FALSE))
    {
-      rc = pthread_cond_wait(&vm->threadAwake, &vm->threadStopMutex);
+      rc = pthread_cond_wait(&vm->threadSignal, &vm->threadStopMutex);
       checkReturnCode(0, "STOP - pthread_cond_wait", rc);
-      __sync_synchronize();
-   } while (FICL_FALSE == vm->threadWake);
-
-   vm->threadWake = FICL_FALSE;
-   __sync_synchronize();
+   }
 
    rc = pthread_mutex_unlock(&vm->threadStopMutex);
    checkReturnCode(0, "STOP - pthread_mutex_unlock", rc);
@@ -838,7 +820,7 @@ static void ficlPrimitiveAwaken(ficlVm *vm)
    otherVm->threadWake = FICL_TRUE;
    __sync_synchronize();
 
-   rc = pthread_cond_signal(&otherVm->threadAwake);
+   rc = pthread_cond_signal(&otherVm->threadSignal);
    checkReturnCode(0, "AWAKEN - pthread_cond_signal", rc);
 
    rc = pthread_mutex_unlock(&otherVm->threadStopMutex);
