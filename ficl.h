@@ -380,6 +380,7 @@ extern "C" {
 */
 
 #if FICL_WANT_MULTITHREADED
+#define FICL_USE_CONDWAIT   (1)
 #include <pthread.h>
 #ifndef __FreeBSD__
 #ifndef PTHREAD_MUTEX_RECURSIVE

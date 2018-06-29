@@ -804,7 +804,7 @@ static void ficlPrimitiveStop(ficlVm *vm)
                                            FICL_TRUE,
                                            FICL_FALSE))
       { 
-         if (0 == (++rc & 1023))
+         if (0 == (++rc & 3))
          {
             pthread_testcancel();
             sched_yield();
