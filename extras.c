@@ -980,6 +980,27 @@ static void ficlPrimitiveAtomicCas(ficlVm *vm)
 }
 
 
+/* : ATOMIC-OP ( xt a-addr -- ) */
+static void ficlPrimitiveAtomicOp(ficlVm *vm)
+{
+   ficlCell *addr, old_value, new_value;
+   ficlWord *xt;
+
+   FICL_STACK_CHECK(vm->dataStack, 2, 0);
+   addr = ficlStackPopPointer(vm->dataStack);
+   xt   = ficlStackPopPointer(vm->dataStack);
+   
+   do
+   {
+      __sync_synchronize();
+      old_value = addr[0];
+      ficlStackPush(vm->dataStack, old_value);
+      ficlVmExecuteWord(vm, xt);
+      new_value = ficlStackPop(vm->dataStack);
+   } while(!FICL_CAS((ficlUnsigned*)addr, old_value.u, new_value.u));
+}
+
+
 #endif /* FICL_WANT_MULTITHREADED */
 
 
@@ -1103,6 +1124,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "atomic!",   ficlPrimitiveAtomicStore);
     addPrimitive(dictionary, "atomic-xchg", ficlPrimitiveAtomicXchg);
     addPrimitive(dictionary, "atomic-cas", ficlPrimitiveAtomicCas);
+    addPrimitive(dictionary, "atomic-op", ficlPrimitiveAtomicOp);
 
     addPrimitive(dictionary, "/mutex", 	  ficlPrimitiveSlashMutex);
     addPrimitive(dictionary, "mutex-init",ficlPrimitiveMutexInit);
