@@ -203,10 +203,9 @@ int main(int argc, char **argv)
 		returnValue = ficlVmEvaluate(f_vm, buffer);
 		switch (returnValue)
         {
-		    case FICL_VM_STATUS_RESTART:
-				prompt = 0;
-				break;
 		    case FICL_VM_STATUS_OUT_OF_TEXT:
+                if (f_vm->restart)
+                    prompt = 0;
 		    case FICL_VM_STATUS_ERROR_EXIT:
 			    break;
 		    case FICL_VM_STATUS_USER_EXIT:

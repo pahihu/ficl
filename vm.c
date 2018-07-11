@@ -3310,7 +3310,7 @@ int ficlVmExecuteString(ficlVm *vm, ficlString s)
 
     case FICL_VM_STATUS_RESTART:
         vm->restart = 1;
-        // except = FICL_VM_STATUS_OUT_OF_TEXT;
+        except = FICL_VM_STATUS_OUT_OF_TEXT;
         break;
 
     case FICL_VM_STATUS_OUT_OF_TEXT:
