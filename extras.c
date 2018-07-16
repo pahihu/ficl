@@ -1074,6 +1074,10 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
 void ficlSystemCompileExtras(ficlSystem *system)
 {
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
+    ficlDictionary *environment = ficlSystemGetEnvironment(system);
+
+    FICL_SYSTEM_ASSERT(system, dictionary);
+    FICL_SYSTEM_ASSERT(system, environment);
 
     addPrimitive(dictionary, "break",    ficlPrimitiveBreak);
     addPrimitive(dictionary, "load",     ficlPrimitiveLoad);
@@ -1085,10 +1089,10 @@ void ficlSystemCompileExtras(ficlSystem *system)
     ficlDictionarySetConstant(dictionary,  "clocks/sec", CLOCKS_PER_SEC);
     addPrimitive(dictionary, "pwd",      ficlPrimitiveGetCwd);
     addPrimitive(dictionary, "cd",       ficlPrimitiveChDir);
-	 addPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs);
+	addPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs);
 #endif /* FICL_ANSI */
 
-    ficlDictionarySetConstant(dictionary,  "ficl-os",  FICL_OS);
+    ficlDictionarySetConstant(environment,  "ficl-os",  FICL_OS);
 
     addPrimitive(dictionary, "key",      ficlPrimitiveKey);
     addPrimitive(dictionary, "key?",     ficlPrimitiveKeyQ);

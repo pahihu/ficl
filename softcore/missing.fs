@@ -14,6 +14,12 @@ Start-Prefixes
 : $ 16 __tempbase ; IMMEDIATE
 End-Prefixes
 
+S" FICL-OS" ENVIRONMENT? [IF]
+CONSTANT ficl-os
+[ELSE]
+0 CONSTANT ficl-os
+[THEN]
+
 
 : DARWIN?   \ -- t|f ; true if Darwin
    ficl-os 1 =
