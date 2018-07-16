@@ -1068,6 +1068,24 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
 
 #endif
 
+/* : STICK ( xu ... x0 x u -- x xu-1 ... xu ) */
+static void ficlPrimitiveStick(ficlVm *vm)
+{
+    ficlCell x;
+    ficlInteger n;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
+    n = ficlStackPopInteger(vm->dataStack);
+    x = ficlStackPop(vm->dataStack);
+
+    if (n < 0)
+        return;
+
+    FICL_STACK_CHECK(vm->dataStack, n + 1, n + 1);
+    ficlStackStore(vm->dataStack, n, x);
+}
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -1144,6 +1162,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
 #else
     addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
 #endif
+    addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
 
     return;
 }
