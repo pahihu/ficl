@@ -2,16 +2,19 @@
 
 .( loading STRUCT -- OpenFirmware ) cr
 
-: struct ( -- initial-offset )   0 ;
+: STRUCT ( -- initial-offset )
+\G Begin definition of a struct.
+   0 ;
 
-: field           \ name ( offset site -- offset' )
+: FIELD \ name ( offset size -- offset' )
+\G Define a field with offset and size. 
    over >R
    : R> POSTPONE literal POSTPONE + POSTPONE ;
    +
 ;
 
-\ Create two name fields with the same offset and size
-: 2field          \ name name ( offset size -- offset' )
+: 2FIELD \ name name ( offset size -- offset' )
+\G Create two name fields with the same offset and size
    2dup field drop
    field
 ;

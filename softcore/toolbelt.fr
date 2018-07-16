@@ -5,22 +5,31 @@
 
 .( loading TOOLBELT -- N.Bawd ) CR
 
+: \G POSTPONE \ ; IMMEDIATE
+
 \ ******************  Forth Programmer's Handbook  ******************
 
 : NOT  ( x -- flag )  S" 0= " EVALUATE ; IMMEDIATE
 
 : [DEFINED]                 ( "name" -- flag )
-    BL WORD FIND NIP 0<> ; IMMEDIATE
+\G Returns true if "name" defined.
+   BL WORD FIND NIP 0<> ; IMMEDIATE
 
 : [UNDEFINED]               ( "name" -- flag )
-    BL WORD FIND NIP 0= ; IMMEDIATE
+\G Returns true if "name" undefined.
+   BL WORD FIND NIP 0= ; IMMEDIATE
 
-: POSSIBLY  ( "name" -- )  BL WORD FIND  ?DUP AND IF  EXECUTE  THEN ;
+: POSSIBLY  ( "name" -- )
+\G Execute "name" if found.
+   BL WORD FIND  ?DUP AND IF  EXECUTE  THEN ;
 
-: ANEW  ( "name" -- )( Run: -- )  >IN @ POSSIBLY  >IN ! MARKER ;
+: ANEW  ( "name" -- )( Run: -- )
+\G Execute "name" if found, define a marker with "name".
+   >IN @ POSSIBLY  >IN ! MARKER ;
 
-: EMPTY                         ( "name" -- )
+: EMPTY ( -- )
+\G Empty the dictionary.
     S" ANEW --EMPTY-- DECIMAL  ONLY FORTH DEFINITIONS "
-		EVALUATE ;
+    EVALUATE ;
 
 \ ** E N D   T O O L B E L T . F R
