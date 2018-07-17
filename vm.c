@@ -2332,6 +2332,7 @@ FDUP:
 				CHECK_FLOAT_STACK(c.i+1, c.i+2);
 
 				floatTop[1] = floatTop[- c.i];
+				floatTop++;
 				continue;
 			}
 
