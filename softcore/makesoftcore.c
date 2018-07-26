@@ -186,7 +186,11 @@ int main(int argc, char *argv[])
 	}
 	*dst = 0;
 
+#ifdef WIN32
+	f = fopen("..\\softcore.c", "wt");
+#else
 	f = fopen("../softcore.c", "wt");
+#endif
 	if (f == NULL)
 		{
 		printf("couldn't open ../softcore.c for writing!  giving up.\n");
