@@ -18,6 +18,9 @@ S" FICL_WANT_EXTENDED_PREFIX" ENVIRONMENT? drop [if]
 \ define " (double-quote) as an alias for s", and make it a prefix
 : " postpone s" ; immediate
 
+\ define ' as an alias for [char] or char, and make it a prefix
+: ' state @ if postpone [char] else char then ; immediate
+
 
 \ make .( a prefix (we just create an alias for it in the prefixes list)
 : .( postpone .( ; immediate
