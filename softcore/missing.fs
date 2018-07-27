@@ -178,7 +178,7 @@ set-current
 
 : DUMP ( addr u -- )
 	base @ >r hex
-	>r 16*k  r> 15 + 16*k  bounds DO
+	>r ( 16*k)  r> 15 + ( 16*k)  bounds DO
 		i dump-line
 	16 +LOOP  r> base ! ;
 

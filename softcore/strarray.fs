@@ -12,7 +12,7 @@
 \G At run-time `name' ( n -- ca u ) returns the nth entry.
    CREATE here 0 dup ,
    DOES>  ( n addr -- ca u )
-          @  swap 2* cells +  2@ ;
+          @  swap [ 1 2* cells ] literal *  +  2@ ;
 
 : $" ( aptr u1 "string" -- aptr ca u u2 )
 \G Add an entry to the string array.
