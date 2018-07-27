@@ -1,3 +1,5 @@
+( String constant --- ap 27jul2018 )
+
 : PLACE ( from n to -- )
    2DUP C! CHAR+ SWAP MOVE ;
 
