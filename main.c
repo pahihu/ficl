@@ -196,8 +196,12 @@ int main(int argc, char **argv)
     /* while (returnValue != FICL_VM_STATUS_USER_EXIT) */
 	while (!done)
 	{
-		if (prompt)
+		if (prompt) {
+            int i, depth = ficlStackDepth(f_vm->dataStack);
+            for (i = 0; i < depth; i++)
+                fputs(".", stdout);
 			fputs(FICL_PROMPT, stdout);
+        }
 		fgets(buffer, sizeof(buffer), stdin);
 		prompt = 1;
 		returnValue = ficlVmEvaluate(f_vm, buffer);

@@ -184,6 +184,9 @@ set-current
 
 previous
 
+\ P.Falth
+: .. ( i*x -- )   .S  DEPTH 0 ?DO  DROP  LOOP ;
+
 \ strings
 : $VARIABLE ( len "name" -- ) CREATE 0 , allot ;
 
