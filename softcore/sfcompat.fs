@@ -1,5 +1,5 @@
 \ SwiftForth compatibility words
-.( loading SwiftForth compatibility ) cr
+.( loading SFCOMPAT -- SwiftForth ) cr
 
 ( --- timers ------------------------------------------------- )
 
