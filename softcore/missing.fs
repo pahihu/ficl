@@ -61,13 +61,30 @@ DECIMAL
    ELSE drop
    THEN
 ;
+
+: EOL? ( c -- f )
+\G Answer TRUE if char is CR/LF.
+   13 OVER =  SWAP 10 = OR ;
+
+: SPACE? ( c -- f )
+\G Answer TRUE if char is white-space (space or tab).
+   BL OVER =  SWAP 9 = OR ;
+
 : -TRAILING ( a u1 -- ca u2 )
+\G Strip trailing whitespace.
 	BEGIN
-		dup  0<> >r 				\ u1 <> 0 ?
-		2dup 1- chars + c@  bl =	\ last is space ?
+		dup  0<> >r 				   \ u1 <> 0 ?
+		2dup 1- chars + c@  SPACE?	\ last is space ?
 		r>   and
 	WHILE	1 chars -
 	REPEAT ;
+
+: -LEADING ( ca u1 -- ca u2 )
+\G Strip leading whitespace.
+   BEGIN
+      OVER C@ SPACE?
+      OVER 0= NOT    AND
+   WHILE  1 /STRING  REPEAT ;
 
 : 3DUP ( a b c -- a b c a b c ) dup 2over rot ;
 : BETWEEN ( n lo hi -- f ) 1+ within ;

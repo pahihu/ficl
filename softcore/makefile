@@ -3,7 +3,7 @@ SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 # SOURCES += preswoop.fr swoop.fr swoopex.fr
 SOURCES += mini-oof.fs
 SOURCES += ficllocal.fr fileaccess.fr
-SOURCES += tester.fr toolbelt.fr switch.fr struct.fth enum.fs timer.fs
+SOURCES += tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
 SOURCES += circ-pad.fs missing.fs strarray.fs strconst.f numcvt.fs words.fs
 	
 
