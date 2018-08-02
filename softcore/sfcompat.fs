@@ -13,6 +13,7 @@
 
 
 ( --- aliases ------------------------------------------------ )
+
 HIDE
 
 ' (BRANCH) 3 CELLS + @ CONSTANT <branch>
@@ -25,16 +26,23 @@ SET-CURRENT
 
 : AKA ( old new -- )
 \G Make alias `new' for `old'.
-   ' >BODY CELL-           \ get address of old
-   >R : R>                 \ define new
-   BRANCH,                 \ branch to old
-   POSTPONE ;              \ close new def
+   ' DUP PRIMITIVE? IF        \ alias for primitive is
+      >R : R>
+      POSTPONE LITERAL        \ simple execution
+      POSTPONE EXECUTE
+   ELSE
+      >BODY CELL-             \ get address of old
+      >R : R>                 \ define new
+      BRANCH,                 \ branch to old
+   THEN
+   POSTPONE ;                 \ close new def
 ;
 
 PREVIOUS
 
 
 ( --- enums -------------------------------------------------- )
+
 0 Value #ENUM
 
 : ENUM  \ name ( n -- n+1 )
@@ -45,3 +53,24 @@ PREVIOUS
 \G Define an enum with "name", increment number on stack by 4.
    dup Constant 4 + ;
 
+
+( --- NULL terminated strings -------------------------------- )
+
+: ZLENGTH ( za -- u )
+\G Length of NULL terminated string.
+   DUP
+   BEGIN COUNT WHILE REPEAT
+   SWAP - 1- ;
+
+: ZCOUNT ( za -- ca u )
+\G Address and length of NULL terminated string.
+   DUP ZLENGTH ;
+
+: ZPLACE ( from n zto -- )
+\G Place to NULL terminated string.
+   2DUP + >R  SWAP MOVE  0 R> C! ;
+
+: ZAPPEND ( from n zto -- )
+\G Append to NULL terminated string.
+   ZCOUNT + ZPLACE ;
+   

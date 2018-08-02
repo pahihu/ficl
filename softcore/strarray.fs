@@ -89,7 +89,7 @@
    2r>            \ restore prefix str
    $= ;           \ compare it
    
-: ucase ( c1 -- c2 ) 
+: upcase ( c1 -- c2 ) 
 \G Convert c1 to upper case.
    dup [char] a [char] z between if
       [ char a char A - ] literal -
@@ -101,11 +101,11 @@
       [ char a  char A - ] literal +
    then ;
 
-: $ucase ( ca1 u1 -- ca2 u2 )
+: $upcase ( ca1 u1 -- ca2 u2 )
 \G Convert ca1/u1 to upper case. Returned string is at PAD.
    +PAD drop
    dup >R  0 ?DO
-      i chars over + c@ ucase
+      i chars over + c@ upcase
       i chars PAD  + c!
    LOOP  drop PAD R> ;
 

@@ -1281,12 +1281,12 @@ struct ficlWord
 {
     struct ficlWord *link;     /* Previous word in the dictionary      */
     ficlUnsigned16 hash;
-    ficlUnsigned8 flags;                 /* Immediate, Smudge, Compile-only, IsOjbect, Instruction      */
-    ficlUnsigned8 length;           /* Number of chars in word name         */
-    char *name;                 /* First nFICLNAME chars of word name   */
-    ficlPrimitive code;             /* Native code to execute the word      */
-    ficlInstruction semiParen;             /* Native code to execute the word      */
-    ficlCell param[1];              /* First data cell of the word          */
+    ficlUnsigned8 flags;       /* Immediate, Smudge, Compile-only, IsOjbect, Instruction      */
+    ficlUnsigned8 length;      /* Number of chars in word name         */
+    char *name;                /* First nFICLNAME chars of word name   */
+    ficlPrimitive code;        /* Native code to execute the word      */
+    ficlInstruction semiParen; /* Native code to execute the word      */
+    ficlCell param[1];         /* First data cell of the word          */
 };
 
 /*

@@ -1,16 +1,32 @@
 \ Search for words by substrings                      ap 13may17
 ANEW -words
 
-: contains-string ( ca1 u1 nt -- ff )
-   dup >R name>string 2over search-nc
-   IF    R> name>string 20 $.r
-   ELSE  R> drop  THEN
-   2drop true ;
+HIDE
 
-: words: ( <substr> -- )
-\ *G List those word names in the current word list that partly
-\ *G match name.
-   parse-word
-   ['] contains-string  get-current  traverse-wordlist
-   2drop CR ;
+: CONTAINS-STRING ( ca1 u1 nt -- ff )
+   DUP >R NAME>STRING 2OVER SEARCH-NC
+   IF    R> NAME>STRING 20 $.r
+   ELSE  R> DROP  THEN
+   2DROP TRUE ;
 
+: (WORDS:) ( <substr> -- )
+\G List those word names in the current word list that partly
+\G match name.
+   ['] CONTAINS-STRING  GET-CURRENT  TRAVERSE-WORDLIST
+   2DROP CR ;
+
+AKA WORDS (WORDS)
+
+SET-CURRENT
+
+: WORDS ( ["name"] -- )
+   PARSE-WORD DUP
+   IF         (WORDS:)
+   ELSE 2DROP (WORDS)
+   THEN ;
+
+: WORDS: ( "name" -- )
+\G iForth variant.
+   PARSE-WORD (WORDS:) ;
+
+PREVIOUS
