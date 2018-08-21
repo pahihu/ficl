@@ -16,6 +16,9 @@ hide
 
 set-current
 
+: NUMBER? ( ca # - d 2 | n 1 | 0 )
+   ?NUMBER DUP IF  DROP DPL @ 0< 2+  THEN ;
+
 : D# ( "number" -- n ) 10 base# ; IMMEDIATE
 : H# ( "number" -- n ) 16 base# ; IMMEDIATE
 
