@@ -1,6 +1,8 @@
 \ SwiftForth compatibility words
 .( loading SFCOMPAT -- SwiftForth ) cr
 
+DECIMAL
+
 ( --- timers ------------------------------------------------- )
 
 : COUNTER ( -- ms )
@@ -18,6 +20,14 @@ HIDE
 
 ' (BRANCH) 3 CELLS + @ CONSTANT <branch>
 
+14 CONSTANT <PRIMITIVE>
+21 CONSTANT <INSTRUCTION-WORD>
+
+: BUILT-IN? ( xt -- f )
+   WORDKIND? 
+   DUP  <PRIMITIVE>        =
+   SWAP <INSTRUCTION-WORD> =  OR ;
+
 SET-CURRENT
 
 : BRANCH, ( addr -- )      \ assemble a branch to addr
@@ -26,7 +36,7 @@ SET-CURRENT
 
 : AKA ( old new -- )
 \G Make alias `new' for `old'.
-   ' DUP PRIMITIVE? IF        \ alias for primitive is
+   ' DUP BUILT-IN? IF        \ alias for primitive is
       >R : R>
       POSTPONE LITERAL        \ simple execution
       POSTPONE EXECUTE

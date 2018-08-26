@@ -1086,8 +1086,8 @@ static void ficlPrimitiveStick(ficlVm *vm)
     ficlStackStore(vm->dataStack, n, x);
 }
 
-/* : PRIMITIVE? ( xt -- flag ) */
-static void ficlPrimitivePrimitiveQ(ficlVm *vm)
+/* : WORDKIND? ( xt -- kind ) */
+static void ficlPrimitiveWordKindQ(ficlVm *vm)
 {
     ficlWordKind kind;
     ficlWord *word;
@@ -1097,10 +1097,8 @@ static void ficlPrimitivePrimitiveQ(ficlVm *vm)
 
     word = (ficlWord *)ficlStackPopPointer(vm->dataStack);
     kind = ficlWordClassify(word);
-    if (FICL_WORDKIND_PRIMITIVE == kind)
-        ret = FICL_TRUE;
 
-	ficlStackPushInteger(vm->dataStack, ret);
+    ficlStackPushInteger(vm->dataStack, kind);
 }
 
 #define addPrimitive(d,nm,fn) \
@@ -1180,7 +1178,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
 #endif
     addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
-    addPrimitive(dictionary, "primitive?",ficlPrimitivePrimitiveQ);
+    addPrimitive(dictionary, "wordkind?", ficlPrimitiveWordKindQ);
 
     return;
 }
