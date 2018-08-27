@@ -39,14 +39,16 @@ DECIMAL
 
 : XXX ( -- ) 1 abort" not implemented" ;
 
-: BINARY	 2 BASE ! ;
+: BINARY 2 BASE ! ;
 : OCTAL	 8 BASE ! ;
 : ALPHA  36 BASE ! ;
 
-: .D ( n -- ) base @   decimal swap u.  base ! ;
-: .X ( n -- ) base @   hex     swap u.  base ! ;
-: .B ( n -- ) base @   binary  swap u.  base ! ;
-: .BASE ( -- ) base @ .D ;
+: (BASE.) ( n base -- )
+   BASE @ >R  BASE !  U.  R> BASE ! ;
+: H. ( n -- )  16 (BASE.) ;
+: B. ( n -- )   2 (BASE.) ;
+: O. ( n -- )   8 (BASE.) ;
+: .BASE ( -- )  BASE @  10 (BASE.) ;
 
 
 : BLANK ( a u -- ) bl fill ;
@@ -93,8 +95,8 @@ DECIMAL
 : $DUMP ( ca n -- ca n ) 2dup cr ." [" type ." ]" ;
 
 : DABS ( d -- d ) dup 0< IF  dnegate  THEN ;
-: (UD.) ( ud -- ca n ) <# #s #> +pad, ;
-: (D.) ( d -- ca n ) dup >r dabs <# #s r> sign #> +pad, ;
+: (UD.) ( ud -- ca n ) <# #s #> >pad ;
+: (D.) ( d -- ca n ) dup >r dabs <# #s r> sign #> >pad ;
 : (.)  ( n -- ca n ) s>d (d.) ;
 : (U.) ( n -- ca n ) 0 (ud.) ;
 : TYPE.R ( ca n m -- ) over - 0 max spaces  type ;

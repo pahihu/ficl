@@ -7,25 +7,31 @@ ANEW -circ-pad
 
 hide
 
-7 CONSTANT /pad-area	\ number of circular PADs
-  VARIABLE #pad		\ current PAD index
+128 CONSTANT #SIZE
+  7 CONSTANT #SLOTS	\ number of circular PADs, should be 2^n-1
+    VARIABLE #PAD	\ current PAD index
 
-CREATE pad-area /pad-area 80 * allot
+CREATE pad-area #SLOTS #SIZE * allot
 
 set-current
 
-: RESET-PAD ( -- ) 0 #pad ! ;
+: /PAD ( -- )
+\G Reset PAD area.
+   0 #pad ! ;
 
-: PAD ( -- ca ) \ current PAD
-	pad-area  #pad @ 80 * + ;
+: PAD ( -- caddr )
+\G Return current PAD address <caddr>.
+   pad-area  #pad @ #SIZE * + ;
 
-: +PAD ( -- ca ) \ PAD increment
-	#pad @  1+ /pad-area mod  #pad !
-	pad ;
+: +PAD ( -- caddr )
+\G Change to next PAD address <caddr>.
+   #pad @  1+ #SLOTS and  #pad !
+   pad ;
 
-: +PAD, ( ca n -- ca' n ) \ move sc to PAD increment
-	+pad swap dup >r move  pad r> ;
+: >PAD ( caddr1 u -- caddr2 u )
+\G Move <caddr>/<u> to next PAD area, return new <caddr2>/<u>.
+   +pad swap dup >r move  pad r> ;
 
 previous
 
-reset-pad
+/PAD
