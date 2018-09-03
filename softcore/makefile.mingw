@@ -6,8 +6,8 @@ SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 SOURCES += mini-oof.fs
 SOURCES += ficllocal.fr fileaccess.fr
 SOURCES += header.fs
-SOURCES += tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
-SOURCES += bitwise.fs circ-pad.fs missing.fs cond.fs
+SOURCES += srcline.fs tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
+SOURCES += bitwise.fs circ-pad.fs missing.fs cond.fs systack.fs
 SOURCES += strarray.fs strconst.fs numcvt.fs defer.fth words.fs
 	
 
