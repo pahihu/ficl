@@ -1154,7 +1154,8 @@ static void ficlPrimitiveVariable(ficlVm *vm)
     ficlString name = ficlVmGetWord(vm);
 
     ficlDictionaryAppendWord(dictionary, name, (ficlPrimitive)ficlInstructionVariableParen, FICL_WORD_DEFAULT);
-    ficlVmDictionaryAllotCells(vm, dictionary, 1);
+    ficlDictionaryAppendUnsigned(dictionary, 0);
+    // ficlVmDictionaryAllotCells(vm, dictionary, 1);
     return;
 }
 
