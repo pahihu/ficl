@@ -950,6 +950,40 @@ static void ficlPrimitiveFInfiniteQ(ficlVm *vm)
     ficlStackPushInteger(vm->dataStack, FICL_BOOL(isinf(r)));
 }
 
+/*******************************************************************
+** sf! ( addr -- ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveSFStore(ficlVm *vm)
+{
+    ficlFloat r;
+    float *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ptr = ficlStackPopPointer(vm->dataStack);
+
+    ptr[0] = (float)r;
+}
+
+/*******************************************************************
+** sf@ ( addr -- ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveSFFetch(ficlVm *vm)
+{
+    ficlFloat r;
+    float *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0 );
+
+    ptr = ficlStackPopPointer(vm->dataStack);
+    r = (ficlFloat) ptr[0];
+
+    ficlStackPushFloat(vm->floatStack, r);
+}
+
 /**************************************************************************
                      F l o a t P a r s e S t a t e
 ** Enum to determine the current segement of a floating point number
@@ -1195,17 +1229,13 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f<>",	ficlPrimitiveFNotEqual,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fnan?",	ficlPrimitiveFNaNQ,    	     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "finfinite?",ficlPrimitiveFInfiniteQ,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sf@",	ficlPrimitiveSFFetch,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sf!",	ficlPrimitiveSFStore,        FICL_WORD_DEFAULT);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
     ficlDictionarySetPrimitive(dictionary, "(f2local)",  ficlPrimitiveF2LocalParen,  FICL_WORD_COMPILE_ONLY);
 #endif /* FICL_WANT_LOCALS */
-
- /* 
-    Missing words:
-
-    fvariable
-*/
 
     ficlDictionarySetConstant(environment, "floating",       FICL_FALSE);  /* not all required words are present */
     ficlDictionarySetConstant(environment, "floating-ext",   FICL_FALSE);
