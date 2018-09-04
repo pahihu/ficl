@@ -5,7 +5,7 @@ SOURCES += mini-oof.fs
 SOURCES += ficllocal.fr fileaccess.fr
 SOURCES += header.fs
 SOURCES += srcline.fs tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
-SOURCES += bitwise.fs circ-pad.fs missing.fs cond.fs systack.fs
+SOURCES += bitwise.fs circ-pad.fs missing.fs floats.fs cond.fs systack.fs
 SOURCES += strarray.fs strconst.f numcvt.fs defer.fth words.fs
 	
 
