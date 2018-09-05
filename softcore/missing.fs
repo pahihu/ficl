@@ -72,21 +72,47 @@ DECIMAL
 \G Answer TRUE if char is white-space (space or tab).
    BL OVER =  SWAP 9 = OR ;
 
-: -TRAILING ( a u1 -- ca u2 )
-\G Strip trailing whitespace.
-	BEGIN
-		dup  0<> >r 				   \ u1 <> 0 ?
-		2dup 1- chars + c@  SPACE?	\ last is space ?
-		r>   and
-	WHILE	1 chars -
-	REPEAT ;
+: SCAN ( ca1 u1 b -- ca2 u2 )
+\G Search for <b> in ca1/u1.
+   >R
+   BEGIN  OVER C@ R@  <>
+	  OVER       0<> AND
+   WHILE  1- >R CHAR+ R>
+   REPEAT R> DROP ;
 
-: -LEADING ( ca u1 -- ca u2 )
+: SKIP ( ca1 u1 b -- ca2 u2 )
+\G Skip <b> chars in ca1/u1.
+   >R
+   BEGIN  OVER C@ R@  =
+          OVER       0<> AND
+   WHILE  1- >R CHAR+ R>
+   REPEAT R> DROP ;
+
+: CLAST ( ca u -- b )
+\G Last char of string ca/u.
+   DUP IF 1- CHARS THEN + C@ ;
+
+: -SKIP ( ca u1 b -- ca u2 )
+   >R
+   BEGIN  2DUP CLAST R@  =
+          OVER           0<> AND
+   WHILE  1-
+   REPEAT R> DROP ;
+
+: -TRAILING ( ca u1 -- ca u2 )
+\G Strip trailing whitespace.
+   BEGIN 2DUP CLAST SPACE?
+         OVER       0<>    AND
+   WHILE 1-
+   REPEAT ;
+
+: -LEADING ( ca1 u1 -- ca2 u2 )
 \G Strip leading whitespace.
    BEGIN
       OVER C@ SPACE?
-      OVER 0= NOT    AND
-   WHILE  1 /STRING  REPEAT ;
+      OVER    0<>    AND
+   WHILE 1- >R CHAR+ R>
+   REPEAT ;
 
 : 3DUP ( a b c -- a b c a b c ) dup 2over rot ;
 : BETWEEN ( n lo hi -- f ) 1+ within ;
