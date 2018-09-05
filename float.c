@@ -56,6 +56,8 @@
 
 #define FICL_FLOAT_ALIGNMENT    sizeof(ficlFloat)
 
+#define REAL long double
+
 /**************************************************************************
                         f a l i g n P t r
 ** Aligns the given pointer to sizeof(ficlFloat) address units.
@@ -1010,12 +1012,12 @@ typedef enum _floatParseState
 int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
 {
     unsigned char c;
-	unsigned char digit;
+    unsigned char digit;
     char *trace;
     ficlUnsigned length;
-    float power;
-    float accum = 0.0f;
-    float mant = 0.1f;
+    REAL power;
+    REAL accum = (REAL) 0.0;
+    REAL mant = (REAL) 0.1;
     ficlInteger exponent = 0;
     char flag = 0;
     FloatParseState estate = FPS_START;
@@ -1095,7 +1097,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
                         return(0);
 
                     accum += digit * mant;
-                    mant *= 0.1f;
+                    mant *= (REAL) 0.1;
                 }
                 break;
             }
@@ -1149,11 +1151,11 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
             exponent = -exponent;
         }
         /* power = 10^x */
-        power = (float)pow(10.0, exponent);
+        power = (REAL) powl((REAL) 10.0, exponent);
         accum *= power;
     }
 
-    ficlStackPushFloat(vm->floatStack, accum);
+    ficlStackPushFloat(vm->floatStack, (ficlFloat) accum);
     if (vm->state == FICL_VM_STATE_COMPILE)
         ficlPrimitiveFLiteralImmediate(vm);
 
