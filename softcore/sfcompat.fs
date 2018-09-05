@@ -83,5 +83,16 @@ PREVIOUS
 : ZAPPEND ( from n zto -- )
 \G Append to NULL terminated string.
    ZCOUNT + ZPLACE ;
+
+( --- Increment/decrement ------------------------------------ )
+
+: ++ ( addr -- )
+\G Increment value at <addr>.
+   1 SWAP +! ;
+
+: -- ( addr -- )
+\G Decrement value at <addr>.
+   -1 SWAP +! ;
+
    
 

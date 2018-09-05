@@ -9,6 +9,7 @@
 : empty   ( xn..x1 -- ) depth 0 ?do drop loop ;
 \ CELL- undoes CELL+
 : cell-   ( addr -- addr )  [ 1 cells ] literal -  ;
+: char-   ( caddr -- caddr )  [ 1 chars ] literal - ;
 : -rot   ( a b c -- c a b )  2 -roll ;
 
 \ ** CORE 

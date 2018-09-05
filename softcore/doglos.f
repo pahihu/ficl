@@ -28,5 +28,6 @@ MAKEGLOS strarray.fs
 MAKEGLOS strconst.f
 MAKEGLOS numcvt.fs
 MAKEGLOS defer.fth
+MAKEGLOS tofcompat.fs
 MAKEGLOS words.fs
 WRITEGLOS ficl.glo
