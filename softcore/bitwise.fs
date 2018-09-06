@@ -21,3 +21,8 @@ AKA 1- BMASK ( bit -- mask )
 : BTOGGLE ( mask addr -- )
 \G Toggle <mask> bits in cell at <addr>.
    SWAP OVER @  XOR  SWAP ! ;
+
+: BMUX ( a b mask -- out )
+\G Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
+\G 0 selects the bit from <b>.
+   SWAP OVER INVERT AND >R AND R> OR ;
