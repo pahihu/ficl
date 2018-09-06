@@ -19,9 +19,13 @@ set-current
 \G Reset PAD area.
    0 #pad ! ;
 
+-WARNING
+
 : PAD ( -- caddr )
 \G Return current PAD address <caddr>.
    pad-area  #pad @ #SIZE * + ;
+   
++WARNING
 
 : +PAD ( -- caddr )
 \G Change to next PAD address <caddr>.

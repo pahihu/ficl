@@ -10,7 +10,11 @@ decimal
 Start-Prefixes
 : %  2 __tempbase ; IMMEDIATE
 : &  8 __tempbase ; IMMEDIATE
+
+-WARNING
 : # 10 __tempbase ; IMMEDIATE
++WARNING
+
 : $ 16 __tempbase ; IMMEDIATE
 End-Prefixes
 
@@ -221,11 +225,15 @@ hide
 
 set-current
 
+-WARNING
+
 : DUMP ( addr u -- )
 	base @ >r hex
 	>r ( 16*k)  r> 15 + ( 16*k)  bounds DO
 		i dump-line
 	16 +LOOP  r> base ! ;
+	
++WARNING
 
 previous
 
