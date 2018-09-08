@@ -970,7 +970,7 @@ void ficlPrimitiveParseStepList(ficlVm *vm)
 **************************************************************************/
 static void ficlPrimitiveEnvConstant(ficlVm *vm)
 {
-    unsigned value;
+    ficlUnsigned value;
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
     ficlVmGetWordToPad(vm);

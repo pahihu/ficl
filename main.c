@@ -139,7 +139,6 @@ int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
 
 #endif
 
-
 int main(int argc, char **argv)
 {
     int returnValue = 0;
@@ -198,9 +197,14 @@ int main(int argc, char **argv)
 	{
 		if (prompt) {
             int i, depth = ficlStackDepth(f_vm->dataStack);
-            for (i = 0; i < depth; i++)
-                fputs(".", stdout);
-			fputs(FICL_PROMPT, stdout);
+            if (FICL_VM_STATE_INTERPRET == f_vm->state)
+            {
+                for (i = 0; i < FICL_MIN(16,depth); i++)
+                    fputs(".", stdout);
+			    fputs("ok> ", stdout);
+            }
+            else
+			    fputs("  ] ", stdout);
         }
 		fgets(buffer, sizeof(buffer), stdin);
 		prompt = 1;
