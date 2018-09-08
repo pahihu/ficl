@@ -174,8 +174,8 @@ WINNT? 0=
 : SET-FG ( color -- ) 30 +  sgr ;
 : SET-BG ( color -- ) 40 +  sgr ;
 : RESET-ATTRS ( -- ) 0 sgr ;
-: AT-XY ( col row -- ) cup ;
-: HOME ( -- ) 1 1 at-xy ;
+: AT-XY ( col row -- ) 1+ SWAP 1+ SWAP cup ;
+: HOME ( -- ) 0 0 at-xy ;
 : PAGE ( -- ) home cls ;
 
 [ENDIF]
