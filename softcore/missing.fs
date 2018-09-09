@@ -180,6 +180,9 @@ WINNT? 0=
 
 [ENDIF]
 
+: /TERM ( -- ) 1 PREPTERM ;
+: -TERM ( -- ) 0 PREPTERM ;
+
 \ Array definitions
 : TH ( a1 n -- a2 ) cells + ;
 : cTH ( ca1 n -- ca2 ) chars + ;
