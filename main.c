@@ -148,6 +148,7 @@ int main(int argc, char **argv)
 	int narg;
 	int prompt;
 	ficlSystemInformation fsi;
+    unsigned gotSignal;
 
 	install_handlers();
 	ficlSystemInformationInitialize(&fsi);
@@ -184,10 +185,13 @@ int main(int argc, char **argv)
 		narg++;
 	}
 
+    gotSignal = 0;
 	if ((sig = setjmp(mainLoop)))
     {
-		sprintf(f_vm->pad, "Error: got signal (%d)\n", sig);
+	    sprintf(f_vm->pad, "Error: got signal (%d)\n", sig);
 		ficlVmErrorOut(f_vm, f_vm->pad);
+        ficlVmDisplayReturnStack(f_vm);
+        ficlVmAbort(f_vm);
 	}
 
 	done = 0;
@@ -214,7 +218,9 @@ int main(int argc, char **argv)
 		    case FICL_VM_STATUS_OUT_OF_TEXT:
                 if (f_vm->restart)
                     prompt = 0;
+                break;
 		    case FICL_VM_STATUS_ERROR_EXIT:
+                ficlVmAbort(f_vm);
 			    break;
 		    case FICL_VM_STATUS_USER_EXIT:
 			    done = 1;

@@ -3220,6 +3220,7 @@ void ficlVmThrowError(ficlVm *vm, char *fmt, ...)
     strcat(vm->pad, "\n");
 
     ficlVmErrorOut(vm, vm->pad);
+    ficlVmDisplayReturnStack(vm);
     longjmp(*(vm->exceptionHandler), FICL_VM_STATUS_ERROR_EXIT);
 }
 

@@ -110,10 +110,10 @@ ficlStack *ficlStackCreate(ficlVm *vm, char *name, unsigned size)
     stack->size = size;
     stack->frame = NULL;
 
-	stack->vm = vm;
-	stack->name = name;
+    stack->vm = vm;
+    stack->name = name;
 
-	ficlStackReset(stack);
+    ficlStackReset(stack);
     return stack;
 }
 
@@ -338,7 +338,13 @@ void ficlStackPushFloat(ficlStack *stack, ficlFloat f)
 
 void ficlStackReset(ficlStack *stack)
 {
+    int i;
+    ficlCell cell;
+
     // fprintf(stderr,"called ficlStackReset()\n");
+    cell.u = 0xDEADC0DE;
+    for (i = 0; i < 4; i++)
+        stack->fence[i] = cell;
     stack->top = stack->base - 1;
     return;
 }
