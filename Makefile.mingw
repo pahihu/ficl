@@ -12,7 +12,7 @@ RANLIB = ranlib
 MAJOR = 4
 MINOR = 2.0
 
-ficlw.exe: $(HEADERS) main.o libficl.a
+ficlw.exe: $(HEADERS) softcore.c main.o libficl.a
 	$(CC) main.o -o $@ libficl.a -lgdi32 -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
@@ -30,7 +30,7 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 
 softcore.c:
 	touch softcore/ficl.fr
-	cd softcore; $(MAKE)
+	cd softcore; $(MAKE) -f makefile.mingw
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl -lm

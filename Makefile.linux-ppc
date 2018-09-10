@@ -12,7 +12,7 @@ RANLIB = ranlib
 MAJOR = 4
 MINOR = 2.0
 
-ficll.exe: $(HEADERS) main.o libficl.a
+ficll.exe: $(HEADERS) softcore.c main.o libficl.a
 	$(CC) main.o -o $@ -L. -lficl -lpthread -ldl -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
