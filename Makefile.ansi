@@ -28,6 +28,10 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 	-o libficl.so.$(MAJOR).$(MINOR) $(OBJECTS)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so
 
+softcore.c:
+	touch softcore/ficl.fr
+	cd softcore; $(MAKE)
+
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl -lm
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
@@ -53,6 +57,8 @@ ansi.o: ficlplatform/ansi.c $(HEADERS)
 #
 clean:
 	$(RM) *.o *.a libficl.*
+	$(RM) ficlplatform.h
+	$(RM) softcore.c
 
 clobber: clean
 	$(RM) ficla.exe

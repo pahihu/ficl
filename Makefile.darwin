@@ -14,7 +14,7 @@ RANLIB = ranlib
 MAJOR = 4
 MINOR = 2.0
 
-ficld.exe: $(HEADERS) main.o libficl.a
+ficld.exe: $(HEADERS) softcore.c main.o libficl.a
 	$(CC) main.o -o $@ -L. -lficl -lm
 
 lib: libficl.so.$(MAJOR).$(MINOR)
@@ -29,6 +29,10 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 	$(CC) -shared -Wl,-soname,libficl.so.$(MAJOR).$(MINOR) \
 	-o libficl.so.$(MAJOR).$(MINOR) $(OBJECTS)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so
+
+softcore.c:
+	touch softcore/ficl.fr
+	cd softcore; $(MAKE)
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl -lm
@@ -61,6 +65,7 @@ ficlplatform.h: Makefile
 clean:
 	$(RM) *.o *.a libficl.*
 	$(RM) ficlplatform.h
+	$(RM) softcore.c
 
 clobber: clean
 	$(RM) ficld.exe
