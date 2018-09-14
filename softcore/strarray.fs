@@ -117,10 +117,6 @@
       i chars PAD  + c!
    LOOP  drop PAD R> ;
 
-: $last ( ca +u -- c )
-\G Return the last char of ca/u.
-   1- chars +  c@ ;
-
 : zero ( x -- 0 )
 \G Replace x with zero.
    dup xor ;

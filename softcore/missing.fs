@@ -92,14 +92,14 @@ DECIMAL
    WHILE  1- >R CHAR+ R>
    REPEAT R> DROP ;
 
-: CLAST ( ca u -- b )
+: $LAST ( ca u -- b )
 \G Last char of string ca/u.
    DUP IF 1- CHARS THEN + C@ ;
 
 : -SKIP ( ca u1 b -- ca u2 )
 \G Remove trailing <b> chars from ca/u1.
    >R
-   BEGIN  2DUP CLAST R@  =
+   BEGIN  2DUP $LAST R@  =
           OVER           0<> AND
    WHILE  1-
    REPEAT R> DROP ;
@@ -107,14 +107,14 @@ DECIMAL
 : -SCAN ( ca u1 b -- ca u2 )
 \G Scan backwards for char <b> in ca/u1.
    >R
-   BEGIN  2DUP CLAST R@   <>
+   BEGIN  2DUP $LAST R@   <>
           OVER           0<> AND
    WHILE  1-
    REPEAT R> DROP ;
 
 : -TRAILING ( ca u1 -- ca u2 )
 \G Strip trailing whitespace.
-   BEGIN 2DUP CLAST SPACE?
+   BEGIN 2DUP $LAST SPACE?
          OVER       0<>    AND
    WHILE 1-
    REPEAT ;
@@ -253,22 +253,28 @@ previous
 : .. ( i*x -- )   .S  DEPTH 0 ?DO  DROP  LOOP ;
 
 \ strings
-: $VARIABLE ( len "name" -- ) CREATE 0 , allot ;
+: $VARIABLE ( len "name" -- )
+\G Create string variable of length <len>.
+   CREATE 0 , allot ;
 
-: /$ ( sa -- ) 0 ! ; \ clear str
-: $! ( ca u sa -- ) 2dup !  cell+ swap move ; \ store str
-: $@ ( sa -- ca u ) dup cell+ swap @ ; \ str to ca n
-: $+! ( ca u sa -- ) \ append str
-	dup >r		( ca u sa -- sa)
-	$@ chars +	( ca u da' -- sa)
-	swap dup 	( ca da' u u -- sa)
-	r> +!  move ;
-: $. ( sa -- ) $@  type ; \ print str
+: $COUNT ( sa -- ca u )
+\G Length of string <sa>.
+   @+ ;
 
-\ temporary string at PAD
-: $PAD! ( -- ) pad $! ;
-: $PAD+! ( ca u -- ) pad $+! ;
-: $PAD ( -- ca u ) pad $@ ;
+: $PLACE ( ca u sa -- )
+\G Overwrite string <sa> with ca/u.
+   2DUP !  CELL+ SWAP MOVE ;
+
+: $APPEND ( ca u sa -- )
+\G Append ca/u to string <sa>.
+   DUP >R		( ca u sa -- sa)
+   $COUNT CHARS +	( ca u da' -- sa)
+   SWAP DUP 		( ca da' u u -- sa)
+   R> +!  MOVE ;
+
+: $PRINT ( sa -- )
+\G Print string.
+   $COUNT TYPE ;
 
 
 \ development support
@@ -278,25 +284,25 @@ hide
 
 set-current
 
-: SOURCE! ( ca u -- ) source.fs $! ;
+: SOURCE! ( ca u -- ) source.fs $PLACE ;
 : IN ( -- ) \ include source.fs
-	s" include "  $pad!
-	source.fs $@  $pad+!
-	$pad evaluate ;
+	S" include "  PAD $PLACE
+	source.fs $COUNT  PAD $APPEND
+	PAD $COUNT  EVALUATE ;
 
 : EDITED ( ca u -- ) \ edit name
-	s" system vim " $pad!  $pad+!
-	$pad evaluate ;
+	S" system vim " PAD $PLACE  PAD $APPEND
+	PAD $COUNT  EVALUATE ;
 
 : ED ( -- ) \ edit source.fs
-	source.fs $@  edited ;
+	source.fs $COUNT  edited ;
 
 : EDIT ( "filename" -- ) bl word count  edited ;
 
-: LS ( -- ) s" system ls" evaluate ;
+: LS ( -- ) S" system ls" EVALUATE ;
 : RM ( name -- )
-	s" system rm " $pad!
-	bl word count  $pad+!
-	$pad evaluate ;
+	s" system rm " PAD $PLACE
+	bl word count  PAD $APPEND
+	PAD $COUNT  EVALUATE ;
 
 previous
