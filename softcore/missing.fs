@@ -97,8 +97,17 @@ DECIMAL
    DUP IF 1- CHARS THEN + C@ ;
 
 : -SKIP ( ca u1 b -- ca u2 )
+\G Remove trailing <b> chars from ca/u1.
    >R
    BEGIN  2DUP CLAST R@  =
+          OVER           0<> AND
+   WHILE  1-
+   REPEAT R> DROP ;
+
+: -SCAN ( ca u1 b -- ca u2 )
+\G Scan backwards for char <b> in ca/u1.
+   >R
+   BEGIN  2DUP CLAST R@   <>
           OVER           0<> AND
    WHILE  1-
    REPEAT R> DROP ;
