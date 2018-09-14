@@ -59,57 +59,268 @@
 #define REAL long double
 
 /**************************************************************************
-                        f a l i g n P t r
-** Aligns the given pointer to sizeof(ficlFloat) address units.
+                        d f a l i g n P t r
+** Aligns the given pointer to sizeof(double) address units.
 ** Returns the aligned pointer value.
 **************************************************************************/
-void *ficlFAlignPointer(void *ptr)
+static void *ficlDFAlignPointer(void *ptr)
 {
-	ficlInteger p = (ficlInteger)ptr;
-	if (p & (FICL_FLOAT_ALIGNMENT - 1))
-		ptr = (void *)((p & ~(FICL_FLOAT_ALIGNMENT - 1)) + FICL_FLOAT_ALIGNMENT);
+    ficlInteger p = (ficlInteger)ptr;
+    if (p & (sizeof(double) - 1))
+	ptr = (void *)((p & ~(sizeof(double) - 1)) + sizeof(double));
     return ptr;
 }
 
 
 /**************************************************************************
-                        d i c t F A l i g n
+                        d i c t D F A l i g n
 ** Align the dictionary's free space pointer to float.
 **************************************************************************/
-static void ficlDictionaryFAlign(ficlDictionary *dictionary)
+static void ficlDictionaryDFAlign(ficlDictionary *dictionary)
 {
-    dictionary->here = ficlFAlignPointer(dictionary->here);
+    dictionary->here = ficlDFAlignPointer(dictionary->here);
 }
 
 
 /**************************************************************************
-                        f a l i g n
-** falign ( -- )
-** If the data-space pointer is not float aligned, reserve enough space to
+                        d f a l i g n
+** dfalign ( -- )
+** If the data-space pointer is not double aligned, reserve enough space to
 ** make it so.
 **************************************************************************/
-static void ficlPrimitiveFAlign(ficlVm *vm)
+static void ficlPrimitiveDFAlign(ficlVm *vm)
 {
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
     FICL_IGNORE(vm);
-    ficlDictionaryFAlign(dictionary);
+    ficlDictionaryDFAlign(dictionary);
 }
 
 
 /**************************************************************************
-                        f a l i g n e d
-** faligned ( addr -- f-addr )
-** f-addr is the first float-aligned address greater than or equal to addr.
+                        d f a l i g n e d
+** dfaligned ( addr -- df-addr )
+** f-addr is the first double-aligned address greater than or equal to addr.
 **************************************************************************/
-static void ficlPrimitiveFAligned(ficlVm *vm)
+static void ficlPrimitiveDFAligned(ficlVm *vm)
 {
     void *addr;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 1);
 
     addr = ficlStackPopPointer(vm->dataStack);
-    ficlStackPushPointer(vm->dataStack, ficlFAlignPointer(addr));
+    ficlStackPushPointer(vm->dataStack, ficlDFAlignPointer(addr));
 }
+
+
+/*******************************************************************
+** dfloat+ ( df-addr1 -- df-addr2 )
+*******************************************************************/
+static void ficlPrimitiveDFloatPlus(ficlVm *vm)
+{
+    double *fp;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    fp = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, fp + 1);
+}
+
+
+/*******************************************************************
+** dfloats ( n1 -- n2 )
+*******************************************************************/
+static void ficlPrimitiveDFloats(ficlVm *vm)
+{
+    ficlInteger n;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    n = ficlStackPopInteger(vm->dataStack);
+    ficlStackPushInteger(vm->dataStack, n * sizeof(double));
+}
+
+
+/*******************************************************************
+** df! ( addr -- ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveDFStore(ficlVm *vm)
+{
+    ficlFloat r;
+    double *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ptr = ficlStackPopPointer(vm->dataStack);
+
+    ptr[0] = (double)r;
+}
+
+
+/*******************************************************************
+** df@ ( addr -- ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveDFFetch(ficlVm *vm)
+{
+    ficlFloat r;
+    double *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0 );
+
+    ptr = ficlStackPopPointer(vm->dataStack);
+    r = (ficlFloat) ptr[0];
+
+    ficlStackPushFloat(vm->floatStack, r);
+}
+
+
+/**************************************************************************
+                        s f a l i g n P t r
+** Aligns the given pointer to sizeof(float) address units.
+** Returns the aligned pointer value.
+**************************************************************************/
+static void *ficlSFAlignPointer(void *ptr)
+{
+    ficlInteger p = (ficlInteger)ptr;
+    if (p & (sizeof(float) - 1))
+	ptr = (void *)((p & ~(sizeof(float) - 1)) + sizeof(float));
+    return ptr;
+}
+
+
+/**************************************************************************
+                        d i c t S F A l i g n
+** Align the dictionary's free space pointer to float.
+**************************************************************************/
+static void ficlDictionarySFAlign(ficlDictionary *dictionary)
+{
+    dictionary->here = ficlSFAlignPointer(dictionary->here);
+}
+
+
+/**************************************************************************
+                        s f a l i g n
+** sfalign ( -- )
+** If the data-space pointer is not float aligned, reserve enough space to
+** make it so.
+**************************************************************************/
+static void ficlPrimitiveSFAlign(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    FICL_IGNORE(vm);
+    ficlDictionarySFAlign(dictionary);
+}
+
+
+/**************************************************************************
+                        s f a l i g n e d
+** sfaligned ( addr -- sf-addr )
+** f-addr is the first float-aligned address greater than or equal to addr.
+**************************************************************************/
+static void ficlPrimitiveSFAligned(ficlVm *vm)
+{
+    void *addr;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, ficlSFAlignPointer(addr));
+}
+
+
+/*******************************************************************
+** sfloat+ ( f-addr1 -- f-addr2 )
+*******************************************************************/
+static void ficlPrimitiveSFloatPlus(ficlVm *vm)
+{
+    float *fp;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    fp = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, fp + 1);
+}
+
+
+/*******************************************************************
+** sfloats ( n1 -- n2 )
+*******************************************************************/
+static void ficlPrimitiveSFloats(ficlVm *vm)
+{
+    ficlInteger n;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    n = ficlStackPopInteger(vm->dataStack);
+    ficlStackPushInteger(vm->dataStack, n * sizeof(float));
+}
+
+
+/*******************************************************************
+** sf! ( addr -- ) ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveSFStore(ficlVm *vm)
+{
+    ficlFloat r;
+    float *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ptr = ficlStackPopPointer(vm->dataStack);
+
+    ptr[0] = (float)r;
+}
+
+
+/*******************************************************************
+** sf@ ( addr -- ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveSFFetch(ficlVm *vm)
+{
+    ficlFloat r;
+    float *ptr;
+
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+    FICL_STACK_CHECK(vm->dataStack, 1, 0 );
+
+    ptr = ficlStackPopPointer(vm->dataStack);
+    r = (ficlFloat) ptr[0];
+
+    ficlStackPushFloat(vm->floatStack, r);
+}
+
+
+#if FICL_PLATFORM_ALIGNMENT - 4
+
+#warning Using double-precision FP wrappers.
+
+#define ficlFAlignPointer		ficlDFAlignPointer
+#define ficlDictionaryFAlign		ficlDictionaryDFAlign
+#define ficlPrimitiveFAlign		ficlPrimitiveDFAlign
+#define ficlPrimitiveFAligned		ficlPrimitiveDFAligned
+#define ficlPrimitiveFloatPlus		ficlPrimitiveDFloatPlus
+#define ficlPrimitiveFloats		ficlPrimitiveDFloats
+#define ficlPrimitiveFStore		ficlPrimitiveDFStore
+#define ficlPrimitiveFFetch		ficlPrimitiveDFFetch
+
+#else
+
+#warning Using single-precision FP wrappers.
+
+#define ficlFAlignPointer		ficlSFAlignPointer
+#define ficlDictionaryFAlign		ficlDictionarySFAlign
+#define ficlPrimitiveFAlign		ficlPrimitiveSFAlign
+#define ficlPrimitiveFAligned		ficlPrimitiveSFAligned
+#define ficlPrimitiveFloatPlus		ficlPrimitiveSFloatPlus
+#define ficlPrimitiveFloats		ficlPrimitiveSFloats
+#define ficlPrimitiveFStore		ficlPrimitiveSFStore
+#define ficlPrimitiveFFetch		ficlPrimitiveSFFetch
+
+#endif
 
 /*******************************************************************
 ** Create a floating point constant.
@@ -130,19 +341,19 @@ static void ficlPrimitiveFConstant(ficlVm *vm)
 ficlWord   *ficlDictionaryAppendFConstant(ficlDictionary *dictionary, char *name, float value)
 {
 	ficlString s;
+
 	FICL_STRING_SET_FROM_CSTRING(s, name);
-	return ficlDictionaryAppendConstantInstruction(dictionary, s, ficlInstructionFConstantParen, *(ficlInteger *)(&value));
+	return ficlDictionaryAppendConstantInstruction(dictionary, s, ficlInstructionFConstantParen, *(ficlInteger*)(&value));
 }
 
 
 ficlWord   *ficlDictionarySetFConstant(ficlDictionary *dictionary, char *name, float value)
 {
     ficlString s;
+
     FICL_STRING_SET_FROM_CSTRING(s, name);
-    return ficlDictionarySetConstantInstruction(dictionary, s, ficlInstructionFConstantParen, *(ficlInteger *)(&value));
+    return ficlDictionarySetConstantInstruction(dictionary, s, ficlInstructionFConstantParen, *(ficlInteger*)(&value));
 }
-
-
 
 
 static void ficlPrimitiveF2Constant(ficlVm *vm)
@@ -557,72 +768,46 @@ static void ficlPrimitiveFmm(ficlVm *vm)
     ficlFMM(m, n, k, a, b, c);
 }
 
-/*******************************************************************
-** float+ ( f-addr1 -- f-addr2 )
-*******************************************************************/
-static void ficlPrimitiveFloatPlus(ficlVm *vm)
-{
-    ficlFloat *fp;
-
-    FICL_STACK_CHECK(vm->dataStack, 1, 1);
-
-    fp = ficlStackPopPointer(vm->dataStack);
-    ficlStackPushPointer(vm->dataStack, fp + 1);
+#define FBINARY(name,fop) \
+static void ficlPrimitive##name(ficlVm *vm) 	\
+{ 						\
+    ficlFloat r1, r2;				\
+						\
+    FICL_STACK_CHECK(vm->floatStack, 2, 1);	\
+						\
+    r2 = ficlStackPopFloat(vm->floatStack);	\
+    r1 = ficlStackPopFloat(vm->floatStack);	\
+    ficlStackPushFloat(vm->floatStack, fop(r1,r2)); \
 }
 
-/*******************************************************************
-** floats ( n1 -- n2 )
-*******************************************************************/
-static void ficlPrimitiveFloats(ficlVm *vm)
-{
-    ficlInteger n;
-
-    FICL_STACK_CHECK(vm->dataStack, 1, 1);
-
-    n = ficlStackPopInteger(vm->dataStack);
-    ficlStackPushInteger(vm->dataStack, n * sizeof(ficlFloat));
+#define FUNARY(name,fop) \
+static void ficlPrimitive##name(ficlVm *vm) 	\
+{ 						\
+    ficlFloat r1;				\
+						\
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);	\
+						\
+    r1 = ficlStackPopFloat(vm->floatStack);	\
+    ficlStackPushFloat(vm->floatStack, fop(r1)); \
 }
 
 /*******************************************************************
 ** fmin ( r1 r2 -- r3 )
 *******************************************************************/
-static void ficlPrimitiveFMin(ficlVm *vm)
-{
-    ficlFloat r1, r2;
+FBINARY(FMin,fmin)
 
-    FICL_STACK_CHECK(vm->floatStack, 2, 1);
-
-    r2 = ficlStackPopFloat(vm->floatStack);
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, r1 < r2 ? r1 : r2);
-}
 
 /*******************************************************************
 ** fmax ( r1 r2 -- r3 )
 *******************************************************************/
-static void ficlPrimitiveFMax(ficlVm *vm)
-{
-    ficlFloat r1, r2;
+FBINARY(FMax,fmax)
 
-    FICL_STACK_CHECK(vm->floatStack, 2, 1);
-
-    r2 = ficlStackPopFloat(vm->floatStack);
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, r1 < r2 ? r2 : r1);
-}
 
 /*******************************************************************
 ** floor ( r1 -- r2 )
 *******************************************************************/
-static void ficlPrimitiveFloor(ficlVm *vm)
-{
-    ficlFloat r1;
+FUNARY(Floor,floor)
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 1);
-
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, floor(r1));
-}
 
 /*******************************************************************
 ** d>f ( d -- ) ( F: -- r )
@@ -726,42 +911,20 @@ static void ficlPrimitiveFToD(ficlVm *vm)
 /*******************************************************************
 ** fround ( r1 -- r2 )
 *******************************************************************/
-static void ficlPrimitiveFRound(ficlVm *vm)
-{
-    ficlFloat r1;
+FUNARY(FRound,rint)
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 1);
-
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, rint(r1));
-}
 
 /*******************************************************************
 ** f** ( r1 r2 -- r3 )
 *******************************************************************/
-static void ficlPrimitiveFStarStar(ficlVm *vm)
-{
-    ficlFloat r1, r2;
+FBINARY(FStarStar,pow)
 
-    FICL_STACK_CHECK(vm->floatStack, 2, 1);
-
-    r2 = ficlStackPopFloat(vm->floatStack);
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, pow(r1, r2));
-}
 
 /*******************************************************************
 ** fabs ( r1 -- r2 )
 *******************************************************************/
-static void ficlPrimitiveFAbs(ficlVm *vm)
-{
-    ficlFloat r1;
+FUNARY(FAbs,fabs)
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 1);
-
-    r1 = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushFloat(vm->floatStack, fabs(r1));
-}
 
 /*******************************************************************
 ** Display a float in engineering format.
@@ -950,40 +1113,6 @@ static void ficlPrimitiveFInfiniteQ(ficlVm *vm)
 
     r = ficlStackPopFloat(vm->floatStack);
     ficlStackPushInteger(vm->dataStack, FICL_BOOL(isinf(r)));
-}
-
-/*******************************************************************
-** sf! ( addr -- ) ( F: r -- )
-*******************************************************************/
-static void ficlPrimitiveSFStore(ficlVm *vm)
-{
-    ficlFloat r;
-    float *ptr;
-
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
-    FICL_STACK_CHECK(vm->dataStack, 1, 0);
-
-    r = ficlStackPopFloat(vm->floatStack);
-    ptr = ficlStackPopPointer(vm->dataStack);
-
-    ptr[0] = (float)r;
-}
-
-/*******************************************************************
-** sf@ ( addr -- ) ( F: -- r )
-*******************************************************************/
-static void ficlPrimitiveSFFetch(ficlVm *vm)
-{
-    ficlFloat r;
-    float *ptr;
-
-    FICL_STACK_CHECK(vm->floatStack, 0, 1);
-    FICL_STACK_CHECK(vm->dataStack, 1, 0 );
-
-    ptr = ficlStackPopPointer(vm->dataStack);
-    r = (ficlFloat) ptr[0];
-
-    ficlStackPushFloat(vm->floatStack, r);
 }
 
 /**************************************************************************
@@ -1176,6 +1305,143 @@ static void ficlPrimitiveF2LocalParen(ficlVm *vm)
 
 #endif /* FICL_WANT_LOCALS */
 
+/*******************************************************************
+** facos ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FACos,acos)
+
+
+/*******************************************************************
+** facosh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FACosH,acosh)
+
+
+/*******************************************************************
+** falog ( r1 -- r2 )
+*******************************************************************/
+static void ficlPrimitiveFALog(ficlVm *vm)
+{
+    ficlFloat r1;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
+
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, pow(10.0,r1));
+}
+
+
+
+/*******************************************************************
+** fasin ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FASin,asin)
+
+
+/*******************************************************************
+** fasinh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FASinH,asinh)
+
+
+/*******************************************************************
+** fatan ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FATan,atan)
+
+
+/*******************************************************************
+** fatan2 ( r1 r2 -- r2 )
+*******************************************************************/
+FBINARY(FATan2,atan2)
+
+
+/*******************************************************************
+** fatanh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FATanH,atanh)
+
+
+/*******************************************************************
+** fcos ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FCos,cos)
+
+
+/*******************************************************************
+** fcosh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FCosH,cosh)
+
+
+/*******************************************************************
+** fexp ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FExp,exp)
+
+
+/*******************************************************************
+** fexpm1 ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FExpM1,expm1)
+
+
+/*******************************************************************
+** fln ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FLn,log)
+
+
+/*******************************************************************
+** flnp1 ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FLnP1,log1p)
+
+
+/*******************************************************************
+** flog ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FLog,log10)
+
+
+/*******************************************************************
+** fsin ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FSin,sin)
+
+
+/*******************************************************************
+** fsincos ( r1 -- r2 r3 )
+*******************************************************************/
+static void ficlPrimitiveFSinCos(ficlVm *vm)
+{
+    ficlFloat r1;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 2);
+
+    r1 = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, sin(r1));
+    ficlStackPushFloat(vm->floatStack, cos(r1));
+}
+
+/*******************************************************************
+** fsinh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FSinH,sinh)
+
+
+/*******************************************************************
+** ftan ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FTan,tan)
+
+
+/*******************************************************************
+** ftanh ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FTanH,tanh)
+
+
 #endif  /* FICL_WANT_FLOAT */
 
 /**************************************************************************
@@ -1186,6 +1452,9 @@ void ficlSystemCompileFloat(ficlSystem *system)
 {
 #if FICL_WANT_FLOAT
 
+#define PRIMDEF(name,primsuff) \
+    ficlDictionarySetPrimitive(dictionary, name, ficlPrimitive##primsuff, FICL_WORD_DEFAULT)
+
     r2IntegerMax = ldexp(1.0, 2 * 8 * sizeof(ficlUnsigned) - 1) - 1.0;
 
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
@@ -1195,18 +1464,18 @@ void ficlSystemCompileFloat(ficlSystem *system)
     FICL_SYSTEM_ASSERT(system, environment);
 
     ficlDictionarySetPrimitive(dictionary, "fconstant", ficlPrimitiveFConstant,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fvalue", ficlPrimitiveFConstant,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f2constant", ficlPrimitiveF2Constant,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fvalue", ficlPrimitiveFConstant,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f2constant", ficlPrimitiveF2Constant,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f2value",  ficlPrimitiveF2Constant,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fdepth",    ficlPrimitiveFDepth,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fliteral",  ficlPrimitiveFLiteralImmediate,     FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "f.",        ficlPrimitiveFDot,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,  FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fs.",       ficlPrimitiveSDot,           FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "floats",    ficlPrimitiveFloats,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "floats",    ficlPrimitiveFloats,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmin",      ficlPrimitiveFMin,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmax",      ficlPrimitiveFMax,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "falign",    ficlPrimitiveFAlign,         FICL_WORD_DEFAULT);
@@ -1226,13 +1495,50 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmm",       ficlPrimitiveFmm,            FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f<=",	ficlPrimitiveFLessEqual,     FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f>=",	ficlPrimitiveFGreaterEqual,  FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "f<>",	ficlPrimitiveFNotEqual,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fnan?",	ficlPrimitiveFNaNQ,    	     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f<=",	    ficlPrimitiveFLessEqual,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f>=",	    ficlPrimitiveFGreaterEqual,  FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "f<>",	    ficlPrimitiveFNotEqual,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fnan?",	    ficlPrimitiveFNaNQ,    	     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "finfinite?",ficlPrimitiveFInfiniteQ,     FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "sf@",	ficlPrimitiveSFFetch,        FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "sf!",	ficlPrimitiveSFStore,        FICL_WORD_DEFAULT);
+
+    ficlDictionarySetPrimitive(dictionary, "df@",	    ficlPrimitiveDFFetch,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "df!",	    ficlPrimitiveDFStore,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dfalign",   ficlPrimitiveDFAlign,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dfaligned", ficlPrimitiveDFAligned,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dfloat+",   ficlPrimitiveDFloatPlus,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dfloats",   ficlPrimitiveDFloats,        FICL_WORD_DEFAULT);
+
+    ficlDictionarySetPrimitive(dictionary, "sf@",	    ficlPrimitiveSFFetch,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sf!",	    ficlPrimitiveSFStore,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sfalign",   ficlPrimitiveSFAlign,        FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sfaligned", ficlPrimitiveSFAligned,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sfloat+",   ficlPrimitiveSFloatPlus,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "sfloats",   ficlPrimitiveSFloats,        FICL_WORD_DEFAULT);
+
+    PRIMDEF("facos",    FACos);
+    PRIMDEF("facosh",   FACosH);
+    PRIMDEF("falog",    FALog);
+    PRIMDEF("fasin",    FASin);
+    PRIMDEF("fasinh",   FASinH);
+    PRIMDEF("fatan",    FATan);
+    PRIMDEF("fatan2",   FATan2);
+    PRIMDEF("fatanh",   FATanH);
+    PRIMDEF("fcos",     FCos);
+    PRIMDEF("fcosh",    FCosH);
+    PRIMDEF("fexp",     FExp);
+    PRIMDEF("fexpm1",   FExpM1);
+    PRIMDEF("fln",      FLn);
+    PRIMDEF("flnp1",    FLnP1);
+    PRIMDEF("flog",     FLog);
+    PRIMDEF("fsin",     FSin);
+    PRIMDEF("fsincos",  FSinCos);
+    PRIMDEF("fsinh",    FSin);
+    PRIMDEF("ftan",     FTan);
+    PRIMDEF("ftanh",    FTanH);
+
+    ficlDictionarySetFConstant(dictionary, "pi",   M_PI);
+    ficlDictionarySetFConstant(dictionary, "pi/2", M_PI_2);
+    ficlDictionarySetFConstant(dictionary, "pi/4", M_PI_4);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
