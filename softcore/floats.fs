@@ -35,5 +35,14 @@ set-current
  1e 0e F/ FCONSTANT +INF
 -1e 0e F/ FCONSTANT -INF
 
+3.1415926535897932384e FCONSTANT PI
+PI   2.0e F/ FCONSTANT PI/2
+PI   4.0e F/ FCONSTANT PI/4
+PI 180.0e F/ FCONSTANT PI/180
+
+: D>R ( deg -- rad )   PI/180 F* ;
+
+: R>D ( rad -- deg )   PI/180 F/ ;
+
 previous
 

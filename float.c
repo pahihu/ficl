@@ -1536,10 +1536,6 @@ void ficlSystemCompileFloat(ficlSystem *system)
     PRIMDEF("ftan",     FTan);
     PRIMDEF("ftanh",    FTanH);
 
-    ficlDictionarySetFConstant(dictionary, "pi",   M_PI);
-    ficlDictionarySetFConstant(dictionary, "pi/2", M_PI_2);
-    ficlDictionarySetFConstant(dictionary, "pi/4", M_PI_4);
-
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
     ficlDictionarySetPrimitive(dictionary, "(f2local)",  ficlPrimitiveF2LocalParen,  FICL_WORD_COMPILE_ONLY);
