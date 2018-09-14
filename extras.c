@@ -278,9 +278,11 @@ static void ficlPrimitiveKey(ficlVm *vm)
 {
 	int ch;
 	
-   do {
-      ch = getkey();
-   } while (ch > 255);
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    do {
+        ch = getkey();
+    } while (ch > 255);
 	
 	ficlStackPushInteger(vm->dataStack, ch);
 }
@@ -288,14 +290,20 @@ static void ficlPrimitiveKey(ficlVm *vm)
 /* : KEY? ( -- flag ) */
 static void ficlPrimitiveKeyQ(ficlVm *vm)
 {
-   int ret = has_key();
-	ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
+    int ret = has_key();
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
 }
 
 /* : EKEY ( -- code ) */
 static void ficlPrimitiveEkey(ficlVm *vm)
 {
-   int ch = getkey();
+    int ch = getkey();
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
 	ficlStackPushInteger(vm->dataStack, ch);
 }
 
@@ -304,17 +312,42 @@ static void ficlPrimitiveUTime(ficlVm *vm)
 {
 	time_t t = time(NULL);
 
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
 	ficlStackPushInteger(vm->dataStack, (ficlInteger)t);
+}
+
+/* : TIME&DATE ( -- sec min hour day mon year ) */
+static void ficlPrimitiveTimeAndDate(ficlVm *vm)
+{
+    struct tm *tim;
+    time_t t;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 6);
+
+    t = time(NULL);
+    tim = localtime(&t);
+    ficlStackPushInteger(vm->dataStack, tim->tm_sec);
+    ficlStackPushInteger(vm->dataStack, tim->tm_min);
+    ficlStackPushInteger(vm->dataStack, tim->tm_hour);
+    ficlStackPushInteger(vm->dataStack, tim->tm_mday);
+    ficlStackPushInteger(vm->dataStack, tim->tm_mon  + 1);
+    ficlStackPushInteger(vm->dataStack, tim->tm_year + 1900);
 }
 
 /* : (DLOPEN) ( ca u -- hnd ) */
 static void ficlPrimitiveDlOpen(ficlVm *vm)
 {
-   void *ret;
-   int  length = ficlStackPopInteger(vm->dataStack);
-   void *addr  = (void *)ficlStackPopPointer(vm->dataStack);
+   void *ret, *addr;
+   int length;
+   char *path;
 
-   char *path = (char*)malloc(length + 1);
+   FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+   length = ficlStackPopInteger(vm->dataStack);
+   addr  = (void *)ficlStackPopPointer(vm->dataStack);
+
+   path = (char*)malloc(length + 1);
    memcpy(path, addr, length);
    path[length] = 0;
 
@@ -327,12 +360,17 @@ static void ficlPrimitiveDlOpen(ficlVm *vm)
 /* : (DLSYM) ( ca u hnd -- addr ) */
 static void ficlPrimitiveDlSym(ficlVm *vm)
 {
-   void *ret;
-   void *hnd   = (void *)ficlStackPopPointer(vm->dataStack);
-   int  length = ficlStackPopInteger(vm->dataStack);
-   void *addr  = (void *)ficlStackPopPointer(vm->dataStack);
+   void *ret, *hnd, *addr;
+   int length;
+   char *symname;
 
-   char *symname = (char*)malloc(length + 1);
+   FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
+   hnd   = (void *)ficlStackPopPointer(vm->dataStack);
+   length = ficlStackPopInteger(vm->dataStack);
+   addr  = (void *)ficlStackPopPointer(vm->dataStack);
+
+   symname = (char*)malloc(length + 1);
    memcpy(symname, addr, length);
    symname[length] = 0;
 
@@ -342,7 +380,7 @@ static void ficlPrimitiveDlSym(ficlVm *vm)
    ficlStackPushPointer(vm->dataStack, ret);
 }
 
-/* : (C-CALL) ( argN ... arg1 fn  -- ret ) */
+/* : (C-CALL) ( argN ... arg1 N fn  -- ret ) */
 static void ficlPrimitiveCCall(ficlVm *vm)
 {
 	int (*fn)();
@@ -350,8 +388,13 @@ static void ficlPrimitiveCCall(ficlVm *vm)
 	int i, arg[8];
 	int ret;
 
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
 	fn = (int (*)()) ficlStackPopPointer(vm->dataStack);
 	narg = ficlStackPopInteger(vm->dataStack);
+
+    FICL_STACK_CHECK(vm->dataStack, narg, 1);
+
 	for (i = 0; i < narg; i++) {
 		arg[i] = ficlStackPopInteger(vm->dataStack);
 	}
@@ -448,6 +491,8 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 {
 	int idx;
 
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
 	idx = ficlStackPopInteger(vm->dataStack);
 	cb_tbl[idx].nargs = ficlStackPopInteger(vm->dataStack);
 	cb_tbl[idx].xt    = ficlStackPopPointer(vm->dataStack);
@@ -455,165 +500,6 @@ static void ficlPrimitiveCallback(ficlVm *vm)
 	ficlStackPushPointer(vm->dataStack, cb_tbl[idx].fn);
 }
 
-#if 0
-static ficlVm *gShadowVm  = NULL;
-static ficlVm *gRunningVm = NULL;
-
-static void ResetVmPointers(ficlVm *vm)
-{
-   vm->callback.vm     = vm;
-   vm->dataStack->vm   = vm;
-   vm->returnStack->vm = vm;
-   vm->floatStack->vm  = vm;
-}
-
-static void ficlPrimitiveInitMulti(ficlVm *vm)
-{
-   ficlSystem *system = vm->callback.system;
-   ficlVm     *pList, *pointedToVm;
-
-   if (gShadowVm)
-      return;
-
-   gShadowVm = ficlSystemCreateVm(system);
-   system->vmList = system->vmList->link;
-
-   pList = system->vmList;
-   pointedToVm = 0;
-   for ( ; pList ; pList = pList->link) {
-      if (vm == pList->link) {
-         pointedToVm = pList;
-         break;
-      }
-   }
-
-   memcpy(gShadowVm, vm, sizeof(ficlVm));
-   ResetVmPointers(gShadowVm);
-
-   if (pointedToVm)
-      pointedToVm->link = gShadowVm;
-
-   if (vm == system->vmList)
-      system->vmList = gShadowVm;
-
-   gRunningVm = gShadowVm;
-}
-
-/* : (PROCESS) (  -- 'vm ) */
-static void ficlPrimitiveProcess(ficlVm *vm)
-{
-   static int gProcessID = 1;
-   ficlSystem *system = vm->callback.system;
-   ficlVm     *newVm;
-
-   newVm  = ficlSystemCreateVm(system);
-   newVm->user[0].i = gProcessID++;
-   if (32768 == gProcessID) gProcessID = 1;
-   ficlStackPushPointer(vm->dataStack, newVm);
-}
-
-/* : (RUN) ( xt 'vm -- ) */
-static void ficlPrimitiveRun(ficlVm *vm)
-{
-   ficlWord *word;
-   ficlVm   *otherVm;
-
-   otherVm = ficlStackPopPointer(vm->dataStack);
-   word    = ficlStackPopPointer(vm->dataStack);
-   otherVm->runningWord = word;
-   otherVm->ip = (ficlIp)(word->param);
-}
-
-#define SWAP(T,a,b)  { T _tmp=a; a=b; b=_tmp; }
-
-static void ficlPrimitivePS(ficlVm *vm)
-{
-   int i;
-   ficlSystem *system = vm->callback.system;
-   ficlVm     *pList  = system->vmList;
-
-   fprintf(stderr,"\npList = ");
-   for (i = 0; pList; i++) {
-      fprintf(stderr,"%ld=%p ",pList->user[0].i,pList);
-      pList = pList->link;
-   }
-}
-
-/* : (PAUSE) ( -- ) */
-static void ficlPrimitivePause(ficlVm *vm)
-{
-   ficlSystem *system = vm->callback.system;
-   ficlVm     *nextVm, *oldLink;
-
-   if (NULL == gRunningVm)
-      ficlVmThrowError(vm, "Error: multi-tasking not initialized.");
-
-   // ficlPrimitivePS(vm);
-
-   /* select next VM: if end of list, select head */
-   // fprintf(stderr,"\n-I-PAUSE:  pid is #%ld",vm->user[0].i);
-   nextVm = gRunningVm->link;
-   if (NULL == nextVm) {
-      // fprintf(stderr,"\n-I-PAUSE: next is head");
-      nextVm = system->vmList;
-   }
-
-   /* same as running VM, do nothing */
-   if (nextVm == gRunningVm) {
-      // fprintf(stderr,"\n-I-PAUSE: only one, skip");
-      ficlStackPushInteger(vm->dataStack, FICL_FALSE);
-      return;
-   }
-
-   // fprintf(stderr,"\n-I-PAUSE: next is #%ld",nextVm->user[0].i);
-   ficlStackPushInteger(vm->dataStack, FICL_TRUE);
-
-   /* save state */
-   oldLink = gRunningVm->link;
-   memcpy(gRunningVm, vm, sizeof(ficlVm));
-   gRunningVm->link = oldLink;
-   ResetVmPointers(gRunningVm);
-
-   /* load state of next VM */
-   memcpy(vm, nextVm, sizeof(ficlVm));
-   ResetVmPointers(vm);
-
-   gRunningVm = nextVm;
-   // ficlStackPushInteger(vm->dataStack, FICL_TRUE);
-
-   // ficlPrimitivePS(vm);
-}
-
-/* : (STOP) ( -- ) */
-static void ficlPrimitiveStop(ficlVm *vm)
-{
-   ficlSystem *system = vm->callback.system;
-   ficlVm     *pList;
-   int         pid    = vm->user[0].i;
-
-   /* schedule next VM, if it is the same, then do nothing */
-   /* i.e. cannot stop root process */
-   // fprintf(stderr,"\n-I-STOP: current is #%d (%p)",pid,vm);
-   ficlPrimitivePause(vm);
-   // fprintf(stderr,"\n-I-STOP:    next is #%ld (%p)",vm->user[0].i,vm);
-   if (pid == vm->user[0].i) {
-      ficlStackPopInteger(vm->dataStack);
-      return;
-   }
-
-   /* search process by pid */
-   for (pList = system->vmList; pList; pList = pList->link) {
-      // fprintf(stderr,"\n-I-STOP: check #%ld (%p)",pList->user[0].i,pList);
-      if (pid == pList->user[0].i)
-         break;
-   }
-
-   if (pList) {
-      // fprintf(stderr,"\n-I-STOP: destroy (%p)",pList);
-      ficlSystemDestroyVm(pList);
-   }
-}
-#endif
 
 #if FICL_WANT_MULTITHREADED
 
@@ -696,6 +582,7 @@ int recursiveMutexInit(pthread_mutex_t *mutex)
 static void ficlPrimitiveSlashTask(ficlVm *vm)
 {
    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
    ficlStackPushInteger(vm->dataStack, sizeof(ficlVm));
 }
 
@@ -707,6 +594,7 @@ static void ficlPrimitiveConstruct(ficlVm *vm)
    ficlVm     *otherVm;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    otherVm = ficlStackPopPointer(vm->dataStack);
    if (ficlDictionaryIncludes(system->dictionary, otherVm))
       ficlVmThrowError(vm, "Error: task space is not ALLOCATEd.");
@@ -727,6 +615,7 @@ static void ficlPrimitiveActivate(ficlVm *vm)
    const char *where;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
    otherVm = ficlStackPopPointer(vm->dataStack);
    word    = ficlStackPopPointer(vm->dataStack);
 
@@ -809,6 +698,7 @@ static void ficlPrimitiveAwaken(ficlVm *vm)
    int    rc;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    otherVm = ficlStackPopPointer(vm->dataStack);
 
    if (FICL_FALSE == ficlVmIsThreadActive(otherVm))
@@ -847,6 +737,7 @@ static void ficlPrimitiveTerminate(ficlVm *vm)
    int    rc;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    otherVm = ficlStackPopPointer(vm->dataStack);
 
    if (FICL_FALSE == ficlVmIsThreadActive(otherVm))
@@ -864,6 +755,7 @@ static void ficlPrimitiveHis(ficlVm *vm)
    ficlVm *otherVm;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
    addr1    = ficlStackPopPointer(vm->dataStack);
    otherVm  = ficlStackPopPointer(vm->dataStack);
 
@@ -877,6 +769,7 @@ static void ficlPrimitiveHis(ficlVm *vm)
 static void ficlPrimitiveSlashMutex(ficlVm *vm)
 {
    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
    ficlStackPushInteger(vm->dataStack, sizeof(pthread_mutex_t));
 }
 
@@ -888,6 +781,7 @@ static void ficlPrimitiveMutexInit(ficlVm *vm)
    pthread_mutexattr_t mutexAttr;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    mutex = ficlStackPopPointer(vm->dataStack);
 
    recursiveMutexInit(mutex);
@@ -901,6 +795,7 @@ static void ficlPrimitiveMutexGet(ficlVm *vm)
    int             rc;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    mutex = ficlStackPopPointer(vm->dataStack);
 
    rc = pthread_mutex_lock(mutex);
@@ -915,6 +810,7 @@ static void ficlPrimitiveMutexRelease(ficlVm *vm)
    int             rc;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 0);
+
    mutex = ficlStackPopPointer(vm->dataStack);
 
    rc = pthread_mutex_unlock(mutex);
@@ -928,6 +824,7 @@ static void ficlPrimitiveAtomicFetch(ficlVm *vm)
    ficlCell *cell;
 
    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
    cell = (ficlCell *) ficlStackPopPointer(vm->dataStack);
 
    __sync_synchronize();
@@ -941,6 +838,7 @@ static void ficlPrimitiveAtomicStore(ficlVm *vm)
    ficlCell *cell, x;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
    cell = (ficlCell *) ficlStackPopPointer(vm->dataStack);
    x    = ficlStackPop(vm->dataStack);
 
@@ -955,6 +853,7 @@ static void ficlPrimitiveAtomicXchg(ficlVm *vm)
    ficlUnsigned *addr, x1, x2;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
    addr = (ficlUnsigned *) ficlStackPopPointer(vm->dataStack);
    x1   = ficlStackPopUnsigned(vm->dataStack);
 
@@ -970,6 +869,7 @@ static void ficlPrimitiveAtomicCas(ficlVm *vm)
    ficlUnsigned *addr, desired, expected, prev;
 
    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
    addr     = (ficlUnsigned *) ficlStackPopPointer(vm->dataStack);
    desired  = ficlStackPopUnsigned(vm->dataStack);
    expected = ficlStackPopUnsigned(vm->dataStack);
@@ -987,6 +887,7 @@ static void ficlPrimitiveAtomicOp(ficlVm *vm)
    ficlWord *xt;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
    addr = ficlStackPopPointer(vm->dataStack);
    xt   = ficlStackPopPointer(vm->dataStack);
    
@@ -1083,6 +984,7 @@ static void ficlPrimitiveStick(ficlVm *vm)
         return;
 
     FICL_STACK_CHECK(vm->dataStack, n + 1, n + 1);
+
     ficlStackStore(vm->dataStack, n, x);
 }
 
@@ -1136,14 +1038,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(dlsym)",  ficlPrimitiveDlSym);
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
     addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
-
-#if 0
-    addPrimitive(dictionary, "(init-multi)", ficlPrimitiveInitMulti);
-    addPrimitive(dictionary, "(process)", ficlPrimitiveProcess);
-    addPrimitive(dictionary, "(run)",     ficlPrimitiveRun);
-    addPrimitive(dictionary, "(stop)",    ficlPrimitiveStop);
-    addPrimitive(dictionary, "(pause)",   ficlPrimitivePause);
-#endif
+    addPrimitive(dictionary, "time&date", ficlPrimitiveTimeAndDate);
 
 #if FICL_WANT_MULTITHREADED
     addPrimitive(dictionary, "/task",     ficlPrimitiveSlashTask);
