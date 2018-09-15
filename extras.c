@@ -317,22 +317,60 @@ static void ficlPrimitiveUTime(ficlVm *vm)
 	ficlStackPushInteger(vm->dataStack, (ficlInteger)t);
 }
 
-/* : TIME&DATE ( -- sec min hour day mon year ) */
-static void ficlPrimitiveTimeAndDate(ficlVm *vm)
+/* : NOW ( -- sec min hour ) */
+static void ficlPrimitiveNow(ficlVm *vm)
 {
     struct tm *tim;
     time_t t;
 
-    FICL_STACK_CHECK(vm->dataStack, 0, 6);
+    FICL_STACK_CHECK(vm->dataStack, 0, 3);
 
     t = time(NULL);
     tim = localtime(&t);
     ficlStackPushInteger(vm->dataStack, tim->tm_sec);
     ficlStackPushInteger(vm->dataStack, tim->tm_min);
     ficlStackPushInteger(vm->dataStack, tim->tm_hour);
+}
+
+/* : TODAY ( -- day mon year ) */
+static void ficlPrimitiveToday(ficlVm *vm)
+{
+    struct tm *tim;
+    time_t t;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 3);
+
+    t = time(NULL);
+    tim = localtime(&t);
     ficlStackPushInteger(vm->dataStack, tim->tm_mday);
     ficlStackPushInteger(vm->dataStack, tim->tm_mon  + 1);
     ficlStackPushInteger(vm->dataStack, tim->tm_year + 1900);
+}
+
+/* : TIME-ZONE ( -- minutes ) */
+static void ficlPrimitiveTimeZone(ficlVm *vm)
+{
+    struct tm *tim;
+    time_t t;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    t = time(NULL);
+    tim = localtime(&t);
+    ficlStackPushInteger(vm->dataStack, tim->tm_gmtoff / 60);
+}
+
+/* : DST? ( -- flag ) */
+static void ficlPrimitiveDstQ(ficlVm *vm)
+{
+    struct tm *tim;
+    time_t t;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    t = time(NULL);
+    tim = localtime(&t);
+    ficlStackPushInteger(vm->dataStack, tim->tm_isdst ? FICL_TRUE : FICL_FALSE);
 }
 
 /* : (DLOPEN) ( ca u -- hnd ) */
@@ -1038,7 +1076,10 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "(dlsym)",  ficlPrimitiveDlSym);
     addPrimitive(dictionary, "(c-call)", 	 ficlPrimitiveCCall);
     addPrimitive(dictionary, "(callback)", ficlPrimitiveCallback);
-    addPrimitive(dictionary, "time&date", ficlPrimitiveTimeAndDate);
+    addPrimitive(dictionary, "now", 	 ficlPrimitiveNow);
+    addPrimitive(dictionary, "today", 	 ficlPrimitiveToday);
+    addPrimitive(dictionary, "time-zone", ficlPrimitiveTimeZone);
+    addPrimitive(dictionary, "dst?", 	 ficlPrimitiveDstQ);
 
 #if FICL_WANT_MULTITHREADED
     addPrimitive(dictionary, "/task",     ficlPrimitiveSlashTask);

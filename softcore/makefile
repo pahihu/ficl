@@ -6,8 +6,8 @@ SOURCES += ficllocal.fr fileaccess.fr
 SOURCES += chkredef.fs header.fs
 SOURCES += srcline.fs tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
 SOURCES += bitwise.fs circ-pad.fs missing.fs floats.fs dshift.fs
-SOURCES += cond.fs systack.fs
-SOURCES += strarray.fs strconst.f numcvt.fs defer.fth tofcompat.fs
+SOURCES += cond.fs systack.fs strarray.fs strops.fs strconst.f
+SOURCES += numcvt.fs defer.fth timedate.fs tofcompat.fs
 SOURCES += words.fs lose.fs
 	
 
