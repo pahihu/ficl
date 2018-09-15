@@ -2,7 +2,7 @@
 
 : R>DROP ( -- )
 \G Drop item from return stack.
-   S" R> DROP" EVALUATE ; IMMEDIATE COMPILE-ONLY
+   S" R> DROP" EVALUATE ; DIRECTIVE
 
 : 0>= ( n -- f )
 \G True if n >= 0.

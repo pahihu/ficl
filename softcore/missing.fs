@@ -38,8 +38,8 @@ CONSTANT ficl-os
 ;
 
 DECIMAL
-\ FiCL NOTES
-\ - only DNEGATE present from the double operators
+
+: DIRECTIVE ( -- )   IMMEDIATE COMPILE-ONLY ;
 
 : XXX ( -- ) 1 abort" not implemented" ;
 
