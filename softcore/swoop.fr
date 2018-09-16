@@ -27,7 +27,7 @@ VARIABLE 'SELF
 : S> ( -- )
 		POSTPONE R> POSTPONE >SELF ; IMMEDIATE
 		
-: >DATA ( xt -- object )	>BODY 3 CELLS + ;
+: >DATA ( xt -- object )	>BODY 3 CELLS+ ;
 
 
 \ ***
@@ -124,16 +124,16 @@ VARIABLE OPAQUE
 
 \ ***
 : NEW ( class -- addr )
-		DUP SIZEOF CELL+ CELL+ ALLOCATE THROW OBJTAG !+ SWAP !+ ;
+		DUP SIZEOF 2 CELLS+ ALLOCATE THROW OBJTAG !+ SWAP !+ ;
 		
 : DESTROY ( addr -- )
-		CELL- CELL- FREE THROW ;
+		-2 CELLS+ FREE THROW ;
 		
 
 \ ***
 : NEW-MEMBER ( member data runtime-xt compiler-xt -- )
 		ALIGN
-		,  THIS >PUBLIC  OPAQUE @ CELLS + >LINK  ROT , , , ;
+		,  THIS >PUBLIC  OPAQUE @ CELLS+ >LINK  ROT , , , ;
 		
 : BELONGS? ( member list -- 'member true | member false )
 		BEGIN
@@ -174,25 +174,25 @@ VARIABLE OPAQUE
 
 \ ***
 : EARLY-BINDING ( 'member -- )
-		DUP 3 CELLS +  SWAP CELL - @ EXECUTE ;
+		DUP 3 CELLS+  SWAP CELL - @ EXECUTE ;
 		
 : LATE-BINDING ( object 'member -- )
-		OVER CELL- @ >THIS  2 CELLS + @+  EXECUTE ;
+		OVER CELL- @ >THIS  2 CELLS+ @+  EXECUTE ;
 		
 : REFERENCE-MEMBER ( [object] 'member -- )
 		STATE @ IF EARLY-BINDING ELSE
 			CSTATE @ IF ( interpreting in a class definition)
-				0 SWAP 2 CELLS + @+ EXECUTE
+				0 SWAP 2 CELLS+ @+ EXECUTE
 			ELSE
 				LATE-BINDING  THIS 0= IF  -MEMBERS  THEN
 			THEN
 		THEN ;
 		
 : ?OBJECT ( object -- )
-		2 CELLS - @ OBJTAG <> THROW ;
+		-2 CELLS+ @ OBJTAG <> THROW ;
 		
 : RESOLVED ( member -- )
-		CLASS-MEMBER? 0= THROW  3 CELLS + @ EXECUTE ;
+		CLASS-MEMBER? 0= THROW  3 CELLS+ @ EXECUTE ;
 		
 : SENDMSG ( object member-id -- )		OVER ?OBJECT
 		OVER CELL- @ MEMBER? 0= THROW LATE-BINDING ;
@@ -252,7 +252,7 @@ VARIABLE OPAQUE
 		@ COMPILE, POST-COLON ;
 		
 : COMPILE-DEFER ( object 'data -- )		PRE-COLON
-		2 CELLS - @ POSTPONE LITERAL POSTPONE RESOLVED  POST-COLON ;
+		-2 CELLS+ @ POSTPONE LITERAL POSTPONE RESOLVED  POST-COLON ;
 		
 
 \ ***
@@ -274,7 +274,7 @@ GET-CURRENT ( *) CC-WORDS SET-CURRENT
 			THIS >SIZE +! ;
 			
 	: VARIABLE ( -- )		THIS SIZEOF ALIGNED THIS >SIZE !
-			[ +CC ] CELL BUFFER: [ -CC ] ;
+			[ +CC ] /CELL BUFFER: [ -CC ] ;
 			
 	: CVARIABLE ( -- )
 			[ +CC ] 1 BUFFER: [ -CC ] ;

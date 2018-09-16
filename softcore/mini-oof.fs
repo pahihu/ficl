@@ -2,7 +2,6 @@
 .( loading Mini-OOF -- B.Paysan ) cr
 
 : noop ( -- ) ;
-1 cells CONSTANT cell
 
 
 : method ( m v -- m' v )
@@ -18,14 +17,14 @@
 
 : end-class ( class methods vars -- )
    CREATE  here >R , dup , 0 ?DO ['] noop , LOOP
-   cell+ dup cell+ swap @ [ 2 cells ] literal -
-   R> [ 2 cells ] literal + swap move ;
+   cell+ dup cell+ swap @ -2 cells+
+   R> 2 cells+ swap move ;
 
 : defines ( xt class -- )
    ' >body @ + ! ;
 
 : new ( class -- o )
-   here swap dup , @ [ 1 cells ] literal - allot ;
+   here swap dup , @ -1 cells+ allot ;
 
 : :: ( class "name" -- )
    ' >body @ + @ compile, ;

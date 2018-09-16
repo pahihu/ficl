@@ -3,6 +3,10 @@
 \ ** John Sadler (john_sadler@alum.mit.edu)
 \ ** September, 1998
 
+
+1 CELLS CONSTANT /CELL
+1 CHARS CONSTANT /CHAR
+
 S" FICL_WANT_USER" ENVIRONMENT? drop [if]
 
 \ ** Ficl USER variables

@@ -1,8 +1,8 @@
 ( Double shifts --- 5sep18ap )
 ANEW -dshift
 
-1 CELLS 8 *     CONSTANT CELLBITS
-CELLBITS 1- BIT CONSTANT MSBIT
+/CELL 8 *        CONSTANT #CELLBITS
+#CELLBITS 1- BIT CONSTANT MSBIT
 
 : U2/ ( u1 -- u2 ) 1 RSHIFT ;
 : D2/ ( d1 -- d2 )
@@ -17,14 +17,14 @@ CELLBITS 1- BIT CONSTANT MSBIT
 : ASHIFT ( n1 m -- n2 ) DUP 0< IF NEGATE ARSHIFT ELSE LSHIFT THEN ;
 : LROTATE ( n1 m -- n2 )
   ?DUP IF
-     2DUP LSHIFT >R          \ ; hllll000
-     CELLBITS SWAP - RSHIFT  \ ; 00000hhh
+     2DUP LSHIFT >R           \ ; hllll000
+     #CELLBITS SWAP - RSHIFT  \ ; 00000hhh
      R> OR
   THEN ;
 : RROTATE ( n1 m -- n2 )
    ?DUP IF
-     2DUP RSHIFT >R	     \ ; 000hhhhl
-     CELLBITS SWAP - LSHIFT  \ lll00000
+     2DUP RSHIFT >R	      \ ; 000hhhhl
+     #CELLBITS SWAP - LSHIFT  \ lll00000
      R> OR
    THEN ;
 : ROTATE ( n1 m -- n2 ) DUP 0< IF NEGATE RROTATE ELSE LROTATE THEN ;
@@ -61,10 +61,10 @@ TESTING DLSHIFT
 T{  0 0           0 DLSHIFT ->     0  0 }T
 T{  0 0         128 DLSHIFT ->     0  0 }T
 T{  1 0           1 DLSHIFT ->     2  0 }T
-T{  1 0 CELLBITS 1- DLSHIFT -> MSBIT  0 }T
-T{  1 0    CELLBITS DLSHIFT ->     0  1 }T
-T{ -1 0    CELLBITS DLSHIFT ->     0 -1 }T
-T{ -1 -1   CELLBITS DLSHIFT ->     0 -1 }T
+T{  1 0 #CELLBITS 1- DLSHIFT -> MSBIT  0 }T
+T{  1 0    #CELLBITS DLSHIFT ->     0  1 }T
+T{ -1 0    #CELLBITS DLSHIFT ->     0 -1 }T
+T{ -1 -1   #CELLBITS DLSHIFT ->     0 -1 }T
 
 CR
 TESTING DRSHIFT
@@ -72,10 +72,10 @@ T{  0 0           0 DRSHIFT ->     0  0 }T
 T{  0 0         128 DRSHIFT ->     0  0 }T
 T{  1 0           1 DRSHIFT ->     0  0 }T
 T{  0 1           1 DRSHIFT -> MSBIT  0 }T
-T{  0 MSBIT CELLBITS 1- DRSHIFT -> 0 1 }T
-T{  0 MSBIT CELLBITS    DRSHIFT -> MSBIT 0 }T
-T{  0 -1    CELLBITS    DRSHIFT -> -1 0 }T
-T{ -1 -1    CELLBITS    DRSHIFT -> -1 0 }T
+T{  0 MSBIT #CELLBITS 1- DRSHIFT -> 0 1 }T
+T{  0 MSBIT #CELLBITS    DRSHIFT -> MSBIT 0 }T
+T{  0 -1    #CELLBITS    DRSHIFT -> -1 0 }T
+T{ -1 -1    #CELLBITS    DRSHIFT -> -1 0 }T
 
 CR
 TESTING ARSHIFT
@@ -105,7 +105,7 @@ CR
 TESTING RROTATE
 T{ 0 0 RROTATE -> 0 }T
 T{ 0 23 RROTATE -> 0 }T
-T{ MSBIT 1 RROTATE -> CELLBITS 2- BIT }T
+T{ MSBIT 1 RROTATE -> #CELLBITS 2- BIT }T
 T{ -1 1 RROTATE -> -1 }T
 T{ $0123456789ABCDEF 4 RROTATE -> $F0123456789ABCDE }T
 T{ $123456789ABCDEF0 4 RROTATE -> $0123456789ABCDEF }T

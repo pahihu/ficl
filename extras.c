@@ -1045,6 +1045,32 @@ static void ficlPrimitiveWordKindQ(ficlVm *vm)
     ficlStackPushInteger(vm->dataStack, kind);
 }
 
+/* : CHARS+ ( addr1 u -- addr2 ) */
+static void ficlPrimitiveCharsPlus(ficlVm *vm)
+{
+    ficlInteger n;
+    void *addr;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    n    = ficlStackPopInteger(vm->dataStack);
+    addr = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, addr + sizeof(char) * n);
+}
+
+/* : CELLS+ ( addr1 u -- addr2 ) */
+static void ficlPrimitiveCellsPlus(ficlVm *vm)
+{
+    ficlInteger n;
+    void *addr;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    n    = ficlStackPopInteger(vm->dataStack);
+    addr = ficlStackPopPointer(vm->dataStack);
+    ficlStackPushPointer(vm->dataStack, addr + sizeof(ficlCell) * n);
+}
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -1113,6 +1139,9 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "qflip",   ficlPrimitiveQFlip);
     addPrimitive(dictionary, "xflip",   ficlPrimitiveXFlip);
     addPrimitive(dictionary, "flip",    ficlPrimitiveFlip);
+
+    addPrimitive(dictionary, "chars+",  ficlPrimitiveCharsPlus);
+    addPrimitive(dictionary, "cells+",  ficlPrimitiveCellsPlus);
 
     addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
     addPrimitive(dictionary, "wordkind?", ficlPrimitiveWordKindQ);

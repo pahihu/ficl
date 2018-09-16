@@ -22,7 +22,7 @@ SET-CURRENT
 
 : >S ( n -- ) ( S: -- n)
 \G Push value to system stack.
-   [ CELL NEGATE ] LITERAL S +!  S @  !   
+   [ /CELL NEGATE ] LITERAL S +!  S @  !   
 ;
 
 
@@ -34,12 +34,12 @@ SET-CURRENT
 
 : S> ( -- n ) ( S: n -- )
 \G Pop value from system stack.
-   S@  CELL S +!
+   S@  /CELL S +!
 ;
 
 : SDEPTH ( -- n )
 \G Depth of system stack.
-   |SACK SACK +  S @ - CELL / ;
+   |SACK SACK +  S @ - /CELL / ;
 
 PREVIOUS
 

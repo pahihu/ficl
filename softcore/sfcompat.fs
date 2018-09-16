@@ -18,7 +18,7 @@ DECIMAL
 
 HIDE
 
-' (BRANCH) 3 CELLS + @ CONSTANT <branch>
+' (BRANCH) 3 CELLS+ @ CONSTANT <branch>
 
 14 CONSTANT <PRIMITIVE>
 21 CONSTANT <INSTRUCTION-WORD>
@@ -31,7 +31,7 @@ HIDE
 SET-CURRENT
 
 : BRANCH, ( addr -- )      \ assemble a branch to addr
-   HERE CELL+ -  CELL /
+   HERE CELL+ -  /CELL /
    <branch> , , ;
 
 : AKA ( old new -- )

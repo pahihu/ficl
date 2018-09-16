@@ -10,8 +10,6 @@
 		
 
 \ ***
-1 CELLS CONSTANT CELL
-
 : /ALLOT ( n -- )	HERE SWAP	 DUP ALLOT  ERASE ;
 
 : ?EXIT  ( n -- )	\  IF EXIT THEN

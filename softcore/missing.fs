@@ -195,18 +195,15 @@ WINNT? 0=
 : -TERM ( -- ) 0 PREPTERM ;
 
 \ Array definitions
-: TH ( a1 n -- a2 ) cells + ;
-: cTH ( ca1 n -- ca2 ) chars + ;
-
 : ARRAY ( n "name" -- )
-	CREATE cells allot
-	DOES>  ( n addr1 -- addr2 ) swap th ;
+   CREATE CELLS ALLOT
+   DOES>  ( n addr1 -- addr2 ) SWAP CELLS+ ;
 
 : CARRAY ( n "name" -- )
-	CREATE chars allot
-	DOES>  ( n addr1 -- addr2 ) swap cth ;
+   CREATE CHARS ALLOT
+   DOES>  ( n addr1 -- addr2 ) SWAP CHARS+ ;
 
-: BUFFER: ( n "name" -- ) CREATE chars allot ;
+: BUFFER: ( n "name" -- )   CREATE CHARS ALLOT ;
 
 
 
@@ -230,11 +227,11 @@ hide
 			8 mod dup  0= IF [char] - emit space THEN
 			4 = IF space THEN
 		THEN
-		dup i cTH c@  hh. \ " hh"
+		dup i chars+ c@  hh. \ " hh"
 	LOOP
 	2 spaces
 	16 0 DO
-		dup i cTH c@  printable emit \ "c"
+		dup i chars+ c@  printable emit \ "c"
 	LOOP  drop cr ;
 
 set-current
