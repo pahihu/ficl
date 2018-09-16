@@ -47,13 +47,15 @@ DECIMAL
 : OCTAL	 8 BASE ! ;
 : ALPHA  36 BASE ! ;
 
-: (BASE.) ( n base -- )
+: DOT ( n base -- )
    BASE @ >R  BASE !  U.  R> BASE ! ;
-: H. ( n -- )  16 (BASE.) ;
-: B. ( n -- )   2 (BASE.) ;
-: O. ( n -- )   8 (BASE.) ;
-: .BASE ( -- )  BASE @  10 (BASE.) ;
-
+: .X ( n -- )  16 DOT ;
+: H. ( n -- )  .X ;
+: .B ( n -- )   2 DOT ;
+: .O ( n -- )   8 DOT ;
+: .D ( n -- )  10 DOT ;
+: S. ( n -- )  DUP 0< IF [CHAR] - EMIT THEN  ABS . ;
+: .BASE ( -- )  BASE @  .D ;
 
 : BLANK ( a u -- ) bl fill ;
 : TEXT ( delim -- ) pad 258 blank  word count pad swap  move ;

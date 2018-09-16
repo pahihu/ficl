@@ -133,3 +133,13 @@
 \G Display ca/u in a field of n chars width.
    over - >R  type  R> spaces ;
 
+: ASCII ( "ccc" - n )
+   STATE @ IF  POSTPONE [CHAR]  ELSE  CHAR  THEN ; IMMEDIATE
+
+: (CONTROL) ( "ccc" - n )
+   BL WORD COUNT 0= ABORT" ?"
+   C@ UPCASE  [CHAR] @ - ;
+
+: CONTROL ( "ccc" - n)
+   (CONTROL)
+   STATE @ IF  POSTPONE LITERAL  THEN ; IMMEDIATE
