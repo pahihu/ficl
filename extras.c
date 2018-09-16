@@ -943,8 +943,8 @@ static void ficlPrimitiveAtomicOp(ficlVm *vm)
 #endif /* FICL_WANT_MULTITHREADED */
 
 
-/* : BSWAP16 ( uw1 -- uw2 ) */
-static void ficlPrimitiveBSwap16(ficlVm *vm)
+/* : WFLIP ( uw1 -- uw2 ) */
+static void ficlPrimitiveWFlip(ficlVm *vm)
 {
     ficlUnsigned16 u;
 
@@ -954,8 +954,8 @@ static void ficlPrimitiveBSwap16(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap16(u));
 }
 
-/* : BSWAP32 ( u1 -- u2 ) */
-static void ficlPrimitiveBSwap32(ficlVm *vm)
+/* : QFLIP ( uq1 -- uq2 ) */
+static void ficlPrimitiveQFlip(ficlVm *vm)
 {
     ficlUnsigned32 u;
 
@@ -967,8 +967,8 @@ static void ficlPrimitiveBSwap32(ficlVm *vm)
 
 #if defined(__LP64__) || defined(__MINGW64__)
 
-/* : BSWAP64 ( ud1 -- ud2 ) */
-static void ficlPrimitiveBSwap64(ficlVm *vm)
+/* : XFLIP ( ux1 -- ux2 ) */
+static void ficlPrimitiveXFlip(ficlVm *vm)
 {
     ficlUnsigned u;
 
@@ -978,10 +978,12 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap64(u));
 }
 
+#define ficlPrimitiveFlip	ficlPrimitiveXFlip
+
 #else
 
-/* : BSWAP64 ( ud1 -- ud2 ) */
-static void ficlPrimitiveBSwap64(ficlVm *vm)
+/* : XFLIP ( ud1 -- ud2 ) */
+static void ficlPrimitiveXFlip(ficlVm *vm)
 {
     ficl2Unsigned ud;
 #if FICL_PLATFORM_HAS_2INTEGER
@@ -1004,6 +1006,8 @@ static void ficlPrimitiveBSwap64(ficlVm *vm)
 #endif
     ficlStackPush2Unsigned(vm->dataStack, ud);
 }
+
+#define ficlPrimitiveFlip	ficlPrimitiveQFlip
 
 #endif
 
@@ -1105,14 +1109,11 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "release",	  ficlPrimitiveMutexRelease);
 #endif
 
-    addPrimitive(dictionary, "bswap16",   ficlPrimitiveBSwap16);
-    addPrimitive(dictionary, "bswap32",   ficlPrimitiveBSwap32);
-    addPrimitive(dictionary, "bswap64",   ficlPrimitiveBSwap64);
-#if defined(__LP64__) || defined(__MINGW64__)
-    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap64);
-#else
-    addPrimitive(dictionary, "bswap",     ficlPrimitiveBSwap32);
-#endif
+    addPrimitive(dictionary, "wflip",   ficlPrimitiveWFlip);
+    addPrimitive(dictionary, "qflip",   ficlPrimitiveQFlip);
+    addPrimitive(dictionary, "xflip",   ficlPrimitiveXFlip);
+    addPrimitive(dictionary, "flip",    ficlPrimitiveFlip);
+
     addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
     addPrimitive(dictionary, "wordkind?", ficlPrimitiveWordKindQ);
 
