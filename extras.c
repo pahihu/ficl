@@ -1071,6 +1071,28 @@ static void ficlPrimitiveCellsPlus(ficlVm *vm)
     ficlStackPushPointer(vm->dataStack, addr + sizeof(ficlCell) * n);
 }
 
+/* : ERRNO ( -- #error ) */
+static void ficlPrimitiveErrno(ficlVm *vm)
+{
+    FICL_STACK_CHECK(vm->dataStack, 0, 1);
+
+    ficlStackPushInteger(vm->dataStack, (ficlInteger) errno);
+}
+
+/* : WHY ( #error -- caddr u ) */
+static void ficlPrimitiveWhy(ficlVm *vm)
+{
+    char *ptr;
+    int  n;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 2);
+
+    n = (int) ficlStackPopInteger(vm->dataStack);
+    ptr = strerror(n);
+    ficlStackPushPointer(vm->dataStack, ptr);
+    ficlStackPushInteger(vm->dataStack, strlen(ptr));
+}
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -1142,6 +1164,8 @@ void ficlSystemCompileExtras(ficlSystem *system)
 
     addPrimitive(dictionary, "chars+",  ficlPrimitiveCharsPlus);
     addPrimitive(dictionary, "cells+",  ficlPrimitiveCellsPlus);
+    addPrimitive(dictionary, "errno",   ficlPrimitiveErrno);
+    addPrimitive(dictionary, "why",     ficlPrimitiveWhy);
 
     addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
     addPrimitive(dictionary, "wordkind?", ficlPrimitiveWordKindQ);
