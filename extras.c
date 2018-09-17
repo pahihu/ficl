@@ -294,7 +294,7 @@ static void ficlPrimitiveKeyQ(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 0, 1);
 
-    ficlStackPushInteger(vm->dataStack, ret ? FICL_TRUE : FICL_FALSE);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(ret));
 }
 
 /* : EKEY ( -- code ) */
@@ -370,7 +370,7 @@ static void ficlPrimitiveDstQ(ficlVm *vm)
 
     t = time(NULL);
     tim = localtime(&t);
-    ficlStackPushInteger(vm->dataStack, tim->tm_isdst ? FICL_TRUE : FICL_FALSE);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(tim->tm_isdst));
 }
 
 /* : (DLOPEN) ( ca u -- hnd ) */

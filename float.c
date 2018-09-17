@@ -47,8 +47,36 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <math.h>
+#include "ficlmath.h"
 #include "ficl.h"
+
+#ifdef USE_FDLIBM
+#define fmin(x,y)	((x) < (y) ? (x) : (y))
+#define fmax(x,y)	((x) > (y) ? (x) : (y))
+#define lrint		rint
+#define powl		pow
+#define isinf(x)	(!finite(x))
+
+#define FP_NAN		1
+#define FP_INFINITE	2
+#define FP_ZERO		3
+#define FP_NORMAL	4
+
+int fpclassify(double x)
+{
+    static double zero = 0.0;
+    int ret = FP_NORMAL;
+
+    if (x == zero)
+        ret = FP_ZERO;
+    else if (isnan(x))
+        ret = FP_NAN;
+    else if (!finite(x))
+        ret = FP_INFINITE;
+    return ret;
+}
+
+#endif
 
 #if FICL_WANT_FLOAT
 
@@ -1532,7 +1560,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     PRIMDEF("flog",     FLog);
     PRIMDEF("fsin",     FSin);
     PRIMDEF("fsincos",  FSinCos);
-    PRIMDEF("fsinh",    FSin);
+    PRIMDEF("fsinh",    FSinH);
     PRIMDEF("ftan",     FTan);
     PRIMDEF("ftanh",    FTanH);
 
