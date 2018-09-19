@@ -4,7 +4,12 @@ HEADERS= ficlplatform.h ficl.h ficlplatform/mingw.h
 # Flags for shared library
 TARGET =  -DWIN32 # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = # -fPIC
-CFLAGS = -O3 -DNDEBUG -march=native -s -Ificlplatform $(SHFLAGS) $(TARGET)
+OPTFLAGS = -O3 -DNDEBUG -march=native -s
+MFLAGS = 
+LIBM   = -lm
+# MFLAGS = -DUSE_FDLIBM -Ifdlibm53
+# LIBM   = fdlibm53/libfdm.a
+CFLAGS = $(OPTFLAGS) -Ificlplatform $(SHFLAGS) $(TARGET) $(MFLAGS)
 CC     = gcc -m64
 LIB    = ar cr
 RANLIB = ranlib
@@ -13,7 +18,7 @@ MAJOR = 4
 MINOR = 2.0
 
 ficlw.exe: $(HEADERS) softcore.c main.o libficl.a
-	$(CC) main.o -o $@ libficl.a -lgdi32 -lm
+	$(CC) main.o -o $@ libficl.a -lgdi32 $(LIBM)
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -33,7 +38,7 @@ softcore.c:
 	cd softcore; $(MAKE) -f makefile.mingw
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
-	$(CC) main.o -o main -L. -lficl -lm
+	$(CC) main.o -o main -L. -lficl $(LIBM)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
 
 mingw.o: ficlplatform/mingw.c $(HEADERS)

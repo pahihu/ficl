@@ -6,7 +6,11 @@ TARGET =  -Ddarwin # -ansi -DFICL_ANSI  # riscos MOTO_CPU32
 SHFLAGS = # -fPIC
 #OPTFLAGS= -g -O0 -DDEBUG
 OPTFLAGS= -O3 -march=native
-CFLAGS = $(OPTFLAGS) $(SHFLAGS) $(TARGET)
+MFLAGS =
+LIBM   = -lm
+# MFLAGS = -DUSE_FDLIBM -Ifdlibm53
+# LIBM   = fdlibm53/libfdm.a
+CFLAGS = $(OPTFLAGS) $(SHFLAGS) $(TARGET) $(MFLAGS)
 CC     = cc
 LIB    = ar cr
 RANLIB = ranlib
@@ -15,7 +19,7 @@ MAJOR = 4
 MINOR = 2.0
 
 ficld.exe: $(HEADERS) softcore.c main.o libficl.a
-	$(CC) main.o -o $@ -L. -lficl -lm
+	$(CC) main.o -o $@ -L. -lficl $(LIBM)
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -35,7 +39,7 @@ softcore.c:
 	cd softcore; $(MAKE)
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
-	$(CC) main.o -o main -L. -lficl -lm
+	$(CC) main.o -o main -L. -lficl $(LIBM)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
 
 unix.o: ficlplatform/unix.c $(HEADERS)

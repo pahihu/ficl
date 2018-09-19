@@ -4,7 +4,12 @@ HEADERS= ficlplatform.h ficl.h ficlplatform/unix.h
 # Flags for shared library
 TARGET =  -Dlinux # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = # -fPIC
-CFLAGS = -O2 -fomit-frame-pointer -s $(SHFLAGS) $(TARGET)
+OPTFLAGS= -O2 -fomit-frame-pointer -s
+MFLAGS =
+LIBM   = -lm
+# MFLAGS = -DUSE_FDLIBM -Ifdlibm53
+# LIBM   = fdlibm53/libfdm.a
+CFLAGS = $(OPTFLAGS) $(SHFLAGS) $(TARGET) $(MFLAGS)
 CC     = gcc -m64
 LIB    = ar cr
 RANLIB = ranlib
@@ -13,7 +18,7 @@ MAJOR = 4
 MINOR = 2.0
 
 ficll.exe: $(HEADERS) softcore.c main.o libficl.a
-	$(CC) main.o -o $@ -L. -lficl -lpthread -ldl -lm
+	$(CC) main.o -o $@ -L. -lficl -lpthread -ldl $(LIBM)
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -33,7 +38,7 @@ softcore.c:
 	cd softcore; $(MAKE)
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
-	$(CC) main.o -o main -L. -lficl -ldl -lm
+	$(CC) main.o -o main -L. -lficl -ldl $(LIBM)
 	ln -sf libficl.so.$(MAJOR).$(MINOR) libficl.so.$(MAJOR)
 
 unix.o: ficlplatform/unix.c $(HEADERS)
