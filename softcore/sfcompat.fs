@@ -84,6 +84,10 @@ PREVIOUS
 \G Append to NULL terminated string.
    ZCOUNT + ZPLACE ;
 
+: ZAPPENDC ( c zto -- )
+\G Append char to NULL terminated string.
+   ZCOUNT CHARS+ C!+  0 SWAP C! ;
+
 ( --- Increment/decrement ------------------------------------ )
 
 : ++ ( addr -- )

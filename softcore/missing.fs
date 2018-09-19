@@ -258,7 +258,7 @@ previous
 \ strings
 : $VARIABLE ( len "name" -- )
 \G Create string variable of length <len>.
-   CREATE 0 , allot ;
+   CREATE 0 , ALLOT ;
 
 : $COUNT ( sa -- ca u )
 \G Length of string <sa>.
@@ -279,6 +279,20 @@ previous
 \G Print string.
    $COUNT TYPE ;
 
+: $APPENDC ( c sa -- )
+\G Append char <c> to string <sa>.
+   1 OVER +!  $COUNT 1- CHARS+ C! ;
+
+: $SPLIT ( ca1 u1 c -- ca2 u2 ca3 u3 )
+\G Split <ca1/u1> at char <c>.
+   2>R DUP 2R>  SCAN ( ca1 ca3 u3)
+   ?DUP IF ( found?)
+      >R DUP >R OVER -
+      R> R> 1 /STRING
+   ELSE
+      OVER -  2>R  0 0  2R>
+   THEN ;
+   
 
 \ development support
 hide

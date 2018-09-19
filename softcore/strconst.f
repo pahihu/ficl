@@ -6,6 +6,9 @@
 : APPEND ( from len to -- )
    2DUP 2>R  COUNT + SWAP MOVE  2R> C+! ;
 
+: APPENDC ( c to -- )
+   1 OVER C+!  COUNT 1- CHARS+ C! ;
+
 : PRINT ( ca -- )
 \G Print counted string <ca>.
    COUNT TYPE ;
