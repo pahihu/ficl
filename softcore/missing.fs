@@ -129,6 +129,10 @@ DECIMAL
    WHILE 1- >R CHAR+ R>
    REPEAT ;
 
+: -TRIM ( ca1 u1 -- ca2 u2 )
+\G Trim, strip leading and trailing spaces.
+   -LEADING  -TRAILING ;
+
 : 3DUP ( a b c -- a b c a b c ) dup 2over rot ;
 : BETWEEN ( n lo hi -- f ) 1+ within ;
 : BOUNDS ( lo count -- hi lo ) over + swap ;
