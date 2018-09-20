@@ -47,14 +47,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "ficlmath.h"
 #include "ficl.h"
 
-#ifdef USE_FDLIBM
+#if FICL_WANT_FLOAT
+
+#include "ficlmath.h"
+
+#ifdef FICL_USE_FDLIBM
 #define fmin(x,y)	((x) < (y) ? (x) : (y))
 #define fmax(x,y)	((x) > (y) ? (x) : (y))
 #define lrint		rint
-#define powl		pow
 #define isinf(x)	(!finite(x))
 
 #define FP_NAN		1
@@ -78,13 +80,9 @@ int fpclassify(double x)
 
 #endif
 
-#if FICL_WANT_FLOAT
-
 #include "ficlblas.h"
 
 #define FICL_FLOAT_ALIGNMENT    sizeof(ficlFloat)
-
-#define REAL long double
 
 /**************************************************************************
                         d f a l i g n P t r
@@ -1172,12 +1170,16 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     unsigned char digit;
     char *trace;
     ficlUnsigned length;
-    REAL power;
-    REAL accum = (REAL) 0.0;
-    REAL mant = (REAL) 0.1;
+    double power;
+    double accum = 0.0;
+    double mant = 0.1;
     ficlInteger exponent = 0;
     char flag = 0;
     FloatParseState estate = FPS_START;
+#ifdef FICL_USE_STRTOD
+    char buff[128], *endptr, *ptr;
+    int dynamic;
+#endif
 
 
     FICL_STACK_CHECK(vm->floatStack, 0, 1);
@@ -1189,9 +1191,40 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     if (vm->base != 10)
         return(0);
 
-
     trace = FICL_STRING_GET_POINTER(s);
     length = FICL_STRING_GET_LENGTH(s);
+
+#ifdef FICL_USE_STRTOD
+
+    dynamic = 0;
+    if (0 == trace[length])
+        ptr = trace;
+    else if (length < 128)
+    {
+        strncpy(buff, trace, length);
+        ptr = buff;
+    }
+    else
+    {
+        ptr = (char *)malloc(length * sizeof(char));
+        if (NULL == ptr)
+            return (0);
+        strncpy(ptr, trace, length);
+        dynamic = 1;
+    }
+    if (length && (ptr[length-1] == 'e' || ptr[length-1] == 'E'))
+        length--;
+    ptr[length] = '\0';
+
+    accum = strtod(ptr, &endptr);
+
+    if (dynamic)
+        free(ptr);
+
+    if (*endptr)
+        return 0;
+
+#else
 
     /* Loop through the string's characters. */
     while ((length--) && ((c = *trace++) != 0))
@@ -1254,7 +1287,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
                         return(0);
 
                     accum += digit * mant;
-                    mant *= (REAL) 0.1;
+                    mant *= 0.1;
                 }
                 break;
             }
@@ -1308,9 +1341,11 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
             exponent = -exponent;
         }
         /* power = 10^x */
-        power = (REAL) powl((REAL) 10.0, exponent);
+        power = pow(10.0, exponent);
         accum *= power;
     }
+
+#endif
 
     ficlStackPushFloat(vm->floatStack, (ficlFloat) accum);
     if (vm->state == FICL_VM_STATE_COMPILE)

@@ -7,7 +7,7 @@ SHFLAGS = # -fPIC
 OPTFLAGS = -O3 -DNDEBUG -march=native -s
 MFLAGS = 
 LIBM   = -lm
-# MFLAGS = -DUSE_FDLIBM -Ifdlibm53
+# MFLAGS = -DFICL_USE_FDLIBM -Ifdlibm53 -DFICL_USE_STRTOD
 # LIBM   = fdlibm53/libfdm.a
 CFLAGS = $(OPTFLAGS) -Ificlplatform $(SHFLAGS) $(TARGET) $(MFLAGS)
 CC     = gcc -m64
