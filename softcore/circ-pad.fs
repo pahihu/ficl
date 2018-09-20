@@ -3,7 +3,7 @@
 
 .( loading CIRCULAR PAD ) cr
 
-ANEW -circ-pad
+\ ANEW -circ-pad
 
 hide
 

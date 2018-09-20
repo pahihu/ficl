@@ -1,12 +1,13 @@
-ANEW -floats
+FLOATS? [IF]
+\ ANEW -floats
 
 : FVARIABLE ( "name" -- )   VARIABLE ;
 
-hide
+HIDE
 
 CREATE FTMP 0 , 0 ,
 
-set-current
+SET-CURRENT
 
 1 FLOATS 8 =
 [IF]
@@ -63,5 +64,6 @@ PI 180.0e F/ FCONSTANT PI/180
    ?FLOAT NEGATE ;
 +WARNING
 
-previous
+PREVIOUS
 
+[THEN]

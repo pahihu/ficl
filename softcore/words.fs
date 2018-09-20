@@ -1,5 +1,5 @@
 \ Search for words by substrings                      ap 13may17
-ANEW -words
+\ ANEW -words
 
 HIDE
 

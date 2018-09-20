@@ -3,7 +3,7 @@
 \ 160603AP  /string fixed again, darwin?/winnt?/linux?
 .( loading UTILS ) cr
 
-ANEW -extras
+\ ANEW -extras
 
 decimal
 

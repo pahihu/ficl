@@ -21,7 +21,13 @@ hide
 \ --lch
 : compiled-zero ficlInstruction0 , ;
 \ And this is the instruction for a floating-point 0 (0.0e).
+floats? [IF]
 : compiled-float-zero ficlInstructionF0 , ;
+[ELSE]
+: compiled-float-zero true abort" floating-point not present" ;
+: (flocal) true abort" floating-point not present" ; compile-only
+: (f2local) true abort" floating-point not present" ; compile-only
+[THEN]
 
 
 : ?--   ( c-addr u -- c-addr u flag )

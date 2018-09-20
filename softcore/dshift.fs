@@ -1,5 +1,5 @@
 ( Double shifts --- 5sep18ap )
-ANEW -dshift
+\ ANEW -dshift
 
 /CELL 8 *        CONSTANT #CELLBITS
 #CELLBITS 1- BIT CONSTANT MSBIT

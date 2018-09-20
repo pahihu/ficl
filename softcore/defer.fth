@@ -1,7 +1,7 @@
 \ Deferred words ------------------------------------ ap 23may16
 .( loading DEFER ) CR
 
-ANEW <defer.fth>
+\ ANEW <defer.fth>
 
 : @EXECUTE ( addr -- )
 \G Execute xt at addr, if not zero.

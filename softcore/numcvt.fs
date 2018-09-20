@@ -1,6 +1,6 @@
 .( loading NUMBER CONVERSION ) cr
 
-ANEW -numcvt
+\ ANEW -numcvt
 
 \ number conversion
 DECIMAL

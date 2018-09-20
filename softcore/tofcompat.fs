@@ -34,7 +34,7 @@
 
 : ?EXIT ( f -- )
 \G Exit if <f> is true.
-   S" IF EXIT THEN" EVALUATE ; IMMEDIATE COMPILE-ONLY
+   S" IF EXIT THEN" EVALUATE ; DIRECTIVE
 
 : D0<> ( d -- f )
 \G True if <d> <> 0.
@@ -79,7 +79,7 @@
 : MULTI ( -- )
 \G Execute loop until TOR is not negative.
 \G Example: n >R MULTI ... REPEAT R>DROP 
-   S" BEGIN R@ 0< 0= WHILE R> 1- >R" EVALUATE ; IMMEDIATE COMPILE-ONLY
+   S" BEGIN R@ 0< 0= WHILE R> 1- >R" EVALUATE ; DIRECTIVE
 
 : C>N ( c -- x)
 \G Sign extend char to cell.
@@ -97,6 +97,8 @@
 \G Add 1 to NOS.
    >R 1+ R> ;
 
+\ ---
+
 : UNDER1- ( x1 x2 -- x1' x2 )
 \G Subtract 1 from NOS.
    >R 1- R> ;
@@ -109,6 +111,7 @@
 \G Split 32bit word to 16bit words.
    DUP 65535 AND  SWAP 16 RSHIFT  65535 AND ;
 
+\\
 32 BIT BMASK CONSTANT BMASK32
 
 : QSPLIT ( n -- ql qh )
@@ -129,5 +132,5 @@
 
 : RETRY ( -- )
 \G Jump back to the beginning of a word. (W.Baden)
-   LAST-WORD >BODY CELL-  BRANCH, ; IMMEDIATE COMPILE-ONLY
+   LAST-WORD >BODY CELL-  BRANCH, ; DIRECTIVE
 

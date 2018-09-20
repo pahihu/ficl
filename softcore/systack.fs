@@ -1,6 +1,6 @@
 .( loading SYSTEM STACK -- iForth ) CR
 
-ANEW -systack
+\ ANEW -systack
 
 HIDE
 
