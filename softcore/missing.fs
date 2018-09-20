@@ -70,14 +70,29 @@ DECIMAL
    THEN
 ;
 
-: EOL? ( c -- f )
+( Character constants ---------------------------------------- )
+
+ 8 CONSTANT BS
+ 9 CONSTANT TAB
+10 CONSTANT LINEFEED
+13 CONSTANT CARRIAGE
+
+: ?NEWLINE ( c -- f )
 \G Answer TRUE if char is CR/LF.
-   13 OVER =  SWAP 10 = OR ;
+   CARRIAGE OVER = IF  DROP TRUE EXIT  THEN
+   LINEFEED      = ;
 
-: SPACE? ( c -- f )
-\G Answer TRUE if char is white-space (space or tab).
-   BL OVER =  SWAP 9 = OR ;
+: ?BLANK ( c -- f )
+\G Answer TRUE if char is white-space (space or tab) or newline.
+         BL OVER = IF  DROP TRUE EXIT  THEN
+        TAB OVER = IF  DROP TRUE EXIT  THEN
+   ?NEWLINE ;
 
+: CO ( -- )
+\G Suspend current, return to caller. When caller exits
+\G continue with current.
+   R> R>  SWAP  >R >R ;
+  
 : SCAN ( ca1 u1 b -- ca2 u2 )
 \G Search for <b> in ca1/u1.
    >R
@@ -116,7 +131,7 @@ DECIMAL
 
 : -TRAILING ( ca u1 -- ca u2 )
 \G Strip trailing whitespace.
-   BEGIN 2DUP $LAST SPACE?
+   BEGIN 2DUP $LAST ?BLANK
          OVER       0<>    AND
    WHILE 1-
    REPEAT ;
@@ -124,7 +139,7 @@ DECIMAL
 : -LEADING ( ca1 u1 -- ca2 u2 )
 \G Strip leading whitespace.
    BEGIN
-      OVER C@ SPACE?
+      OVER C@ ?BLANK
       OVER    0<>    AND
    WHILE 1- >R CHAR+ R>
    REPEAT ;
