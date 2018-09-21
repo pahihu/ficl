@@ -91,7 +91,7 @@
 
 : CLEAR ( i*x -- )
 \G Clear parameter stack.
-   DEPTH 0 DO  DROP  LOOP ;
+   DEPTH 0 ?DO  DROP  LOOP ;
 
 : UNDER1+ ( x1 x2 -- x1' x2 )
 \G Add 1 to NOS.

@@ -13,6 +13,11 @@
    CREATE ['] NOOP ,
    DOES>  @EXECUTE ;
 
+: BEHAVIOR ( xt1 -- xt2 )
+\G Retrieve <xt2> the word currently associated with the
+\G deferred word <xt1>.
+   >BODY @ ;
+
 0 [IF] =========================================================
 
 Extend deferred word. Make NONAME def calling previous

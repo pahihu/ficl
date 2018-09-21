@@ -64,6 +64,10 @@ PI 180.0e F/ FCONSTANT PI/180
    ?FLOAT NEGATE ;
 +WARNING
 
+: FCLEAR ( F: i*r -- )
+\G Empty FP stack.
+   FDEPTH 0 ?DO  FDROP  LOOP ;
+
 PREVIOUS
 
 [THEN]

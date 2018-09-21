@@ -8,7 +8,7 @@ SOURCES += srcline.fs tester.fr toolbelt.fr switch.fr struct.fth sfcompat.fs
 SOURCES += bitwise.fs circ-pad.fs missing.fs floats.fs dshift.fs
 SOURCES += cond.fs systack.fs strarray.fs strops.fs strconst.f
 SOURCES += numcvt.fs defer.fth timedate.fs tofcompat.fs
-SOURCES += words.fs lose.fs
+SOURCES += words.fs lose.fs clf.fs comus.fs
 	
 
 ../softcore.c: makesoftcore $(SOURCES)

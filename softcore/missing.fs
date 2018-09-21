@@ -267,8 +267,8 @@ set-current
 
 previous
 
-\ P.Falth
-: .. ( i*x -- )   .S  DEPTH 0 ?DO  DROP  LOOP ;
+\ P.Falth, W.Baden
+: .. ( i*x -- )   DEPTH IF  .S  0 DO DROP LOOP  THEN ;
 
 \ strings
 : $VARIABLE ( len "name" -- )
