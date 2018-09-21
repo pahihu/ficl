@@ -15,9 +15,9 @@
 \G Shortcut logical OR.
    S" DUP 0= IF DROP" EVALUATE ; IMMEDIATE
 
-: CASEOF ( n lit -- n )
-\G Simple CASE branch.
-   S" OVER = IF" EVALUATE ; IMMEDIATE
+: CASE? ( n lit -- true | n false )
+\G Alternative CASE branch.
+   OVER = DUP IF  NIP  THEN ;
 
 0 [IF] =========================================================
 
@@ -35,5 +35,25 @@ THENS
 IF
 ELSE
 THEN
+
+: [PUT_CHAR] ( char -- 0..3 )
+         BL CASE? IF  1  EXIT THEN
+   [CHAR] { CASE? IF  2  EXIT THEN
+   [CHAR] } CASE? IF  3  EXIT THEN
+   DROP 0 ;
+
+: [PUT_CHAR] ( char -- 0..3 )
+         BL CASE? IF  1  ELSE
+   [CHAR] { CASE? IF  2  ELSE
+   [CHAR] } CASE? IF  3  ELSE
+   DROP 0  THEN THEN THEN ;
+
+: [PUT_CHAR] ( char -- 0..3 )
+   COND
+            BL CASE? IF  1  ELSE
+      [CHAR] { CASE? IF  2  ELSE
+      [CHAR] } CASE? IF  3  ELSE
+      DROP 0
+   THENS ;
 
 ========================================================= [THEN]
