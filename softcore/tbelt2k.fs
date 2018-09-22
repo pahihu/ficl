@@ -142,9 +142,6 @@ AKA CELLS+ TH
    BL WORD COUNT EVALUATE
    S" + " EVALUATE ; IMMEDIATE
 
-/CELL 8 = OPTION \64
-/CELL 4 = OPTION \32
-
 : HIWORD ( xxyy -- xx )
 \G High half of value.
 \64 QSPLIT
