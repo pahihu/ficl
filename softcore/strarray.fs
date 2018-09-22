@@ -14,7 +14,7 @@
 : STRING-ARRAY ( -- )   0 ;
 
 : $" ( i*caI n "string" -- [i+1]*caI [n+1] )
-   '" WORD COUNT  HERE >R  DUP C, $,
+   [CHAR] " WORD COUNT  HERE >R  DUP C, STRING,
    R> SWAP 1+ ;
 
 : END-STRING-ARRAY ( i*caddrI n "name" -- )

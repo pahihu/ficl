@@ -1,4 +1,4 @@
-.( loading COMUS ) CR
+.( loading COMUS -- L.Wong ) CR
 
 : MACRO ( "name <char> ccc<char>" -- )
 \G Define a macro.

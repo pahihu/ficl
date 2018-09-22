@@ -60,8 +60,8 @@ DECIMAL
 : BLANK ( a u -- ) bl fill ;
 : TEXT ( delim -- ) pad 258 blank  word count pad swap  move ;
 
-: $, ( ca n -- ) here over allot  swap move ;
-: ," ( "string" -- ) [char] " word count $, ;
+: STRING, ( ca n -- )   here over chars allot  swap move ;
+: ," ( "string" -- )   [char] " word count string, ;
 : /STRING ( ca1 u1 +n -- ca2 u2 ) \ remove +n chars from sc
    over
    IF 0 max  over min
@@ -121,7 +121,7 @@ DECIMAL
    WHILE  1-
    REPEAT R> DROP ;
 
-: -SCAN ( ca u1 b -- ca u2 )
+: BACK ( ca u1 b -- ca u2 )
 \G Scan backwards for char <b> in ca/u1.
    >R
    BEGIN  2DUP $LAST R@   <>
@@ -268,7 +268,7 @@ set-current
 previous
 
 \ P.Falth, W.Baden
-: .. ( i*x -- )   DEPTH IF  .S  0 DO DROP LOOP  THEN ;
+: .. ( i*x -- )   DEPTH ?DUP IF  .S  0 DO DROP LOOP  THEN ;
 
 \ strings
 : $VARIABLE ( len "name" -- )
@@ -294,7 +294,7 @@ previous
 \G Print string.
    $COUNT TYPE ;
 
-: $APPENDC ( c sa -- )
+: $APPEND-CHAR ( c sa -- )
 \G Append char <c> to string <sa>.
    1 OVER +!  $COUNT 1- CHARS+ C! ;
 
