@@ -163,11 +163,15 @@ DECIMAL
 : U.R ( u m -- ) >r (u.) r> type.r ;
 : .R ( n m -- ) >r (.) r> type.r ;
 
+-WARNING
+: #> ( d . -- ca n ) #> >pad ;
+: . ( n -- ) (.) type space ;
++WARNING
+
 : UD. ( u -- ) (ud.) type space ;
 : D. ( d -- ) (d.) type space ;
 : UD.R ( d m -- ) >r (ud.) r> type.r ;
 : D.R ( d m -- ) >r (d.) r> type.r ;
-\ tuck dabs <# ... rot sign #>
 
 : UMAX ( u1 u2 -- u ) 2dup u< IF swap THEN drop ;
 : UM+ ( u1 u2 -- ud ) over +  dup rot  u< abs ;
