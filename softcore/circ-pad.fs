@@ -5,25 +5,22 @@
 
 \ ANEW -circ-pad
 
+S" /PAD" ENVIRONMENT? DROP CONSTANT /PAD
+
 hide
 
-128 CONSTANT #SIZE
   7 CONSTANT #SLOTS	\ number of circular PADs, should be 2^n-1
-    VARIABLE #PAD	\ current PAD index
+    CREATE #PAD 0 ,	\ current PAD index
 
-CREATE pad-area #SLOTS #SIZE * allot
+CREATE pad-area #SLOTS /PAD * allot
 
 set-current
-
-: /PAD ( -- )
-\G Reset PAD area.
-   0 #pad ! ;
 
 -WARNING
 
 : PAD ( -- caddr )
 \G Return current PAD address <caddr>.
-   pad-area  #pad @ #SIZE * + ;
+   pad-area  #pad @ /PAD * + ;
    
 +WARNING
 
@@ -37,5 +34,3 @@ set-current
    +pad swap dup >r move  pad r> ;
 
 previous
-
-/PAD

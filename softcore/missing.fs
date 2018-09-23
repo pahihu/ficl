@@ -109,14 +109,14 @@ DECIMAL
    WHILE  1- >R CHAR+ R>
    REPEAT R> DROP ;
 
-: $LAST ( ca u -- b )
+: END-C@ ( ca u -- b )
 \G Last char of string ca/u.
    DUP IF 1- CHARS THEN + C@ ;
 
 : -SKIP ( ca u1 b -- ca u2 )
 \G Remove trailing <b> chars from ca/u1.
    >R
-   BEGIN  2DUP $LAST R@  =
+   BEGIN  2DUP END-C@ R@  =
           OVER           0<> AND
    WHILE  1-
    REPEAT R> DROP ;
@@ -124,14 +124,14 @@ DECIMAL
 : BACK ( ca u1 b -- ca u2 )
 \G Scan backwards for char <b> in ca/u1.
    >R
-   BEGIN  2DUP $LAST R@   <>
+   BEGIN  2DUP END-C@ R@   <>
           OVER           0<> AND
    WHILE  1-
    REPEAT R> DROP ;
 
 : -TRAILING ( ca u1 -- ca u2 )
 \G Strip trailing whitespace.
-   BEGIN 2DUP $LAST ?BLANK
+   BEGIN 2DUP END-C@ ?BLANK
          OVER       0<>    AND
    WHILE 1-
    REPEAT ;

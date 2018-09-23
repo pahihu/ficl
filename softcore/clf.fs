@@ -7,8 +7,8 @@
 /CELL 8 = OPTION \64
 /CELL 4 = OPTION \32
 
-: +STRING ( ca1 n1 ca2 n2 -- ca2 n1+n2 )
-\G Append <ca1/n1> to <ca2/n2>, return <ca2/n1+n2>.
+: +STRING ( src n1 dst n2 -- dst n1+n2 )
+\G Append <src/n1> to <dst/n2>, return <dst/n1+n2>. [OTA]
    2DUP 2>R  CHARS+ SWAP  DUP R> + >R  MOVE  2R> ;
 
 : >CELLS ( #bytes -- #cells )
