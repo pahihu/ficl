@@ -1179,6 +1179,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
 #ifdef FICL_USE_STRTOD
     char buff[128], *endptr, *ptr;
     int dynamic;
+    extern double gay_strtod(const char *, char **);
 #endif
 
 
@@ -1216,7 +1217,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
         length--;
     ptr[length] = '\0';
 
-    accum = strtod(ptr, &endptr);
+    accum = gay_strtod(ptr, &endptr);
 
     if (dynamic)
         free(ptr);

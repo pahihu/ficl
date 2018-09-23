@@ -137,6 +137,30 @@ int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
     return rc;
 }
 
+#ifdef FICL_USE_STRTOD
+
+pthread_mutex_t dtoaMutex0;
+pthread_mutex_t dtoaMutex1;
+
+int ficlDTOALock(int n, ficlUnsigned lockIncrement)
+{
+    static pthread_mutex_t *mutexes[] = {
+        &dtoaMutex0,
+        &dtoaMutex1
+    };
+
+    int rc = 0;
+
+    if (n < 2)
+        rc = pthread_mutex_unlock(mutexes[n]);
+    else
+        rc = pthread_mutex_unlock(mutexes[n]);
+
+    return rc;
+}
+
+#endif
+
 #endif
 
 int main(int argc, char **argv)
@@ -168,6 +192,10 @@ int main(int argc, char **argv)
 #if FICL_WANT_MULTITHREADED
     recursiveMutexInit(&dictionaryMutex);
     recursiveMutexInit(&systemMutex);
+#ifdef FICL_USE_STRTOD
+    recursiveMutexInit(&dtoaMutex0);
+    recursiveMutexInit(&dtoaMutex1);
+#endif
 #endif
 
     f_system = ficlSystemCreate(&fsi);
@@ -235,6 +263,10 @@ int main(int argc, char **argv)
 #if FICL_WANT_MULTITHREADED
     pthread_mutex_destroy(&dictionaryMutex);
     pthread_mutex_destroy(&systemMutex);
+#ifdef FICL_USE_STRTOD
+    pthread_mutex_destroy(&dtoaMutex0);
+    pthread_mutex_destroy(&dtoaMutex1);
+#endif
 #endif
 
     ficlSystemDestroy(f_system);

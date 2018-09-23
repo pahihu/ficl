@@ -1,18 +1,18 @@
-OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o ansi.o utility.o hash.o callback.o word.o extras.o bswap.o ficlblas.o mt19937ar.o mt19937-64.o
-HEADERS= ficl.h ficlplatform/ansi.h
-#
 # Flags for shared library
 TARGET=  -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
 SHFLAGS = -fPIC
 OPTFLAGS = -O
-MFLAGS  =
 LIBM    = -lm
 # MFLAGS  = -DFICL_USE_FDLIBM -Ifdlibm53 -DFICL_USE_STRTOD
 # LIBM    = fdlibm53/libfdm.a
+# DTOAO	  = dtoa.o
 CFLAGS= $(OPTFLAGS) $(SHFLAGS) $(TARGET) $(MFLAGS)
 CC=gcc
 LIB = ar cr
 RANLIB = ranlib
+
+OBJECTS= dictionary.o system.o fileaccess.o float.o double.o prefix.o search.o softcore.o stack.o tools.o vm.o primitives.o bit.o lzuncompress.o ansi.o utility.o hash.o callback.o word.o extras.o bswap.o ficlblas.o mt19937ar.o mt19937-64.o $(DTOAO)
+HEADERS= ficl.h ficlplatform/ansi.h
 
 MAJOR = 4
 MINOR = 2.0

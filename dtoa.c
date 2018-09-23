@@ -209,6 +209,29 @@
  *	used for input more than STRTOD_DIGLIM digits long (default 40).
  */
 
+#include "ficl.h"
+
+#ifdef __ppc__
+#define IEEE_MC68k
+#else
+#define IEEE_8087
+#endif
+
+#ifdef __LP64__
+#define Long int
+#endif
+
+#define NO_HEX_FP
+
+#if FICL_WANT_MULTITHREADED
+extern int ficlDTOALock(int,ficlUnsigned);
+#define MULTIPLE_THREADS
+#define ACQUIRE_DTOA_LOCK(n)	ficlDTOALock(n,FICL_TRUE)
+#define FREE_DTOA_LOCK(n)	ficlDTOALock(n,FICL_FALSE)
+#define dtoa_get_threadno	pthread_self
+#endif
+
+
 #ifndef Long
 #define Long int
 #endif
@@ -1502,8 +1525,8 @@ static unsigned int maxthreads = 0;
 #define Kmax 7
 
 #ifdef __cplusplus
-extern "C" double strtod(const char *s00, char **se);
-extern "C" char *dtoa(double d, int mode, int ndigits,
+extern "C" double gay_strtod(const char *s00, char **se);
+extern "C" char *gay_dtoa(double d, int mode, int ndigits,
 			int *decpt, int *sign, char **rve);
 #endif
 
@@ -1556,7 +1579,7 @@ set_max_dtoa_threads(unsigned int n)
  static ThInfo*
 get_TI(void)
 {
-	unsigned int thno = dtoa_get_threadno();
+	unsigned int thno = maxthreads + 1 /*dtoa_get_threadno()*/;
 	if (thno < maxthreads)
 		return TI1 + thno;
 	if (thno == 0)
@@ -3429,7 +3452,7 @@ retlow1:
 #endif /* NO_STRTOD_BIGCOMP */
 
  double
-strtod(const char *s00, char **se)
+gay_strtod(const char *s00, char **se)
 {
 	int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, e, e1;
 	int esign, i, j, k, nd, nd0, nf, nz, nz0, nz1, sign;
@@ -4950,7 +4973,7 @@ freedtoa(char *s)
  */
 
  char *
-dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char *buf, size_t blen)
+gay_dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char *buf, size_t blen)
 {
  /*	Arguments ndigits, decpt, sign are similar to those
 	of ecvt and fcvt; trailing zeros are suppressed from
@@ -6185,7 +6208,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 	}
 
  char *
-dtoa(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
+gay_dtoa(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
 {
 	/*	Sufficient space is allocated to the return value
 		to hold the suppressed trailing zeros.
@@ -6195,7 +6218,7 @@ dtoa(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
 	if (dtoa_result)
 		freedtoa(dtoa_result);
 #endif
-	return dtoa_r(dd, mode, ndigits, decpt, sign, rve, 0, 0);
+	return gay_dtoa_r(dd, mode, ndigits, decpt, sign, rve, 0, 0);
 	}
 
 #ifdef __cplusplus
