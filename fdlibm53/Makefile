@@ -51,7 +51,7 @@ TARGET = libfdm.a
 #
 # Default IEEE libm
 #
-CFLAGS = -D_IEEE_LIBM -D__LITTLE_ENDIAN
+CFLAGS = -D_IEEE_LIBM
 
 CC = cc
 
