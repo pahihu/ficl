@@ -168,6 +168,14 @@ DECIMAL
 : . ( n -- ) (.) type space ;
 +WARNING
 
+: HOLDS ( ca u -- )
+\G Hold string in conversion buffer.
+   DUP >R  1- CHARS+  R>
+   BEGIN  ?DUP  WHILE
+      OVER C@ HOLD
+      1- SWAP CHAR- SWAP
+   REPEAT  DROP ;
+
 : UD. ( u -- ) (ud.) type space ;
 : D. ( d -- ) (d.) type space ;
 : UD.R ( d m -- ) >r (ud.) r> type.r ;
@@ -342,3 +350,5 @@ set-current
 	PAD $COUNT  EVALUATE ;
 
 previous
+
+\ vim:ts=3:sw=3:et
