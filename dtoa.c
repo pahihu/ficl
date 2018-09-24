@@ -211,7 +211,7 @@
 
 #include "ficl.h"
 
-#ifdef __ppc__
+#ifdef __PPC__
 #define IEEE_MC68k
 #else
 #define IEEE_8087
