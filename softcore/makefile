@@ -1,3 +1,4 @@
+CC = cc -m64
 SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 # SOURCES += oo.fr classes.fr string.fr
 # SOURCES += preswoop.fr swoop.fr swoopex.fr
@@ -15,8 +16,8 @@ SOURCES += words.fs lose.fs clf.fs comus.fs tbelt2k.fs
 	./makesoftcore $(SOURCES)
 
 makesoftcore: makesoftcore.c ../lzcompress.c ../bit.c
-	$(CC) -m64 -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
+	$(CC) -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
 
 clean: 
-	- rm ../softcore.c *.o makesoftcore
+	$(RM) ../softcore.c *.o makesoftcore
 

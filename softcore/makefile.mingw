@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc -m64
 EXE=.exe
 SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 # SOURCES += oo.fr classes.fr string.fr
@@ -17,7 +17,7 @@ SOURCES += words.fs lose.fs clf.fs comus.fs tbelt2k.fs
 	./makesoftcore$(EXE) $(SOURCES)
 
 makesoftcore$(EXE): makesoftcore.c ../lzcompress.c ../bit.c
-	$(CC) -m64 -DWIN32 -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
+	$(CC) -DWIN32 -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
 
 clean: 
 	$(RM) ../softcore.c *.o makesoftcore$(EXE)
