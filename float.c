@@ -517,17 +517,15 @@ static void ficlPrimitiveRepresent(ficlVm *vm)
 
 /*******************************************************************
 ** Display a float in decimal format.
-** f. ( r -- )
+** (f.) ( F: r -- )
 *******************************************************************/
-static void ficlPrimitiveFDot(ficlVm *vm)
+static void ficlPrivateFDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
     int i, prec, len, rSign, rExp;
     char *pHold;
     char tmp[32];
-
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     len  = 0;
     prec = vm->precision;
@@ -584,20 +582,48 @@ static void ficlPrimitiveFDot(ficlVm *vm)
             vm->pad[++len] = ' ';
             vm->pad[++len] = '\0';
     }
+}
+
+/*******************************************************************
+** Display a float in decimal format.
+** (f.) ( F: r -- ) ( -- c-addr len )
+*******************************************************************/
+static void ficlPrimitiveParenFDot(ficlVm *vm)
+{
+    ficlInteger len;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 0, 2);
+
+    ficlPrivateFDot(vm);
+    
+    ficlStackPushPointer(vm->dataStack, vm->pad);
+    len = strlen(vm->pad);
+    if (len) len--;
+    ficlStackPushInteger(vm->dataStack, len);
+}
+
+/*******************************************************************
+** Display a float in decimal format.
+** f. ( r -- )
+*******************************************************************/
+static void ficlPrimitiveFDot(ficlVm *vm)
+{
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ficlPrivateFDot(vm);
     ficlVmTextOut(vm, vm->pad);
 }
 
 /*******************************************************************
 ** Display a float in scientific format.
-** fs. ( r -- )
+** (fs.) ( F: r -- )
 *******************************************************************/
-static void ficlPrimitiveSDot(ficlVm *vm)
+static void ficlPrivateFSDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
     int prec, len, rSign, rExp;
-
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
     len  = 0;
     prec = vm->precision;
@@ -623,6 +649,36 @@ static void ficlPrimitiveSDot(ficlVm *vm)
             rDisp *= pow(10.0, 1 - prec);
             sprintf(vm->pad + len, "%.*fE%d ", prec - 1, rDisp, rExp);
     }
+}
+
+/*******************************************************************
+** Display a float in scientific format.
+** (fs.) ( F: r -- ) ( -- c-addr len )
+*******************************************************************/
+static void ficlPrimitiveParenFSDot(ficlVm *vm)
+{
+    ficlInteger len;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 0, 2);
+
+    ficlPrivateFSDot(vm);
+
+    ficlStackPushPointer(vm->dataStack, vm->pad);
+    len = strlen(vm->pad);
+    if (len) len--;
+    ficlStackPushInteger(vm->dataStack, len);
+}
+
+/*******************************************************************
+** Display a float in scientific format.
+** fs. ( r -- )
+*******************************************************************/
+static void ficlPrimitiveFSDot(ficlVm *vm)
+{
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
+    ficlPrivateFSDot(vm);
     ficlVmTextOut(vm, vm->pad);
 }
 
@@ -1533,9 +1589,11 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f2value",  ficlPrimitiveF2Constant,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fdepth",    ficlPrimitiveFDepth,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fliteral",  ficlPrimitiveFLiteralImmediate,     FICL_WORD_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "(f.)",      ficlPrimitiveParenFDot,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "(fs.)",     ficlPrimitiveParenFSDot,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.",        ficlPrimitiveFDot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fs.",       ficlPrimitiveFSDot,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,     FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fs.",       ficlPrimitiveSDot,           FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "fsqrt",     ficlPrimitiveFSqrt,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "float+",    ficlPrimitiveFloatPlus,      FICL_WORD_DEFAULT);

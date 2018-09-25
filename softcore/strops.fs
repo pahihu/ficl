@@ -131,7 +131,7 @@
 
 : $.R ( ca u n -- )
 \G Display ca/u in a field of n chars width.
-   over - >R  type  R> spaces ;
+   ($.R) TYPE ;
 
 : ASCII ( "ccc" - n )
    STATE @ IF  POSTPONE [CHAR]  ELSE  CHAR  THEN ; IMMEDIATE

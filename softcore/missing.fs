@@ -154,20 +154,6 @@ DECIMAL
 
 : $DUMP ( ca n -- ca n ) 2dup cr ." [" type ." ]" ;
 
-: DABS ( d -- d ) dup 0< IF  dnegate  THEN ;
-: (UD.) ( ud -- ca n ) <# #s #> >pad ;
-: (D.) ( d -- ca n ) dup >r dabs <# #s r> sign #> >pad ;
-: (.)  ( n -- ca n ) s>d (d.) ;
-: (U.) ( n -- ca n ) 0 (ud.) ;
-: TYPE.R ( ca n m -- ) over - 0 max spaces  type ;
-: U.R ( u m -- ) >r (u.) r> type.r ;
-: .R ( n m -- ) >r (.) r> type.r ;
-
--WARNING
-: #> ( d . -- ca n ) #> >pad ;
-: . ( n -- ) (.) type space ;
-+WARNING
-
 : HOLDS ( ca u -- )
 \G Hold string in conversion buffer.
    DUP >R  1- CHARS+  R>
@@ -176,10 +162,45 @@ DECIMAL
       1- SWAP CHAR- SWAP
    REPEAT  DROP ;
 
-: UD. ( u -- ) (ud.) type space ;
-: D. ( d -- ) (d.) type space ;
-: UD.R ( d m -- ) >r (ud.) r> type.r ;
-: D.R ( d m -- ) >r (d.) r> type.r ;
+: $MOVUP ( ca n m -- )
+\G Move string <ca/n> m chars up.
+   SWAP >R           ( ca m )( R: n )
+   OVER SWAP CHARS+  ( ca ca+m)( R: n )
+   R>  MOVE ;
+
+: ($.R) ( ca n m -- ca n+?m )
+\G Right align string <ca/n> in a field of <m>.
+   OVER - 0 MAX ( ca n #bl)
+   DUP
+   IF   3DUP $MOVUP
+        SWAP >R 2DUP BLANK R>
+   THEN
+   + ;
+
+-WARNING
+: #> ( d . -- ca n )   #> >PAD ;
++WARNING
+
+: DABS ( d -- d )   DUP 0< if  DNEGATE  THEN ;
+: (UD.) ( ud -- ca n )   <# #S #> ;
+: (D.) ( d -- ca n )   DUP >R DABS  <# #S R> SIGN #> ;
+: (.)  ( n -- ca n )   S>D (D.) ;
+: (U.) ( n -- ca n )   0 (UD.) ;
+: (U.R) ( u m -- ca #)   >R (U.) R> ($.R) ;
+: U.R ( u m -- )   (U.R) TYPE ;
+: (.R) ( n m -- ca #)   >R (.) R> ($.R) ;
+: .R ( n m -- )   (.R) TYPE ;
+
+-WARNING
+: . ( n -- )   (.) TYPE SPACE ;
++WARNING
+
+: UD. ( u -- )   (UD.) TYPE SPACE ;
+: D. ( d -- )   (D.) TYPE SPACE ;
+: (UD.R) ( d m -- ca # )   >R (UD.) R> ($.R) ;
+: UD.R ( ud m -- )   (UD.R) TYPE ;
+: (D.R) ( d m -- ca n )   >R (D.) R> ($.R) ;
+: D.R ( d m -- )   (D.R) TYPE ;
 
 : UMAX ( u1 u2 -- u ) 2dup u< IF swap THEN drop ;
 : UM+ ( u1 u2 -- ud ) over +  dup rot  u< abs ;
