@@ -168,7 +168,7 @@ DECIMAL
    OVER SWAP CHARS+  ( ca ca+m)( R: n )
    R>  MOVE ;
 
-: ($.R) ( ca n m -- ca n+?m )
+: RJUSTIFY ( ca n m -- ca n+?m )
 \G Right align string <ca/n> in a field of <m>.
 \G Modifies buffer <ca> in place!
    OVER - 0 MAX ( ca n #bl)
@@ -183,9 +183,9 @@ DECIMAL
 : (D.) ( d -- ca n )   DUP >R DABS  <# #S R> SIGN #> ;
 : (.)  ( n -- ca n )   S>D (D.) ;
 : (U.) ( n -- ca n )   0 (UD.) ;
-: (U.R) ( u m -- ca #)   >R (U.) R> ($.R) ;
+: (U.R) ( u m -- ca #)   >R (U.) R> RJUSTIFY ;
 : U.R ( u m -- )   (U.R) TYPE ;
-: (.R) ( n m -- ca #)   >R (.) R> ($.R) ;
+: (.R) ( n m -- ca #)   >R (.) R> RJUSTIFY ;
 : .R ( n m -- )   (.R) TYPE ;
 
 -WARNING
@@ -194,9 +194,9 @@ DECIMAL
 
 : UD. ( u -- )   (UD.) TYPE SPACE ;
 : D. ( d -- )   (D.) TYPE SPACE ;
-: (UD.R) ( d m -- ca # )   >R (UD.) R> ($.R) ;
+: (UD.R) ( d m -- ca # )   >R (UD.) R> RJUSTIFY ;
 : UD.R ( ud m -- )   (UD.R) TYPE ;
-: (D.R) ( d m -- ca n )   >R (D.) R> ($.R) ;
+: (D.R) ( d m -- ca n )   >R (D.) R> RJUSTIFY ;
 : D.R ( d m -- )   (D.R) TYPE ;
 
 : UMAX ( u1 u2 -- u ) 2dup u< IF swap THEN drop ;

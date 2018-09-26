@@ -113,9 +113,9 @@
         ELSE  zero
         THEN ;
 
-: $.R ( ca u n -- )
+: TYPE.R ( ca u n -- )
 \G Display ca/u in a field of n chars width.
-   ($.R) TYPE ;
+   RJUSTIFY TYPE ;
 
 : ASCII ( "ccc" - n )
    STATE @ IF  POSTPONE [CHAR]  ELSE  CHAR  THEN ; IMMEDIATE
