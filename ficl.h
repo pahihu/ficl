@@ -1095,8 +1095,9 @@ struct ficlVm
 #if FICL_WANT_USER
     char            user[FICL_USER_CELLS * sizeof(ficlCell)];
 #endif
-    char            pad[FICL_PAD_SIZE];  /* the scratch area (see above)     */
-    ficlFile       *outFile;     /* output file                      */ 
+    char            Pad[FICL_PAD_SIZE];  /* the scratch area (see above) */
+    char            pob[FICL_PAD_SIZE];  /* pictured output buffer       */
+    ficlFile       *outFile;             /* output file                  */ 
 #if FICL_WANT_MULTITHREADED
     volatile ficlUnsigned    threadActive;
     pthread_t       threadID;

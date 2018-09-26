@@ -170,16 +170,13 @@ DECIMAL
 
 : ($.R) ( ca n m -- ca n+?m )
 \G Right align string <ca/n> in a field of <m>.
+\G Modifies buffer <ca> in place!
    OVER - 0 MAX ( ca n #bl)
    DUP
    IF   3DUP $MOVUP
         SWAP >R 2DUP BLANK R>
    THEN
    + ;
-
--WARNING
-: #> ( d . -- ca n )   #> >PAD ;
-+WARNING
 
 : DABS ( d -- d )   DUP 0< if  DNEGATE  THEN ;
 : (UD.) ( ud -- ca n )   <# #S #> ;

@@ -2980,7 +2980,7 @@ ficlString ficlVmGetWord0(ficlVm *vm)
 int ficlVmGetWordToPad(ficlVm *vm)
 {
     ficlString s;
-    char *pad = (char *)vm->pad;
+    char *pad = (char *)vm->Pad;
     s = ficlVmGetWord(vm);
 
     if (FICL_STRING_GET_LENGTH(s) > FICL_PAD_SIZE)
@@ -3126,7 +3126,7 @@ void ficlVmQuit(ficlVm *vm)
     vm->tib.text    = NULL;
     vm->tib.end     = NULL;
     vm->tib.index   = 0;
-    vm->pad[0]      = '\0';
+    vm->Pad[0]      = '\0';
     vm->sourceId.i  = 0;
     return;
 }
@@ -3215,11 +3215,11 @@ void ficlVmThrowError(ficlVm *vm, char *fmt, ...)
     va_list list;
 
     va_start(list, fmt);
-    vsprintf(vm->pad, fmt, list);
+    vsprintf(vm->Pad, fmt, list);
     va_end(list);
-    strcat(vm->pad, "\n");
+    strcat(vm->Pad, "\n");
 
-    ficlVmErrorOut(vm, vm->pad);
+    ficlVmErrorOut(vm, vm->Pad);
     ficlVmDisplayReturnStack(vm);
     longjmp(*(vm->exceptionHandler), FICL_VM_STATUS_ERROR_EXIT);
 }
@@ -3227,12 +3227,12 @@ void ficlVmThrowError(ficlVm *vm, char *fmt, ...)
 
 void ficlVmThrowErrorVararg(ficlVm *vm, char *fmt, va_list list)
 {
-    vsprintf(vm->pad, fmt, list);
+    vsprintf(vm->Pad, fmt, list);
     /* well, we can try anyway, we're certainly not returning to our caller! */
     va_end(list);
-    strcat(vm->pad, "\n");
+    strcat(vm->Pad, "\n");
     
-    ficlVmErrorOut(vm, vm->pad);
+    ficlVmErrorOut(vm, vm->Pad);
     longjmp(*(vm->exceptionHandler), FICL_VM_STATUS_ERROR_EXIT);
 }
 

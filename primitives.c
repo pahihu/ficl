@@ -291,9 +291,9 @@ static void ficlPrimitiveDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
     c = ficlStackPop(vm->dataStack);
-    ficlLtoa((c).i, vm->pad, vm->base);
-    strcat(vm->pad, " ");
-    ficlVmTextOut(vm, vm->pad);
+    ficlLtoa((c).i, vm->pob, vm->base);
+    strcat(vm->pob, " ");
+    ficlVmTextOut(vm, vm->pob);
     return;
 }
 
@@ -304,9 +304,9 @@ static void ficlPrimitiveUDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
     u = ficlStackPopUnsigned(vm->dataStack);
-    ficlUltoa(u, vm->pad, vm->base);
-    strcat(vm->pad, " ");
-    ficlVmTextOut(vm, vm->pad);
+    ficlUltoa(u, vm->pob, vm->base);
+    strcat(vm->pob, " ");
+    ficlVmTextOut(vm, vm->pob);
     return;
 }
 
@@ -318,9 +318,9 @@ static void ficlPrimitiveHexDot(ficlVm *vm)
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
     u = ficlStackPopUnsigned(vm->dataStack);
-    ficlUltoa(u, vm->pad, 16);
-    strcat(vm->pad, " ");
-    ficlVmTextOut(vm, vm->pad);
+    ficlUltoa(u, vm->pob, 16);
+    strcat(vm->pob, " ");
+    ficlVmTextOut(vm, vm->pob);
     return;
 }
 
@@ -515,7 +515,7 @@ static void ficlPrimitiveDepth(ficlVm *vm)
 
 static void ficlPrimitiveEmit(ficlVm *vm)
 {
-    char *buffer = vm->pad;
+    char buffer[8];
     int i;
 
 
@@ -1417,9 +1417,9 @@ static void ficlPrimitiveDotQuoteCoIm(ficlVm *vm)
 
 static void ficlPrimitiveDotParen(ficlVm *vm)
 {
-    char *from      = ficlVmGetInBuf(vm);
-    char *stop      = ficlVmGetInBufEnd(vm);
-    char *to     = vm->pad;
+    char *from   = ficlVmGetInBuf(vm);
+    char *stop   = ficlVmGetInBufEnd(vm);
+    char *to     = vm->Pad;
     char c;
 
     /*
@@ -1432,7 +1432,7 @@ static void ficlPrimitiveDotParen(ficlVm *vm)
     if ((from != stop) && (c == ')'))
         from++;
 
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->Pad);
     ficlVmUpdateTib(vm, from);
         
     return;
@@ -1618,7 +1618,7 @@ static void ficlPrimitiveRightBracket(ficlVm *vm)
 **************************************************************************/
 static void ficlPrimitiveLessNumberSign(ficlVm *vm)
 {
-    ficlCountedString *counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    ficlCountedString *counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     counted->length = 0;
     return;
 }
@@ -1639,7 +1639,7 @@ static void ficlPrimitiveNumberSign(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 2, 2);
 
-    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     u = ficlStackPop2Unsigned(vm->dataStack);
     uqr = ficl2UnsignedDivide(u, (ficlUnsigned16)(vm->base));
     counted->text[counted->length++] = ficlDigitToCharacter(uqr.remainder);
@@ -1659,7 +1659,7 @@ static void ficlPrimitiveNumberSignGreater(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 2, 2);
 
-    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     counted->text[counted->length] = 0;
     ficlStringReverse(counted->text);
     ficlStackDrop(vm->dataStack, 2);
@@ -1683,7 +1683,7 @@ static void ficlPrimitiveNumberSignS(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 2, 2);
 
-    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     u = ficlStackPop2Unsigned(vm->dataStack);
 
     do 
@@ -1710,7 +1710,7 @@ static void ficlPrimitiveHold(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
-    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     i = ficlStackPopInteger(vm->dataStack);
     counted->text[counted->length++] = (char) i;
     return;
@@ -1729,7 +1729,7 @@ static void ficlPrimitiveSign(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
-    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pad);
+    counted = FICL_POINTER_TO_COUNTED_STRING(vm->pob);
     i = ficlStackPopInteger(vm->dataStack);
     if (i < 0)
         counted->text[counted->length++] = '-';
@@ -2234,7 +2234,7 @@ static void ficlPrimitiveWord(ficlVm *vm)
     FICL_STACK_CHECK(vm->dataStack, 1, 1);
 
 
-    counted = (ficlCountedString *)vm->pad;
+    counted = (ficlCountedString *)vm->Pad;
     delim = (char)ficlStackPopInteger(vm->dataStack);
     name = ficlVmParseStringEx(vm, delim, 1);
 
@@ -2998,7 +2998,7 @@ static void ficlPrimitiveDNegate(ficlVm *vm)
 **************************************************************************/
 static void ficlPrimitivePad(ficlVm *vm)
 {
-    ficlStackPushPointer(vm->dataStack, vm->pad);
+    ficlStackPushPointer(vm->dataStack, vm->Pad);
 }
 
 

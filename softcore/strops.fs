@@ -72,22 +72,6 @@
       [ char a  char A - ] literal +
    then ;
 
-: $upcase ( ca1 u1 -- ca2 u2 )
-\G Convert ca1/u1 to upper case. Returned string is at PAD.
-   +PAD drop
-   dup >R  0 ?DO
-      i chars over + c@ upcase
-      i chars PAD  + c!
-   LOOP  drop PAD R> ;
-
-: $lcase ( ca1 u1 -- ca2 u2 )
-\G Convert ca1/u1 to lowe case. Returned string is at PAD.
-   +PAD drop
-   dup >R  0 ?DO
-      i chars over + c@ lcase
-      i chars PAD  + c!
-   LOOP  drop PAD R> ;
-
 : zero ( x -- 0 )
 \G Replace x with zero.
    dup xor ;

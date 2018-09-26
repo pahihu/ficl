@@ -188,7 +188,7 @@ void ficlPrimitiveHashSummary(ficlVm *vm)
     nDepth = size * (nAvg * (nAvg+1))/2 + (nAvg+1)*nRem;
     best = (double)nDepth/nWords;
 
-    sprintf(vm->pad, 
+    sprintf(vm->Pad, 
         "%d bins, %2.0f%% filled, Depth: Max=%d, Avg=%2.1f, Best=%2.1f, Score: %2.0f%%\n", 
         size,
         (double)nFilled * 100.0 / size, nMax,
@@ -196,7 +196,7 @@ void ficlPrimitiveHashSummary(ficlVm *vm)
         best,
         100.0 * best / avg);
 
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->Pad);
 
     return;
 }
@@ -221,8 +221,8 @@ static void ficlPrimitiveSeeXT(ficlVm *vm)
     switch (kind)
     {
     case FICL_WORDKIND_COLON:
-        sprintf(vm->pad, ": %.*s\n", word->length, word->name);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, ": %.*s\n", word->length, word->name);
+        ficlVmTextOut(vm, vm->Pad);
         ficlDictionarySee(ficlVmGetDictionary(vm), word, &(vm->callback));
         break;
 
@@ -236,30 +236,30 @@ static void ficlPrimitiveSeeXT(ficlVm *vm)
         break;
 
     case FICL_WORDKIND_VARIABLE:
-        sprintf(vm->pad, "variable = %ld (%#lx)\n", word->param->i, word->param->u);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, "variable = %ld (%#lx)\n", word->param->i, word->param->u);
+        ficlVmTextOut(vm, vm->Pad);
         break;
 
 #if FICL_WANT_USER
     case FICL_WORDKIND_USER:
-        sprintf(vm->pad, "user variable %ld (%#lx)\n", word->param->i, word->param->u);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, "user variable %ld (%#lx)\n", word->param->i, word->param->u);
+        ficlVmTextOut(vm, vm->Pad);
         break;
 #endif
 
     case FICL_WORDKIND_CONSTANT:
-        sprintf(vm->pad, "constant = %ld (%#lx)\n", word->param->i, word->param->u);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, "constant = %ld (%#lx)\n", word->param->i, word->param->u);
+        ficlVmTextOut(vm, vm->Pad);
 		break;
 
     case FICL_WORDKIND_2CONSTANT:
-        sprintf(vm->pad, "constant = %ld %ld (%#lx %#lx)\n", word->param[1].i, word->param->i, word->param[1].u, word->param->u);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, "constant = %ld %ld (%#lx %#lx)\n", word->param[1].i, word->param->i, word->param[1].u, word->param->u);
+        ficlVmTextOut(vm, vm->Pad);
 		break;
 
     default:
-        sprintf(vm->pad, "%.*s is a primitive\n", word->length, word->name);
-        ficlVmTextOut(vm, vm->pad);
+        sprintf(vm->Pad, "%.*s is a primitive\n", word->length, word->name);
+        ficlVmTextOut(vm, vm->Pad);
         break;
     }
 
@@ -438,14 +438,14 @@ static void ficlPrimitiveStepBreak(ficlVm *vm)
         {
 			case FICL_WORDKIND_INSTRUCTION:
 			case FICL_WORDKIND_INSTRUCTION_WITH_ARGUMENT:
-				sprintf(vm->pad, "next: %s (instruction %ld)\n", ficlDictionaryInstructionNames[(long)word], (long)word);
+				sprintf(vm->Pad, "next: %s (instruction %ld)\n", ficlDictionaryInstructionNames[(long)word], (long)word);
 				break;
 			default:
-				sprintf(vm->pad, "next: %s\n", word->name);
+				sprintf(vm->Pad, "next: %s\n", word->name);
 				break;
 		}
 
-        ficlVmTextOut(vm, vm->pad);
+        ficlVmTextOut(vm, vm->Pad);
         ficlDebugPrompt(vm);
     }
     else
@@ -745,7 +745,7 @@ static void ficlPrimitiveWords(ficlVm *vm)
     unsigned i;
     int nWords = 0;
     char *cp;
-    char *pPad = vm->pad;
+    char *pPad = vm->Pad;
 
     for (i = 0; i < hash->size; i++)
     {
@@ -789,9 +789,9 @@ static void ficlPrimitiveWords(ficlVm *vm)
         ficlVmTextOut(vm, pPad);
     }
 
-    sprintf(vm->pad, "Dictionary: %d words, %ld cells used of %u total\n", 
+    sprintf(vm->Pad, "Dictionary: %d words, %ld cells used of %u total\n", 
         nWords, (long) (dictionary->here - dictionary->base), dictionary->size);
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->Pad);
     return;
 }
 
@@ -929,9 +929,9 @@ static void ficlPrimitiveListEnv(ficlVm *vm)
         }
     }
 
-    sprintf(vm->pad, "Environment: %d words, %ld cells used of %u total\n", 
+    sprintf(vm->Pad, "Environment: %d words, %ld cells used of %u total\n", 
         counter, (long) (dictionary->here - dictionary->base), dictionary->size);
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->Pad);
     return;
 }
 
@@ -975,7 +975,7 @@ static void ficlPrimitiveEnvConstant(ficlVm *vm)
 
     ficlVmGetWordToPad(vm);
     value = ficlStackPopUnsigned(vm->dataStack);
-    ficlDictionarySetConstant(ficlSystemGetEnvironment(vm->callback.system), vm->pad, (ficlUnsigned)value);
+    ficlDictionarySetConstant(ficlSystemGetEnvironment(vm->callback.system), vm->Pad, (ficlUnsigned)value);
     return;
 }
 
@@ -987,7 +987,7 @@ static void ficlPrimitiveEnv2Constant(ficlVm *vm)
 
     ficlVmGetWordToPad(vm);
     value = ficlStackPop2Integer(vm->dataStack);
-    ficlDictionarySet2Constant(ficlSystemGetEnvironment(vm->callback.system), vm->pad, value);
+    ficlDictionarySet2Constant(ficlSystemGetEnvironment(vm->callback.system), vm->Pad, value);
     return;
 }
 

@@ -46,7 +46,7 @@ static void ficlPrimitiveGetCwd(ficlVm *vm)
 */
 static void ficlPrimitiveChDir(ficlVm *vm)
 {
-    ficlCountedString *counted = (ficlCountedString *)vm->pad;
+    ficlCountedString *counted = (ficlCountedString *)vm->Pad;
     ficlVmGetString(vm, counted, '\n');
     if (counted->length > 0)
     {
@@ -95,7 +95,7 @@ static void ficlPrimitiveGetMSecs(ficlVm *vm)
 */
 static void ficlPrimitiveSystem(ficlVm *vm)
 {
-    ficlCountedString *counted = (ficlCountedString *)vm->pad;
+    ficlCountedString *counted = (ficlCountedString *)vm->Pad;
 
     ficlVmGetString(vm, counted, '\n');
     if (FICL_COUNTED_STRING_GET_LENGTH(*counted) > 0)
@@ -103,8 +103,8 @@ static void ficlPrimitiveSystem(ficlVm *vm)
         int returnValue = system(FICL_COUNTED_STRING_GET_POINTER(*counted));
         if (returnValue)
         {
-            sprintf(vm->pad, "System call returned %d\n", returnValue);
-            ficlVmTextOut(vm, vm->pad);
+            sprintf(vm->Pad, "System call returned %d\n", returnValue);
+            ficlVmTextOut(vm, vm->Pad);
             ficlVmThrow(vm, FICL_VM_STATUS_QUIT);
         }
     }
@@ -223,7 +223,7 @@ static void ficlPrimitiveSpewHash(ficlVm *vm)
     if (!ficlVmGetWordToPad(vm))
         ficlVmThrow(vm, FICL_VM_STATUS_OUT_OF_TEXT);
 
-    f = fopen(vm->pad, "w");
+    f = fopen(vm->Pad, "w");
     if (!f)
     {
         ficlVmTextOut(vm, "unable to open file\n");

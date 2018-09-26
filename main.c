@@ -86,8 +86,8 @@ static void sig_handler(int sig)
 {
 	if (SIG_ERR == signal (sig, sig_handler))
     {
-		sprintf(f_vm->pad, "Error: signal reinstall failed\n");
-		ficlVmErrorOut(f_vm, f_vm->pad);
+		sprintf(f_vm->Pad, "Error: signal reinstall failed\n");
+		ficlVmErrorOut(f_vm, f_vm->Pad);
 	}
 	longjmp (mainLoop, sig);
 }
@@ -216,8 +216,8 @@ int main(int argc, char **argv)
     gotSignal = 0;
 	if ((sig = setjmp(mainLoop)))
     {
-	    sprintf(f_vm->pad, "Error: got signal (%d)\n", sig);
-		ficlVmErrorOut(f_vm, f_vm->pad);
+	    sprintf(f_vm->Pad, "Error: got signal (%d)\n", sig);
+		ficlVmErrorOut(f_vm, f_vm->Pad);
         ficlVmDisplayReturnStack(f_vm);
         ficlVmAbort(f_vm);
 	}
@@ -254,8 +254,8 @@ int main(int argc, char **argv)
 			    done = 1;
 			    break;
 		    default:
-			    sprintf(f_vm->pad, "Error: got exception (%d)\n", returnValue);
-			    ficlVmErrorOut(f_vm, f_vm->pad);
+			    sprintf(f_vm->Pad, "Error: got exception (%d)\n", returnValue);
+			    ficlVmErrorOut(f_vm, f_vm->Pad);
 			    break;
 		}
     }

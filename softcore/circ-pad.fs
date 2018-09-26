@@ -43,7 +43,7 @@ SET-CURRENT
 
 : >PAD ( caddr1 u -- caddr2 u )
 \G Move <caddr>/<u> to next PAD area, return new <caddr2>/<u>.
-   +PAD  >BUFFER ;
+   PAD  >BUFFER ;
 
 : >HEAP ( ca u -- addr u )
 \G Move string <ca/u> to heap.
@@ -55,10 +55,10 @@ SET-CURRENT
 : S" ( "ccc" -- )
 \G Return the double quote delimited string.
 \G Supports unlimited number of temporary numbers.
-   [CHAR] " PARSE  +SBUF >BUFFER
+   [CHAR] " PARSE
    STATE @
    IF   POSTPONE SLITERAL
-   ELSE >HEAP
+   ELSE +SBUF >BUFFER
    THEN ; IMMEDIATE
 
 +WARNING

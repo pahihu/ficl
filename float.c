@@ -517,7 +517,7 @@ static void ficlPrimitiveRepresent(ficlVm *vm)
 
 /*******************************************************************
 ** Display a float in decimal format.
-** (f.) ( F: r -- )
+** fdot ( F: r -- )
 *******************************************************************/
 static void ficlPrivateFDot(ficlVm *vm)
 {
@@ -527,25 +527,27 @@ static void ficlPrivateFDot(ficlVm *vm)
     char *pHold;
     char tmp[32];
 
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
     len  = 0;
     prec = vm->precision;
     r = ficlStackPopFloat(vm->floatStack);
     switch (fpclassify(r))
     {
         case FP_INFINITE:
-            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            sprintf(vm->pob, r < 0 ? "-inf " : "inf ");
             break;
         case FP_NAN:
-            sprintf(vm->pad, "nan ");
+            sprintf(vm->pob, "nan ");
             break;
         case FP_ZERO:
             if (copysign(1.0, r) < 0)
-              vm->pad[len++] = '-';
-            sprintf(vm->pad + len, "0. ");
+              vm->pob[len++] = '-';
+            sprintf(vm->pob + len, "0. ");
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
-            pHold = vm->pad;
+            pHold = vm->pob;
             if (rSign)
                 *pHold++ = '-';
             ficlUnsignedToString(tmp, (ficlUnsigned) rDisp);
@@ -577,10 +579,10 @@ static void ficlPrivateFDot(ficlVm *vm)
                 }
             }
             // zero supression
-            len = pHold - vm->pad - 1;
-            while ('0' == vm->pad[len]) len--;
-            vm->pad[++len] = ' ';
-            vm->pad[++len] = '\0';
+            len = pHold - vm->pob - 1;
+            while ('0' == vm->pob[len]) len--;
+            vm->pob[++len] = ' ';
+            vm->pob[++len] = '\0';
     }
 }
 
@@ -592,14 +594,13 @@ static void ficlPrimitiveParenFDot(ficlVm *vm)
 {
     ficlInteger len;
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
     FICL_STACK_CHECK(vm->dataStack, 0, 2);
 
     ficlPrivateFDot(vm);
-    
-    ficlStackPushPointer(vm->dataStack, vm->pad);
-    len = strlen(vm->pad);
+    len = strlen(vm->pob);
     if (len) len--;
+    
+    ficlStackPushPointer(vm->dataStack, vm->pob);
     ficlStackPushInteger(vm->dataStack, len);
 }
 
@@ -609,15 +610,13 @@ static void ficlPrimitiveParenFDot(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveFDot(ficlVm *vm)
 {
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
-
     ficlPrivateFDot(vm);
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->pob);
 }
 
 /*******************************************************************
 ** Display a float in scientific format.
-** (fs.) ( F: r -- )
+** fsdot ( F: r -- )
 *******************************************************************/
 static void ficlPrivateFSDot(ficlVm *vm)
 {
@@ -625,29 +624,31 @@ static void ficlPrivateFSDot(ficlVm *vm)
     double rDisp;
     int prec, len, rSign, rExp;
 
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+
     len  = 0;
     prec = vm->precision;
     r    = ficlStackPopFloat(vm->floatStack);
     switch (fpclassify(r))
     {
         case FP_INFINITE:
-            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            sprintf(vm->pob, r < 0 ? "-inf " : "inf ");
             break;
         case FP_NAN:
-            sprintf(vm->pad, "nan ");
+            sprintf(vm->pob, "nan ");
             break;
         case FP_ZERO:
             if (copysign(1.0, r) < 0)
-                vm->pad[len++] = '-';
-            sprintf(vm->pad + len, "%.*fE0 ", prec - 1, 0.0);
+                vm->pob[len++] = '-';
+            sprintf(vm->pob + len, "%.*fE0 ", prec - 1, 0.0);
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
             if (rSign)
-                vm->pad[len++] = '-';
+                vm->pob[len++] = '-';
             // 1 '.' prec - 1
             rDisp *= pow(10.0, 1 - prec);
-            sprintf(vm->pad + len, "%.*fE%d ", prec - 1, rDisp, rExp);
+            sprintf(vm->pob + len, "%.*fE%d ", prec - 1, rDisp, rExp);
     }
 }
 
@@ -659,14 +660,13 @@ static void ficlPrimitiveParenFSDot(ficlVm *vm)
 {
     ficlInteger len;
 
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
     FICL_STACK_CHECK(vm->dataStack, 0, 2);
 
     ficlPrivateFSDot(vm);
-
-    ficlStackPushPointer(vm->dataStack, vm->pad);
-    len = strlen(vm->pad);
+    len = strlen(vm->pob);
     if (len) len--;
+
+    ficlStackPushPointer(vm->dataStack, vm->pob);
     ficlStackPushInteger(vm->dataStack, len);
 }
 
@@ -676,10 +676,8 @@ static void ficlPrimitiveParenFSDot(ficlVm *vm)
 *******************************************************************/
 static void ficlPrimitiveFSDot(ficlVm *vm)
 {
-    FICL_STACK_CHECK(vm->floatStack, 1, 0);
-
     ficlPrivateFSDot(vm);
-    ficlVmTextOut(vm, vm->pad);
+    ficlVmTextOut(vm, vm->pob);
 }
 
 /**************************************************************************
@@ -1010,10 +1008,11 @@ FUNARY(FAbs,fabs)
 
 /*******************************************************************
 ** Display a float in engineering format.
-** fe. ( r -- )
+** fedot ( F: r -- )
 *******************************************************************/
 extern char* eng(double, int, int);
-static void ficlPrimitiveEDot(ficlVm *vm)
+
+static void ficlPrivateFEDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
@@ -1027,15 +1026,15 @@ static void ficlPrimitiveEDot(ficlVm *vm)
     switch (fpclassify(r))
     {
         case FP_INFINITE:
-            sprintf(vm->pad, r < 0 ? "-inf " : "inf ");
+            sprintf(vm->pob, r < 0 ? "-inf " : "inf ");
             break;
         case FP_NAN:
-            sprintf(vm->pad, "nan ");
+            sprintf(vm->pob, "nan ");
             break;
         case FP_ZERO:
             if (copysign(1.0, r) < 0)
-                vm->pad[len++] = '-';
-            sprintf(vm->pad + len, "%.*fE0 ", prec - 1, 0.0);
+                vm->pob[len++] = '-';
+            sprintf(vm->pob + len, "%.*fE0 ", prec - 1, 0.0);
             break;
         default:
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
@@ -1052,10 +1051,38 @@ static void ficlPrimitiveEDot(ficlVm *vm)
             // 1 + scale '.' prec - 1 - scale
             rDisp *= pow(10.0, 1 + scale - prec);
             if (rSign)
-                vm->pad[len++] = '-';
-            sprintf(vm->pad + len, "%.*fE%d", prec - 1 - scale, rDisp, eng);
+                vm->pob[len++] = '-';
+            sprintf(vm->pob + len, "%.*fE%d", prec - 1 - scale, rDisp, eng);
     }
-    ficlVmTextOut(vm, vm->pad);
+}
+
+/*******************************************************************
+** Display a float in engineering format.
+** (fe.) ( F: r -- ) ( -- c-addr n )
+*******************************************************************/
+static void ficlPrimitiveParenFEDot(ficlVm *vm)
+{
+    ficlInteger len;
+
+    FICL_STACK_CHECK(vm->dataStack, 0, 2);
+
+    ficlPrivateFEDot(vm);
+    len = strlen(vm->pob);
+    if (len) len--;
+
+    ficlStackPushPointer(vm->dataStack, vm->pob);
+    ficlStackPushInteger(vm->dataStack, len);
+}
+
+
+/*******************************************************************
+** Display a float in engineering format.
+** fe. ( F: r -- )
+*******************************************************************/
+static void ficlPrimitiveFEDot(ficlVm *vm)
+{
+    ficlPrivateFEDot(vm);
+    ficlVmTextOut(vm, vm->pob);
 }
 
 /*******************************************************************
@@ -1590,8 +1617,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "fdepth",    ficlPrimitiveFDepth,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fliteral",  ficlPrimitiveFLiteralImmediate,     FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "(f.)",      ficlPrimitiveParenFDot,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "(fs.)",     ficlPrimitiveParenFSDot,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.",        ficlPrimitiveFDot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "(fs.)",     ficlPrimitiveParenFSDot,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fs.",       ficlPrimitiveFSDot,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f.s",       ficlVmDisplayFloatStack,     FICL_WORD_DEFAULT);
 
@@ -1608,7 +1635,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "fround",    ficlPrimitiveFRound,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f**",       ficlPrimitiveFStarStar,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fabs",      ficlPrimitiveFAbs,           FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveEDot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "(fe.)",     ficlPrimitiveParenFEDot,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fe.",       ficlPrimitiveFEDot,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "precision", ficlPrimitivePrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "set-precision", ficlPrimitiveSetPrecision,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f~",        ficlPrimitiveFProximate,     FICL_WORD_DEFAULT);
