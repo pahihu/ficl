@@ -162,15 +162,15 @@ FALSE CONSTANT [VOID] IMMEDIATE
       1 /STRING
    REPEAT  DROP ;
 
-: >LOWER ( str n -- )
-\G Convert string to lowercase.
+: LOWER ( str n -- )
+\G Convert string to lowercase in-place.
    BEGIN  ?DUP  WHILE
       OVER DUP C@ LCASE  SWAP C!
       1 /STRING
    REPEAT  DROP ;
 
-: >UPPER ( str n -- )
-\G Convert string to uppercase.
+: UPPER ( str n -- )
+\G Convert string to uppercase in-place.
    BEGIN  ?DUP  WHILE
       OVER DUP C@ UPCASE  SWAP C!
       1 /STRING
