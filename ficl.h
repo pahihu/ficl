@@ -1847,6 +1847,7 @@ FICL_PLATFORM_EXTERN int ficlFileTruncate(ficlFile *ff, ficlOff_t size);
 
 FICL_PLATFORM_EXTERN int ficlFileStatus(char *filename, int *status);
 FICL_PLATFORM_EXTERN ficlOff_t ficlFileSize(ficlFile *ff);
+FICL_PLATFORM_EXTERN long ficlGetGMTOffset(void);
 
 
 /*

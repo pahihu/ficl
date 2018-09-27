@@ -350,14 +350,12 @@ static void ficlPrimitiveToday(ficlVm *vm)
 /* : TIME-ZONE ( -- minutes ) */
 static void ficlPrimitiveTimeZone(ficlVm *vm)
 {
-    struct tm *tim;
-    time_t t;
+    long gmtoff;
 
     FICL_STACK_CHECK(vm->dataStack, 0, 1);
 
-    t = time(NULL);
-    tim = localtime(&t);
-    ficlStackPushInteger(vm->dataStack, tim->tm_gmtoff / 60);
+    gmtoff = ficlGetGMTOffset();
+    ficlStackPushInteger(vm->dataStack, gmtoff / 60);
 }
 
 /* : DST? ( -- flag ) */

@@ -9,6 +9,15 @@
 #include "../ficl.h"
 #include "gw.h"
 
+long ficlGetGMTOffset(void)
+{
+  TIME_ZONE_INFORMATION tzi;
+
+  GetTimeZoneInformation(&tzi);
+  return tzi.Bias * 60;
+}
+
+
 char* ficlIntegerToString(char *buf, ficlInteger n)
 {
   sprintf(buf, "%lld", n);

@@ -6,6 +6,17 @@
 
 #include "../ficl.h"
 
+long ficlGetGMTOffset(void)
+{
+  struct tm *tim;
+  time_t t;
+
+  t = time(NULL);
+  tim = localtime(&t);
+
+  return tim->tm_gmtoff;
+}
+
 char* ficlIntegerToString(char *buf, ficlInteger n)
 {
   sprintf(buf, "%ld", n);
