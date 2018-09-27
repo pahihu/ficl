@@ -16,7 +16,6 @@
 #define chdir       _chdir
 
 extern int ftruncate(int fileno, size_t size);
-extern long GetTimezone(void);
 
 typedef char ficlInteger8;
 typedef unsigned char ficlUnsigned8;
