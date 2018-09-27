@@ -11,15 +11,8 @@ HIDE
 
   7 CONSTANT #SLOTS	   \ no. of circular buffs, should be 2^n-1
     CREATE #PAD  0 ,	   \ current PAD index
-    CREATE #SBUF 0 ,    \ current S" buffer index
 
 CREATE 'PAD    /PAD CHARS  #SLOTS 1+ *  ALLOT
-CREATE 'SBUF   /PAD CHARS  #SLOTS 1+ *  ALLOT        ( S" buffer)
-
-: +SBUF ( -- ca )
-\G Next S" buffer.
-   #SBUF @  1+ #SLOTS AND  DUP #SBUF !
-   /PAD CHARS *  'SBUF + ;
 
 SET-CURRENT
 
@@ -48,20 +41,6 @@ SET-CURRENT
 : >HEAP ( ca u -- addr u )
 \G Move string <ca/u> to heap.
    DUP CHARS SAFE-ALLOCATE  >BUFFER ;
-
-
--WARNING
-
-: S" ( "ccc" -- )
-\G Return the double quote delimited string.
-\G Supports unlimited number of temporary numbers.
-   [CHAR] " PARSE
-   STATE @
-   IF   POSTPONE SLITERAL
-   ELSE +SBUF >BUFFER
-   THEN ; IMMEDIATE
-
-+WARNING
 
 
 PREVIOUS
