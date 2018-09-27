@@ -3676,6 +3676,11 @@ int ficlVmParseWord(ficlVm *vm, ficlString name)
     {
         if (tempFW != NULL)
         {
+            if (ficlWordIsInterpretOnly(tempFW))
+            {
+                ficlVmThrowError(vm, "Error: FICL_VM_STATE_INTERPRET only!");
+            }
+
             if (ficlWordIsImmediate(tempFW))
             {
                 ficlVmExecuteWord(vm, tempFW);

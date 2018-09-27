@@ -1354,6 +1354,14 @@ static void ficlPrimitiveCompileOnly(ficlVm *vm)
 }
 
 
+static void ficlPrimitiveInterpretOnly(ficlVm *vm)
+{
+    FICL_IGNORE(vm);
+    ficlDictionarySetFlags(ficlVmGetDictionary(vm), FICL_WORD_INTERPRET_ONLY);
+    return;
+}
+
+
 static void ficlPrimitiveSetObjectFlag(ficlVm *vm)
 {
     FICL_IGNORE(vm);
@@ -2162,6 +2170,8 @@ static void ficlPrimitiveStringQuoteIm(ficlVm *vm)
         ficlVmGetString(vm, counted, '\"');
         ficlStackPushPointer(vm->dataStack, counted->text);
         ficlStackPushUnsigned(vm->dataStack, counted->length);
+        /* move HERE past string so it doesn't get overwritten.  --ap */
+        ficlVmDictionaryAllot(vm, dictionary, counted->length + sizeof(ficlUnsigned8));
     }
     else    /* FICL_VM_STATE_COMPILE state */
     {
@@ -2169,6 +2179,25 @@ static void ficlPrimitiveStringQuoteIm(ficlVm *vm)
         dictionary->here = FICL_POINTER_TO_CELL(ficlVmGetString(vm, (ficlCountedString *)dictionary->here, '\"'));
         ficlDictionaryAlign(dictionary);
     }
+
+    return;
+}
+
+
+/**************************************************************************
+                        s t r i n g   p a r e n
+** Interpreting: get string delimited by a quote from the input stream,
+** copy to a scratch area, and put its count and address on the stack.
+** Compiling: Cannot be compiled.
+**************************************************************************/
+static void ficlPrimitiveStringParen(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+
+    ficlCountedString *counted = (ficlCountedString *)dictionary->here;
+    ficlVmGetString(vm, counted, ')');
+    ficlStackPushPointer(vm->dataStack, counted->text);
+    ficlStackPushUnsigned(vm->dataStack, counted->length);
 
     return;
 }
@@ -2702,14 +2731,76 @@ static void ficlPrimitive2LocalParen(ficlVm *vm)
 
 
 /**************************************************************************
-                        t o V a l u e
-** CORE EXT 
+                        p a r e n T o V a l u e
 ** Interpretation: ( x "<spaces>name" -- )
+** Skip leading spaces and parse name delimited by a space. Store x in 
+** name. An ambiguous condition exists if name was not defined by VALUE. 
+**************************************************************************/
+static void ficlPrimitiveParenToValue(ficlVm *vm)
+{
+    ficlString name = ficlVmGetWord(vm);
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    ficlWord *word;
+    ficlInstruction instruction = 0;
+    ficlStack *stack;
+    ficlInteger isDouble;
+#if FICL_WANT_LOCALS
+    ficlInteger nLocal;
+    ficlInteger appendLocalOffset;
+    ficlInteger isFloat;
+#endif /* FICL_WANT_LOCALS */
+
+    word = ficlDictionaryLookup(dictionary, name);
+    if (!word)
+        ficlVmThrowError(vm, "%.*s not found", FICL_STRING_GET_LENGTH(name), FICL_STRING_GET_POINTER(name));
+
+    switch ((ficlInstruction)word->code)
+    {
+        case ficlInstructionConstantParen:
+            instruction = ficlInstructionStore;
+            stack = vm->dataStack;
+            isDouble = FICL_FALSE;
+            break;
+        case ficlInstruction2ConstantParen:
+            instruction = ficlInstruction2Store;
+            stack = vm->dataStack;
+            isDouble = FICL_TRUE;
+            break;
+#if FICL_WANT_FLOAT
+        case ficlInstructionFConstantParen:
+            instruction = ficlInstructionFStore;
+            stack = vm->floatStack;
+            isDouble = FICL_FALSE;
+            break;
+        case ficlInstructionF2ConstantParen:
+            instruction = ficlInstructionF2Store;
+            stack = vm->floatStack;
+            isDouble = FICL_TRUE;
+            break;
+#endif /* FICL_WANT_FLOAT */
+        default:
+        {
+            ficlVmThrowError(vm, "to %.*s : value/constant is of unknown type", FICL_STRING_GET_LENGTH(name), FICL_STRING_GET_POINTER(name));
+            return;
+        }
+    }
+    
+    word->param[0] = ficlStackPop(stack);
+    if (isDouble)
+         word->param[1] = ficlStackPop(stack);
+
+    return;
+}
+
+
+/**************************************************************************
+                     b r a c k e t To V a l u e
+** Compilation: ( x "<spaces>name" -- )
 ** Skip leading spaces and parse name delimited by a space. Store x in 
 ** name. An ambiguous condition exists if name was not defined by VALUE. 
 ** NOTE: In Ficl, VALUE is an alias of CONSTANT
 **************************************************************************/
-static void ficlPrimitiveToValue(ficlVm *vm)
+static void ficlPrimitiveToValueCoIm(ficlVm *vm)
 {
     ficlString name = ficlVmGetWord(vm);
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
@@ -2724,7 +2815,7 @@ static void ficlPrimitiveToValue(ficlVm *vm)
 #endif /* FICL_WANT_LOCALS */
 
 #if FICL_WANT_LOCALS
-    if ((vm->callback.system->localsCount > 0) && (vm->state == FICL_VM_STATE_COMPILE))
+    if (vm->callback.system->localsCount > 0)
     {
         ficlDictionary *locals;
 
@@ -2829,21 +2920,33 @@ TO_GLOBAL:
         }
     }
     
-    if (vm->state == FICL_VM_STATE_INTERPRET)
-    {
-        word->param[0] = ficlStackPop(stack);
-        if (isDouble)
-            word->param[1] = ficlStackPop(stack);
-    }
-    else        /* FICL_VM_STATE_COMPILE code to store to word's param */
-    {
-        ficlStackPushPointer(vm->dataStack, &word->param[0]);
-        ficlPrimitiveLiteralIm(vm);
-        ficlDictionaryAppendUnsigned(dictionary, instruction);
-    }
+    ficlStackPushPointer(vm->dataStack, &word->param[0]);
+    ficlPrimitiveLiteralIm(vm);
+    ficlDictionaryAppendUnsigned(dictionary, instruction);
+
     return;
 }
 
+
+/**************************************************************************
+                        t o V a l u e
+** CORE EXT 
+** Interpretation: ( x "<spaces>name" -- )
+** Skip leading spaces and parse name delimited by a space. Store x in 
+** name. An ambiguous condition exists if name was not defined by VALUE. 
+** NOTE: In Ficl, VALUE is an alias of CONSTANT
+**************************************************************************/
+static void ficlPrimitiveToValue(ficlVm *vm)
+{
+    if (vm->state == FICL_VM_STATE_INTERPRET)
+    {
+        ficlPrimitiveParenToValue(vm);
+    }
+    else    /* FICL_VM_STATE_COMPILE state */
+    {
+        ficlPrimitiveToValueCoIm(vm);
+    }
+}
 
 /**************************************************************************
                         f m S l a s h M o d
@@ -3339,6 +3442,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "recurse",   ficlPrimitiveRecurseCoIm,    FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "repeat",    ficlPrimitiveRepeatCoIm,     FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "s\"",       ficlPrimitiveStringQuoteIm,  FICL_WORD_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "s(",        ficlPrimitiveStringParen,    FICL_WORD_INTERPRET_ONLY);
     ficlDictionarySetPrimitive(dictionary, "sign",      ficlPrimitiveSign,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "sm/rem",    ficlPrimitiveSMSlashRem, FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "source",    ficlPrimitiveSource,         FICL_WORD_DEFAULT);
@@ -3373,6 +3477,8 @@ void ficlSystemCompileCore(ficlSystem *system)
     /* query restore-input save-input tib u.r u> unused [FICL_VM_STATE_COMPILE] */
     ficlDictionarySetPrimitive(dictionary, "refill",    ficlPrimitiveRefill,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "source-id", ficlPrimitiveSourceID,       FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "(to)",      ficlPrimitiveParenToValue,   FICL_WORD_INTERPRET_ONLY);
+    ficlDictionarySetPrimitive(dictionary, "[to]",      ficlPrimitiveToValueCoIm,    FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "to",        ficlPrimitiveToValue,        FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "value",     ficlPrimitiveConstant,       FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "\\",        ficlPrimitiveBackslash,    FICL_WORD_IMMEDIATE);
@@ -3471,8 +3577,8 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "add-parse-step",
                                     ficlPrimitiveAddParseStep,   FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "body>",     ficlPrimitiveFromBody,       FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "compile-only",
-                                    ficlPrimitiveCompileOnly,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "compile-only", ficlPrimitiveCompileOnly,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "interpret-only", ficlPrimitiveInterpretOnly, FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "endif",     ficlPrimitiveEndifCoIm,      FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "last-word", ficlPrimitiveLastWord,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "hash",      ficlPrimitiveHash,           FICL_WORD_DEFAULT);

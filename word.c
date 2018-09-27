@@ -22,6 +22,16 @@ int ficlWordIsCompileOnly(ficlWord *word)
 
 
 /**************************************************************************
+                        w o r d I s I n t e r p r e t O n l y
+** 
+**************************************************************************/
+int ficlWordIsInterpretOnly(ficlWord *word)
+{
+    return ((word != NULL) && (word->flags & FICL_WORD_INTERPRET_ONLY));
+}
+
+
+/**************************************************************************
                         f i c l W o r d C l a s s i f y
 ** This public function helps to classify word types for SEE
 ** and the debugger in tools.c. Given an pointer to a word, it returns

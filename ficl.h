@@ -1338,6 +1338,14 @@ struct ficlWord
 #define FICL_WORD_INSTRUCTION  (16)
 
 /*
+** FICL_WORD_INTERPRET_ONLY:
+** This word is only valid during interpretation.
+** Ficl will throw a runtime error if this word executed
+** while compiling.
+*/
+#define FICL_WORD_INTERPRET_ONLY (32)
+
+/*
 ** FICL_WORD_COMPILE_ONLY_IMMEDIATE
 ** Most words that are "immediate" are also
 ** "compile-only".
@@ -1355,6 +1363,7 @@ struct ficlWord
 
 FICL_PLATFORM_EXTERN int ficlWordIsImmediate(ficlWord *word);
 FICL_PLATFORM_EXTERN int ficlWordIsCompileOnly(ficlWord *word);
+FICL_PLATFORM_EXTERN int ficlWordIsInterpretOnly(ficlWord *word);
 
 
 
