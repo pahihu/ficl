@@ -3,6 +3,14 @@
 : PLACE ( from n to -- )
    2DUP C! CHAR+ SWAP MOVE ;
 
+: PACK ( from n to -- to )
+\G Like place but returns <to>.
+   DUP >R  PLACE  R> ;
+
+: $SAVE ( from n to -- to+1 n )
+\G Place <from/n> to to, return as counted string.
+   DUP >R  PLACE  R> COUNT ;
+
 : APPEND ( from len to -- )
    2DUP 2>R  COUNT + SWAP MOVE  2R> C+! ;
 
@@ -23,3 +31,5 @@
    CREATE , , IMMEDIATE			\ layout u ca
    DOES>  2@
 	  STATE @ IF  POSTPONE 2LITERAL  THEN ;
+
+\ vim:ts=3:sw=3:et
