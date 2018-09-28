@@ -12,10 +12,6 @@
 \G True if n <= 0.
    0 <= ;
 
-: >>A ( x1 u -- x1>>u )
-\G Arithmetic right shift.
-   0 ?DO 2/ LOOP ;
-
 : UNDER+ ( a b c -- a+c b )
 \G Add TOS to under NOS.
    ROT + SWAP ;
