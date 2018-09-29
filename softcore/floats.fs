@@ -9,7 +9,13 @@ CREATE FTMP 0 , 0 ,
 
 SET-CURRENT
 
-1 FLOATS 8 =
+1 FLOATS 8 = CONSTANT DFLOATS?
+1 FLOATS 4 = CONSTANT SFLOATS?
+
+DFLOATS? OPTION \DFLOATS
+SFLOATS? OPTION \SFLOATS
+
+DFLOATS?
 [IF]
 
 AKA FLOAT> FPUSHD
@@ -38,6 +44,12 @@ AKA >FLOAT FPOPS
 
 [THEN]
 
+: SF, ( F: r -- )   FPUSHS HERE Q!  4 ALLOT ;
+: DF, ( F: r -- )   FPUSHD HERE  !  8 ALLOT ;
+
+\DFLOATS AKA DF, F,
+\SFLOATS AKA SF, F,
+
 : FS.P. ( F: r -- )
 \G Print SFLOAT bit pattern of r in hex.
    FPUSHS H. ;
@@ -55,7 +67,6 @@ PI   4.0e F/ FCONSTANT PI/4
 PI 180.0e F/ FCONSTANT PI/180
 
 : D>R ( deg -- rad )   PI/180 F* ;
-
 : R>D ( rad -- deg )   PI/180 F/ ;
 
 -WARNING
@@ -71,3 +82,7 @@ PI 180.0e F/ FCONSTANT PI/180
 PREVIOUS
 
 [THEN]
+
+\ vim:ts=3:sw=3:et
+
+

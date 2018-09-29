@@ -51,7 +51,7 @@ TARGET = libfdm.a
 #
 # Default IEEE libm
 #
-CFLAGS = -D_IEEE_LIBM
+CFLAGS = -O2 -D_IEEE_LIBM
 
 CC = cc
 

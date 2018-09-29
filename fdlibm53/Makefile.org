@@ -1,61 +1,81 @@
 #
-#  @(#)Makefile 1.4 95/01/18 
-# 
+#  @(#)Makefile 1.4 95/01/18
+#
 #  ====================================================
 #  Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
-# 
+#
 #  Developed at SunSoft, a Sun Microsystems, Inc. business.
 #  Permission to use, copy, modify, and distribute this
-#  software is freely granted, provided that this notice 
+#  software is freely granted, provided that this notice
 #  is preserved.
 #  ====================================================
-# 
-# 
+#
+#
 
 #
 # There are two options in making libm at fdlibm compile time:
 # 	_IEEE_LIBM 	--- IEEE libm; smaller, and somewhat faster
-#	_MULTI_LIBM	--- Support multi-standard at runtime by 
-#			    imposing wrapper functions defined in 
+#	_MULTI_LIBM	--- Support multi-standard at runtime by
+#			    imposing wrapper functions defined in
 #			    fdlibm.h:
 #				_IEEE_MODE 	-- IEEE
 #				_XOPEN_MODE 	-- X/OPEN
 #				_POSIX_MODE 	-- POSIX/ANSI
 #				_SVID3_MODE 	-- SVID
 #
-# Here is how to set up CFLAGS to create the desired libm at 
+# Here is how to set up CFLAGS to create the desired libm at
 # compile time:
 #
 # 	CFLAGS = -D_IEEE_LIBM		... IEEE libm (recommended)
 #	CFLAGS = -D_SVID3_MODE	... Multi-standard supported
-#					    libm with SVID as the 
+#					    libm with SVID as the
 #					    default standard
 #	CFLAGS = -D_XOPEN_MODE	... Multi-standard supported
-#					    libm with XOPEN as the 
+#					    libm with XOPEN as the
 #					    default standard
 #	CFLAGS = -D_POSIX_MODE	... Multi-standard supported
-#					    libm with POSIX as the 
+#					    libm with POSIX as the
 #					    default standard
 #	CFLAGS = 			... Multi-standard supported
-#					    libm with IEEE as the 
+#					    libm with IEEE as the
 #					    default standard
-# 
+#
 # NOTE: if scalb's second arguement is an int, then one must
 # define _SCALB_INT in CFLAGS. The default prototype of scalb
 # is double scalb(double, double)
 #
 
+prefix	= /usr/local
+
+AR	= ar
+
+CC	= gcc
 
 #
 # Default IEEE libm
 #
-CFLAGS = -D_IEEE_LIBM 
+CFLAGS	= -O2 -D_IEEE_LIBM
 
-CC = cc
+CHMOD	= chmod
+
+CP	= cp
 
 INCFILES = fdlibm.h
+
+LDFLAGS	= 
+
+LIB	= libfdm.a
+
+LIBS	= 
+
+RANLIB	= ranlib
+
+RM	= /bin/rm -f
+
 .INIT: $(INCFILES)
+
 .KEEP_STATE:
+
 src = 	k_standard.c k_rem_pio2.c \
 	k_cos.c k_sin.c k_tan.c \
 	e_acos.c e_acosh.c e_asin.c e_atan2.c \
@@ -98,13 +118,37 @@ obj = 	k_standard.o k_rem_pio2.o \
 	s_rint.o s_scalbn.o s_signgam.o s_significand.o s_sin.o \
 	s_tan.o s_tanh.o
 
-all: libm.a 
+all: $(LIB)
 
-libm.a : $(obj) 
-	ar cru libm.a $(obj)
-	ranlib libm.a
+check:
+	@echo This package does not have a validation suite.
+
+clean:
+	-$(RM) *~ #* core a.out
+
+distclean:	mostlyclean
+	-$(RM) $(LIB)
+	-$(RM) -r autom4te.cache/
+	-$(RM) config.cache config.log config.status Makefile
+
+install:	$(LIB) uninstall
+	$(CP) $(LIB) $(prefix)/lib/$(LIB)
+	$(CHMOD) 664 $(prefix)/lib/$(LIB)
+	$(RANLIB) $(prefix)/lib/$(LIB) || true
+
+$(LIB) : $(obj)
+	$(AR) cru $(LIB) $(obj)
+	$(RANLIB) $(LIB) || true
+
+maintainer-clean:	distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+	-$(RM) configure
+
+mostlyclean:	clean
+	-$(RM) $(obj)
 
 source: $(src) README
 
-clean: 
-	/bin/rm -f $(obj) a.out libm.a
+uninstall:
+	-$(RM) $(prefix)/lib/$(LIB)
