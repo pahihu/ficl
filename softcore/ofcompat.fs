@@ -10,7 +10,7 @@
 
 : q>n ( q -- n )
 \G Sign extend 32bit value.
-   dup [ 31 bit ] literal and if  [ 32 bit bmask ] literal -  then ;
+   dup [ 31 bit ] literal and if  [ 32 bit bitmask ] literal -  then ;
 
 : <w@ ( w-addr -- n )
 \G Fetch 16bit value, sign extend.

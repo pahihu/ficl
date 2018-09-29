@@ -7,22 +7,22 @@
 AKA 2** BIT ( # -- bit )
 \G Converts bit number <#> to a <bit>.
 
-AKA 1- BMASK ( bit -- mask )
+AKA 1- BITMASK ( bit -- mask )
 \G Converts a <bit> to a <mask>.
 
-: BSET ( mask addr -- )
+: SET-BITS ( mask addr -- )
 \G Set <mask> bits in cell at <addr>.
    SWAP OVER @  OR  SWAP ! ;
 
-: BRESET ( mask addr -- )
+: CLEAR-BITS ( mask addr -- )
 \G Reset <mask> bits in cell at <addr>.
    SWAP INVERT OVER @  AND  SWAP ! ;
 
-: BTOGGLE ( mask addr -- )
+: TOGGLE-BITS ( mask addr -- )
 \G Toggle <mask> bits in cell at <addr>.
    SWAP OVER @  XOR  SWAP ! ;
 
-: BMUX ( a b mask -- out )
+: MUX ( a b mask -- out )
 \G Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
 \G 0 selects the bit from <b>.
    SWAP OVER INVERT AND >R AND R> OR ;
