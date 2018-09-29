@@ -58,6 +58,8 @@
 #define fmax(x,y)	((x) > (y) ? (x) : (y))
 #define lrint		rint
 #define isinf(x)	(!finite(x))
+#define log2(x)		(log(x)/rLog2)
+#define exp2(x)		(pow(2.0,x))
 
 #define FP_NAN		1
 #define FP_INFINITE	2
@@ -929,6 +931,7 @@ static void ficlPrimitiveDToF(ficlVm *vm)
 #define FICL_MAX_INTEGER    (FICL_UNSIGNED_MSB - 1)
 
 static double r2IntegerMax;;
+static double rLog2;
 
 /*******************************************************************
 ** f>d ( -- d ) ( F: r -- )
@@ -1534,6 +1537,12 @@ FUNARY(FExpM1,expm1)
 
 
 /*******************************************************************
+** 2**x ( r1 -- r2 )
+*******************************************************************/
+FUNARY(TwoStarStarX,exp2)
+
+
+/*******************************************************************
 ** fln ( r1 -- r2 )
 *******************************************************************/
 FUNARY(FLn,log)
@@ -1549,6 +1558,12 @@ FUNARY(FLnP1,log1p)
 ** flog ( r1 -- r2 )
 *******************************************************************/
 FUNARY(FLog,log10)
+
+
+/*******************************************************************
+** log2 ( r1 -- r2 )
+*******************************************************************/
+FUNARY(Log2,log2)
 
 
 /*******************************************************************
@@ -1603,6 +1618,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, name, ficlPrimitive##primsuff, FICL_WORD_DEFAULT)
 
     r2IntegerMax = ldexp(1.0, 2 * 8 * sizeof(ficlUnsigned) - 1) - 1.0;
+    rLog2 = log(2.0);
 
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
     ficlDictionary *environment = ficlSystemGetEnvironment(system);
@@ -1685,6 +1701,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
     PRIMDEF("fsinh",    FSinH);
     PRIMDEF("ftan",     FTan);
     PRIMDEF("ftanh",    FTanH);
+    PRIMDEF("log2",     Log2);
+    PRIMDEF("2**x",     TwoStarStarX);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);

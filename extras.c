@@ -1091,6 +1091,34 @@ static void ficlPrimitiveWhy(ficlVm *vm)
     ficlStackPushInteger(vm->dataStack, strlen(ptr));
 }
 
+/* : @@ ( addr -- n ) */
+static void ficlPrimitiveFetchFetch(ficlVm *vm)
+{
+    ficlCell cell, *ptr;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+
+    ptr  = ficlStackPopPointer(vm->dataStack);
+    cell = ptr[0];
+    ptr  = cell.p;
+    ficlStackPush(vm->dataStack, ptr[0]);
+}
+
+/* : @! ( n addr -- ) */
+static void ficlPrimitiveFetchStore(ficlVm *vm)
+{
+    ficlCell n, cell, *addr;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    n    = ficlStackPop(vm->dataStack);
+    cell = addr[0];
+    addr = cell.p;
+    addr[0] = n;
+}
+
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -1167,6 +1195,9 @@ void ficlSystemCompileExtras(ficlSystem *system)
 
     addPrimitive(dictionary, "stick",     ficlPrimitiveStick);
     addPrimitive(dictionary, "wordkind?", ficlPrimitiveWordKindQ);
+
+    addPrimitive(dictionary, "@@", ficlPrimitiveFetchFetch);
+    addPrimitive(dictionary, "@!", ficlPrimitiveFetchStore);
 
     return;
 }

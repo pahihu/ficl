@@ -90,8 +90,12 @@ DECIMAL
 
 : CO ( -- )
 \G Suspend current, return to caller. When caller exits
-\G continue with current.
+\G continue with current. [CI]
    R> R>  SWAP  >R >R ;
+
+: EXCHANGE ( n1 addr -- n2 )
+\G Store <n1> at <addr>, return old contents. [MAX]
+   DUP >R  !  R> ;
   
 : SCAN ( ca1 u1 b -- ca2 u2 )
 \G Search for <b> in ca1/u1.
