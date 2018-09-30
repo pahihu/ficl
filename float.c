@@ -1604,6 +1604,58 @@ FUNARY(FTan,tan)
 FUNARY(FTanH,tanh)
 
 
+/*******************************************************************
+** poly ( F: x -- fx ) ( coeffs degree -- )
+*******************************************************************/
+static void ficlPrimitivePoly(ficlVm *vm)
+{
+    ficlUnsigned i, degree;
+    ficlFloat *coeffs;
+    ficlFloat fx, x;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
+
+    x = ficlStackPopFloat(vm->floatStack);
+    degree = ficlStackPopUnsigned(vm->dataStack);
+    coeffs = ficlStackPopPointer(vm->dataStack);
+
+    i = 0; fx = coeffs[i++];
+    for (; i <= degree; i++)
+        fx = coeffs[i] + x * fx;
+
+    ficlStackPushFloat(vm->floatStack, fx);
+}
+
+
+/*******************************************************************
+** odd-poly ( F: x -- fx ) ( coeffs degree -- )
+*******************************************************************/
+static void ficlPrimitiveOddPoly(ficlVm *vm)
+{
+    ficlUnsigned i, j, degree;
+    ficlFloat *coeffs;
+    ficlFloat fx, x;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
+
+    x = ficlStackPopFloat(vm->floatStack);
+    degree = ficlStackPopUnsigned(vm->dataStack);
+    coeffs = ficlStackPopPointer(vm->dataStack);
+
+    i = 0; fx = coeffs[i++]; j = i;
+    for (; i <= degree; i++)
+    {
+        fx *= x;
+        if (0 == (i & 1))
+            fx += coeffs[j++];
+    }
+
+    ficlStackPushFloat(vm->floatStack, fx);
+}
+
+
 #endif  /* FICL_WANT_FLOAT */
 
 /**************************************************************************
@@ -1704,6 +1756,9 @@ void ficlSystemCompileFloat(ficlSystem *system)
     PRIMDEF("log2",     Log2);
     PRIMDEF("2**x",     TwoStarStarX);
 
+    PRIMDEF("poly",     Poly);
+    PRIMDEF("odd-poly", OddPoly);
+
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
     ficlDictionarySetPrimitive(dictionary, "(f2local)",  ficlPrimitiveF2LocalParen,  FICL_WORD_COMPILE_ONLY);
@@ -1718,3 +1773,5 @@ void ficlSystemCompileFloat(ficlSystem *system)
 #endif
     return;
 }
+
+/* vim: set ts=4 sw=4 et: */

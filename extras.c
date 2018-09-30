@@ -1118,6 +1118,131 @@ static void ficlPrimitiveFetchStore(ficlVm *vm)
     addr[0] = n;
 }
 
+#define P1  0
+#define P2  1
+#define S1  2
+#define S2  3
+/* : fuzzify ( memfns fuzzyins len in -- ) */
+static void ficlPrimitiveFuzzify(ficlVm *vm)
+{
+    unsigned char input;
+    unsigned char i, len;
+    unsigned char *fuzzyIns, *memFns;
+    int delta1, delta2, d12n, grade1, grade2;
+    unsigned char grade;
+
+    FICL_STACK_CHECK(vm->dataStack, 4, 0);
+
+    input= ficlStackPopUnsigned(vm->dataStack);
+    len  = ficlStackPopUnsigned(vm->dataStack);
+    fuzzyIns = ficlStackPopPointer(vm->dataStack);
+    memFns   = ficlStackPopPointer(vm->dataStack);
+
+    for (i = 0; i < len; i++)
+    {
+        delta1 = input - memFns[P1];
+        delta2 = memFns[P2] - input;
+        d12n = (delta1 < 0) || (delta2 < 0);
+        if (d12n) grade1 = 0; else grade1 = memFns[S1] * delta1;
+        if (d12n) grade2 = 0; else grade2 = memFns[S2] * delta2;
+        if (((memFns[S2] == 0) || (grade2 > 0xFF)) && !d12n) grade = 0xFF;
+        else grade = grade2;
+        if (((memFns[S1] == 0) || (grade1 > 0xFF)) && !d12n) grade = grade;
+        else grade = grade1;
+        fuzzyIns[i] = grade;
+        memFns += 4;
+    }
+}
+#undef P1
+#undef P2
+#undef S1
+#undef S2
+
+/* : defuzzify ( fuzzyouts singletons len -- out ) */
+static void ficlPrimitiveDefuzzify(ficlVm *vm)
+{
+    unsigned char *fuzzyOuts, *singletons;
+    unsigned char i, len;
+    unsigned SiFi, Fi, out; 
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 1);
+
+    len = ficlStackPopUnsigned(vm->dataStack);
+    singletons = ficlStackPopPointer(vm->dataStack);
+    fuzzyOuts  = ficlStackPopPointer(vm->dataStack);
+
+    SiFi = 0; Fi = 0;
+    for (i = 0; i < len; i++)
+    {
+        SiFi += singletons[i] * fuzzyOuts[i];
+          Fi += fuzzyOuts[i];
+    }
+
+    out = SiFi / (ficlFloat) Fi;
+    ficlStackPushUnsigned(vm->dataStack, out);
+}
+
+/* : rulez ( rules fuzzyvars -- ) */
+static void ficlPrimitiveRulez(ficlVm *vm)
+{
+    unsigned char *rules, *fuzzyVars;
+    unsigned char i, c, len, grade;
+    int consequent;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+    fuzzyVars = ficlStackPopPointer(vm->dataStack);
+    rules     = ficlStackPopPointer(vm->dataStack);
+
+    c = *rules++; grade = 0xFF; consequent = 0;
+    while (0xFF != c)
+    {
+        if (0xFE == c) {
+            consequent = 1 - consequent;
+            if (!consequent) grade = 0xFF;
+        } else {
+            if (!consequent)
+                grade = FICL_MIN(grade, fuzzyVars[c]);
+            else
+                fuzzyVars[c] = FICL_MAX(grade, fuzzyVars[c]);
+        }
+        c = *rules++;
+    }
+}
+
+/* : wrulez ( rules weights fuzzyvars -- ) */
+static void ficlPrimitiveWRulez(ficlVm *vm)
+{
+    unsigned char *rules, *weights, *fuzzyVars;
+    unsigned char c, grade;
+    int consequent;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+    fuzzyVars = ficlStackPopPointer(vm->dataStack);
+    weights   = ficlStackPopPointer(vm->dataStack);
+    rules     = ficlStackPopPointer(vm->dataStack);
+
+    c = *rules++; grade = 0xFF; consequent = 0;
+    while (0xFF != c)
+    {
+        if (0xFE == c)
+        {
+            consequent = 1 - consequent;
+            if (!consequent) 
+                grade = 0xFF;
+            else
+                grade = (grade * *weights++) >> 8;
+        } else
+        {
+            if (!consequent)
+                grade = FICL_MIN(grade, fuzzyVars[c]);
+            else
+                fuzzyVars[c] = FICL_MAX(grade, fuzzyVars[c]);
+        }
+        c = *rules++;
+    }
+}
 
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
@@ -1199,6 +1324,12 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "@@", ficlPrimitiveFetchFetch);
     addPrimitive(dictionary, "@!", ficlPrimitiveFetchStore);
 
+    addPrimitive(dictionary, "fuzzify", ficlPrimitiveFuzzify);
+    addPrimitive(dictionary, "rulez",   ficlPrimitiveRulez);
+    addPrimitive(dictionary, "wrulez",  ficlPrimitiveWRulez);
+    addPrimitive(dictionary, "defuzzify", ficlPrimitiveDefuzzify);
+
     return;
 }
 
+/* vim: set ts=4 sw=4 et: */
