@@ -1758,6 +1758,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
 
     PRIMDEF("poly",     Poly);
     PRIMDEF("odd-poly", OddPoly);
+    ficlDictionarySetConstant(environment, "max-precision", FICL_FLOAT_PRECISION);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);
