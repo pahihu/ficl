@@ -1265,7 +1265,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     ficlDictionarySetConstant(dictionary,  "clocks/sec", CLOCKS_PER_SEC);
     addPrimitive(dictionary, "pwd",      ficlPrimitiveGetCwd);
     addPrimitive(dictionary, "cd",       ficlPrimitiveChDir);
-	addPrimitive(dictionary, "get-msecs",ficlPrimitiveGetMSecs);
+	addPrimitive(dictionary, "get-msecs", ficlPrimitiveGetMSecs);
 #endif /* FICL_ANSI */
 
     ficlDictionarySetConstant(environment,  "ficl-os",  FICL_OS);
@@ -1303,7 +1303,7 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "atomic-op", ficlPrimitiveAtomicOp);
 
     addPrimitive(dictionary, "/mutex", 	  ficlPrimitiveSlashMutex);
-    addPrimitive(dictionary, "mutex-init",ficlPrimitiveMutexInit);
+    addPrimitive(dictionary, "mutex-init", ficlPrimitiveMutexInit);
     addPrimitive(dictionary, "get",	      ficlPrimitiveMutexGet);
     addPrimitive(dictionary, "release",	  ficlPrimitiveMutexRelease);
 #endif

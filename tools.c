@@ -1037,8 +1037,8 @@ void ficlSystemCompileTools(ficlSystem *system)
                                     ficlPrimitiveEnv2Constant,   FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "debug-xt",  ficlPrimitiveDebugXT,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "parse-order", ficlPrimitiveParseStepList, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "step-break",ficlPrimitiveStepBreak,      FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "forget-wid",ficlPrimitiveForgetWid,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "step-break", ficlPrimitiveStepBreak,      FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "forget-wid", ficlPrimitiveForgetWid,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "see-xt",    ficlPrimitiveSeeXT,          FICL_WORD_DEFAULT);
 
 #if FICL_WANT_FLOAT

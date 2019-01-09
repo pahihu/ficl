@@ -3425,7 +3425,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "evaluate",  ficlPrimitiveEvaluate,       FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "execute",   ficlPrimitiveExecute,        FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "exit",      ficlPrimitiveExitCoIm,       FICL_WORD_COMPILE_ONLY_IMMEDIATE);
-    ficlDictionarySetPrimitive(dictionary, "fallthrough",ficlPrimitiveFallthroughCoIm,FICL_WORD_COMPILE_ONLY_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "fallthrough", ficlPrimitiveFallthroughCoIm,FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "find",      ficlPrimitiveCFind,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fm/mod",    ficlPrimitiveFMSlashMod, FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "here",      ficlPrimitiveHere,           FICL_WORD_DEFAULT);
@@ -3500,12 +3500,12 @@ void ficlSystemCompileCore(ficlSystem *system)
     {
     ficl2Unsigned combined;
     FICL_2UNSIGNED_SET(FICL_INTEGER_MAX, FICL_UNSIGNED_MAX, combined);
-    ficlDictionarySet2Constant(environment,"max-d",             FICL_2UNSIGNED_TO_2INTEGER(combined));
+    ficlDictionarySet2Constant(environment, "max-d",             FICL_2UNSIGNED_TO_2INTEGER(combined));
     FICL_2UNSIGNED_SET(FICL_UNSIGNED_MAX, FICL_UNSIGNED_MAX, combined);
-    ficlDictionarySet2Constant(environment,"max-ud",            FICL_2UNSIGNED_TO_2INTEGER(combined));
+    ficlDictionarySet2Constant(environment, "max-ud",            FICL_2UNSIGNED_TO_2INTEGER(combined));
     }
     // 150509AP
-    ficlDictionarySetConstant(environment, "return-stack-cells",system->stackSize /*FICL_DEFAULT_STACK_SIZE*/);
+    ficlDictionarySetConstant(environment, "return-stack-cells", system->stackSize /*FICL_DEFAULT_STACK_SIZE*/);
     ficlDictionarySetConstant(environment, "stack-cells",       system->stackSize /*FICL_DEFAULT_STACK_SIZE*/);
     ficlDictionarySetConstant(environment, "/data-cells",       dictionary->size);
 
@@ -3584,7 +3584,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "hash",      ficlPrimitiveHash,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "objectify", ficlPrimitiveSetObjectFlag,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "?object",   ficlPrimitiveIsObject,       FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "parse-word",ficlPrimitiveParseNoCopy,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "parse-word", ficlPrimitiveParseNoCopy,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "sfind",     ficlPrimitiveSFind,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "sliteral",  ficlPrimitiveSLiteralCoIm,   FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "sprintf",   ficlPrimitiveSprintf,    FICL_WORD_DEFAULT);
@@ -3603,7 +3603,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "(parse-step)", 
                                     ficlPrimitiveParseStepParen, FICL_WORD_DEFAULT);
     system->exitInnerWord =
-    ficlDictionarySetPrimitive(dictionary, "exit-inner",ficlPrimitiveExitInner,  FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "exit-inner", ficlPrimitiveExitInner,  FICL_WORD_DEFAULT);
 
     /*
     ** Set constants representing the internal instruction words

@@ -1717,7 +1717,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f>=",	    ficlPrimitiveFGreaterEqual,  FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f<>",	    ficlPrimitiveFNotEqual,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fnan?",	    ficlPrimitiveFNaNQ,    	     FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "finfinite?",ficlPrimitiveFInfiniteQ,     FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "finfinite?", ficlPrimitiveFInfiniteQ,     FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "df@",	    ficlPrimitiveDFFetch,        FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "df!",	    ficlPrimitiveDFStore,        FICL_WORD_DEFAULT);
@@ -1733,31 +1733,31 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "sfloat+",   ficlPrimitiveSFloatPlus,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "sfloats",   ficlPrimitiveSFloats,        FICL_WORD_DEFAULT);
 
-    PRIMDEF("facos",    FACos);
-    PRIMDEF("facosh",   FACosH);
-    PRIMDEF("falog",    FALog);
-    PRIMDEF("fasin",    FASin);
-    PRIMDEF("fasinh",   FASinH);
-    PRIMDEF("fatan",    FATan);
-    PRIMDEF("fatan2",   FATan2);
-    PRIMDEF("fatanh",   FATanH);
-    PRIMDEF("fcos",     FCos);
-    PRIMDEF("fcosh",    FCosH);
-    PRIMDEF("fexp",     FExp);
-    PRIMDEF("fexpm1",   FExpM1);
-    PRIMDEF("fln",      FLn);
-    PRIMDEF("flnp1",    FLnP1);
-    PRIMDEF("flog",     FLog);
-    PRIMDEF("fsin",     FSin);
-    PRIMDEF("fsincos",  FSinCos);
-    PRIMDEF("fsinh",    FSinH);
-    PRIMDEF("ftan",     FTan);
-    PRIMDEF("ftanh",    FTanH);
-    PRIMDEF("log2",     Log2);
-    PRIMDEF("2**x",     TwoStarStarX);
+    PRIMDEF( "facos",    FACos);
+    PRIMDEF( "facosh",   FACosH);
+    PRIMDEF( "falog",    FALog);
+    PRIMDEF( "fasin",    FASin);
+    PRIMDEF( "fasinh",   FASinH);
+    PRIMDEF( "fatan",    FATan);
+    PRIMDEF( "fatan2",   FATan2);
+    PRIMDEF( "fatanh",   FATanH);
+    PRIMDEF( "fcos",     FCos);
+    PRIMDEF( "fcosh",    FCosH);
+    PRIMDEF( "fexp",     FExp);
+    PRIMDEF( "fexpm1",   FExpM1);
+    PRIMDEF( "fln",      FLn);
+    PRIMDEF( "flnp1",    FLnP1);
+    PRIMDEF( "flog",     FLog);
+    PRIMDEF( "fsin",     FSin);
+    PRIMDEF( "fsincos",  FSinCos);
+    PRIMDEF( "fsinh",    FSinH);
+    PRIMDEF( "ftan",     FTan);
+    PRIMDEF( "ftanh",    FTanH);
+    PRIMDEF( "log2",     Log2);
+    PRIMDEF( "2**x",     TwoStarStarX);
 
-    PRIMDEF("poly",     Poly);
-    PRIMDEF("odd-poly", OddPoly);
+    PRIMDEF( "poly",     Poly);
+    PRIMDEF( "odd-poly", OddPoly);
     ficlDictionarySetConstant(environment, "max-precision", FICL_FLOAT_PRECISION);
 
 #if FICL_WANT_LOCALS
