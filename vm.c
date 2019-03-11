@@ -1277,7 +1277,14 @@ COMPARE:
             **************************************************************************/
             case ficlInstructionRandom:
             {
-                (++dataTop)->i = genrand_INT();
+		uint64_t r;
+
+		r = genrand_INT();
+#if FICL_PLATFORM_ALIGNMENT == 4
+                (++dataTop)->i = r >> 32;
+#else
+                (++dataTop)->i = r;
+#endif
                 continue;
             }
 
@@ -1288,7 +1295,11 @@ COMPARE:
             **************************************************************************/
             case ficlInstructionSeedRandom:
             {
-                init_genrand((dataTop--)->u);
+		uint64_t state[2];
+
+		state[0] = (dataTop--)->u;
+		state[1] = 0;
+                init_genrand(state);
                 continue;
             }
 
@@ -2127,6 +2138,20 @@ case ficlInstructionBStorePlus:
 
                 f = (ficlFloat)(dataTop--)->i;
                 floatTop->f *= f;
+                continue;
+            }
+
+            /*******************************************************************
+            ** Do 1 / integer 1 / n.
+            ** 1/i ( n -- r )
+            *******************************************************************/
+            case ficlInstructionOneSlashI:
+            {
+                CHECK_FLOAT_STACK(0, 1);
+                CHECK_STACK(1, 0);
+
+                f = (ficlFloat)(dataTop--)->i;
+                (++floatTop)->f = 1.0 / f;
                 continue;
             }
 

@@ -5,7 +5,9 @@
 **
 */
 
+#ifndef FICL_ROBUST
 #define FICL_ROBUST                     (1)
+#endif
 #define FICL_WANT_EXTENDED_PREFIX       (1)
 #define FICL_DEFAULT_DICTIONARY_SIZE    (32768)
 #define FICL_USER_CELLS                 (64)

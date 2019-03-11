@@ -1915,18 +1915,8 @@ FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsig
 #define FICL_INTEGER_MAX            (((ficlUnsigned)1 << (8 * sizeof(ficlUnsigned) - 1)) - 1)
 
 
-extern void init_genrand(unsigned long);
-unsigned long genrand_int32(void);
-extern void init_genrand64(unsigned long long);
-unsigned long long genrand64_int64(void);
-
-#if defined(__LP64__) || defined(__MINGW64__)
-#define init_genrand    init_genrand64
-#define genrand_INT     genrand64_int64
-#else
-#define init_genrand    init_genrand
-#define genrand_INT     genrand_int32
-#endif
+extern void init_genrand(uint64_t *state);
+extern uint64_t genrand_INT(void);
 
 #if FICL_WANT_COMPATIBILITY
 	#include "ficlcompatibility.h"
