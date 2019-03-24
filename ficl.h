@@ -1915,6 +1915,7 @@ FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsig
 #define FICL_INTEGER_MAX            (((ficlUnsigned)1 << (8 * sizeof(ficlUnsigned) - 1)) - 1)
 
 
+#include <stdint.h>
 extern void init_genrand(uint64_t *state);
 extern uint64_t genrand_INT(void);
 
