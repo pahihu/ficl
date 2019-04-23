@@ -477,8 +477,8 @@ static void ficlPrimitiveRepresent(ficlVm *vm)
     // limit range of significant digits
     if (u < 1)
         u = 1;
-    else if (u > FICL_FLOAT_PRECISION)
-        u = FICL_FLOAT_PRECISION;
+    else if (u > FICL_MAX_FLOAT_PRECISION)
+        u = FICL_MAX_FLOAT_PRECISION;
 
     switch (fpclassify(r))
     {
@@ -1111,8 +1111,8 @@ static void ficlPrimitiveSetPrecision(ficlVm *vm)
     prec = ficlStackPopUnsigned(vm->dataStack);
     if (prec < 1)
         prec = 1;
-    else if (prec > FICL_FLOAT_PRECISION)
-        prec = FICL_FLOAT_PRECISION;
+    else if (prec > FICL_MAX_FLOAT_PRECISION)
+        prec = FICL_MAX_FLOAT_PRECISION;
     vm->precision = prec;
 }
 
@@ -1758,7 +1758,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
 
     PRIMDEF( "poly",     Poly);
     PRIMDEF( "odd-poly", OddPoly);
-    ficlDictionarySetConstant(environment, "max-precision", FICL_FLOAT_PRECISION);
+    ficlDictionarySetConstant(environment, "max-precision", FICL_MAX_FLOAT_PRECISION);
 
 #if FICL_WANT_LOCALS
     ficlDictionarySetPrimitive(dictionary, "(flocal)",   ficlPrimitiveFLocalParen,   FICL_WORD_COMPILE_ONLY);

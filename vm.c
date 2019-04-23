@@ -3181,7 +3181,7 @@ void ficlVmReset(ficlVm *vm)
 {
     ficlVmAbort(vm); 
 #if FICL_WANT_FLOAT
-    vm->precision   =  FICL_FLOAT_PRECISION;
+    vm->precision   =  FICL_DEF_FLOAT_PRECISION;
 #endif
     vm->base        = 10;
     return;
