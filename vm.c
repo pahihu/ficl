@@ -1662,6 +1662,7 @@ BRANCH_PAREN:
             {
                 CHECK_STACK(2, 1);
                 i = (dataTop--)->i;
+                if (!i) ficlVmThrowError(vm, "Error: Division by zero");
                 dataTop->i /= i;
                 continue;
             }
@@ -1683,6 +1684,7 @@ BRANCH_PAREN:
 
                 CHECK_STACK(2, 2);
                 n2    = dataTop[0].i;
+                if (!n2) ficlVmThrowError(vm, "Error: Division by zero");
                 FICL_INTEGER_TO_2INTEGER(dataTop[-1].i, n1);
 
                 qr = ficl2IntegerDivideSymmetric(n1, n2);
@@ -1713,6 +1715,7 @@ BRANCH_PAREN:
                 CHECK_STACK(3, 1);
 
                 z = (dataTop--)->i;
+                if (!z) ficlVmThrowError(vm, "Error: Division by zero");
                 y = (dataTop--)->i;
                 x = dataTop->i;
 
@@ -1731,6 +1734,7 @@ BRANCH_PAREN:
                 CHECK_STACK(3, 2);
 
                 z = (dataTop--)->i;
+                if (!z) ficlVmThrowError(vm, "Error: Division by zero");
                 y = dataTop[0].i;
                 x = dataTop[-1].i;
 
@@ -2147,10 +2151,14 @@ case ficlInstructionBStorePlus:
             *******************************************************************/
             case ficlInstructionOneSlashI:
             {
+                ficlInteger i;
+
                 CHECK_FLOAT_STACK(0, 1);
                 CHECK_STACK(1, 0);
 
-                f = (ficlFloat)(dataTop--)->i;
+                i = (dataTop--)->i;
+                if (!i) ficlVmThrowError(vm, "Error: Division by zero");
+                f = (ficlFloat)i;
                 (++floatTop)->f = 1.0 / f;
                 continue;
             }
@@ -2161,10 +2169,14 @@ case ficlInstructionBStorePlus:
             *******************************************************************/
             case ficlInstructionFSlashI:
             {
+                ficlInteger i;
+
                 CHECK_FLOAT_STACK(1, 1);
                 CHECK_STACK(1, 0);
 
-                f = (ficlFloat)(dataTop--)->i;
+                i = (dataTop--)->i;
+                if (!i) ficlVmThrowError(vm, "Error: Division by zero");
+                f = (ficlFloat)i;
                 floatTop->f /= f;
                 continue;
             }
