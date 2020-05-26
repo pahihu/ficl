@@ -383,12 +383,17 @@ static void ficlPrimitiveDlOpen(ficlVm *vm)
    length = ficlStackPopInteger(vm->dataStack);
    addr  = (void *)ficlStackPopPointer(vm->dataStack);
 
-   path = (char*)malloc(length + 1);
-   memcpy(path, addr, length);
-   path[length] = 0;
+   if (length) {
+      path = (char*)malloc(length + 1);
+      memcpy(path, addr, length);
+      path[length] = 0;
+   }
+   else
+      path = NULL;
 
    ret = dlopen(path, RTLD_NOW);
-   free(path);
+   if (length)
+      free(path);
 
    ficlStackPushPointer(vm->dataStack, ret);
 }
@@ -419,20 +424,21 @@ static void ficlPrimitiveDlSym(ficlVm *vm)
 /* : (C-CALL) ( argN ... arg1 N fn  -- ret ) */
 static void ficlPrimitiveCCall(ficlVm *vm)
 {
-	int (*fn)();
-	int narg;
-	int i, arg[8];
-	int ret;
+    long (*fn)();
+    long ret, arg[8];
+    int i, narg;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 0);
 
-	fn = (int (*)()) ficlStackPopPointer(vm->dataStack);
+	fn = (long (*)()) ficlStackPopPointer(vm->dataStack);
 	narg = ficlStackPopInteger(vm->dataStack);
+fprintf(stderr,"fn = %p narg = %d\n", fn, narg);
 
     FICL_STACK_CHECK(vm->dataStack, narg, 1);
 
 	for (i = 0; i < narg; i++) {
 		arg[i] = ficlStackPopInteger(vm->dataStack);
+fprintf(stderr,"arg[%d] = 0x%lx\n",i,arg[i]);
 	}
 
 	switch (narg) {
