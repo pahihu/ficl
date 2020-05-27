@@ -6,8 +6,9 @@
 #include "curterm.h"
 
 static int ctrl_c_event;
+static int prepared = 0;
 
-#ifdef __MINGW32__
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
 #include <conio.h>
@@ -77,13 +78,18 @@ void prepterm(int dir)
 	initterm();
 
 	if (dir) {
-		GetConsoleMode(hStdin, &told);
-		tnew  = told;
-		tnew &= ~ENABLE_PROCESSED_INPUT;
-		SetConsoleMode(hStdin, tnew);
+		if (prepared == 0) {
+			GetConsoleMode(hStdin, &told);
+			tnew  = told;
+			tnew &= ~ENABLE_PROCESSED_INPUT;
+			SetConsoleMode(hStdin, tnew);
+			prepared = 1;
+		}
 	}
-	else
+	else if (prepared) {
 		SetConsoleMode(hStdin, told);
+		prepared = 0;
+	}
 
 	return;
 }
@@ -122,12 +128,17 @@ void prepterm(int dir)
       return;
 
 	if (dir) {
-		tcgetattr(STDIN_FILENO, &told);
-		tnew = told;
-		tnew.c_lflag &= ~(ICANON | ECHO );
-		tcsetattr(STDIN_FILENO, TCSANOW | TCSAFLUSH, &tnew);
-	} else {
+		if (prepared == 0) {
+			tcgetattr(STDIN_FILENO, &told);
+			tnew = told;
+	                tnew.c_iflag &= ~ICRNL;
+			tnew.c_lflag &= ~(ICANON | ECHO );
+			tcsetattr(STDIN_FILENO, TCSANOW | TCSAFLUSH, &tnew);
+			prepared = 1;
+		}
+	} else if (prepared) {
 		tcsetattr(STDIN_FILENO, TCSANOW | TCSAFLUSH, &told);
+		prepared = 0;
    }
 }
 
@@ -165,14 +176,14 @@ int has_key(void)
  *     previously emitted chars.
  */
 static
-u_char
+unsigned char
 get_char(void)
 {
    char buf;
 
    fflush(stdout);
-   read(STDIN_FILENO, &buf, sizeof(char));
-   return (u_char)buf;
+   (void) read(STDIN_FILENO, &buf, sizeof(char));
+   return (unsigned char)buf;
 }
 
 int getkey(void)
@@ -183,8 +194,10 @@ int getkey(void)
 	if (ESC == ch) {
       if (!has_key_timeout(ESC_TIMEOUT))
          return ESC;
-		ch = (u_char)get_char();
-		ch = (ch << 8) + (u_char)get_char();
+		ch = (unsigned char)get_char();
+		ch = (ch << 8) + (unsigned char)get_char();
+        if (has_key())
+            ch = (ch << 8) + (unsigned char)get_char();
 	}
 
 	return ch;
@@ -195,7 +208,7 @@ void gotoxy(int x, int y)
 	char buf[16];
 
 	sprintf(buf, "%c[%d;%dH", ESC, y, x);
-	write(1, buf, strlen(buf));
+	(void) write(1, buf, strlen(buf));
 }
 
 void clrscr(void)
@@ -203,7 +216,7 @@ void clrscr(void)
 	char buf[16];
 
 	sprintf(buf, "%c[2J", ESC);
-	write(1, buf, strlen(buf));
+	(void) write(1, buf, strlen(buf));
 	gotoxy(0, 0);
 }
 
