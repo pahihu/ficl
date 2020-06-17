@@ -12,6 +12,7 @@
 #define FICL_DEFAULT_DICTIONARY_SIZE    (32768)
 #define FICL_USER_CELLS                 (64)
 #define FICL_WANT_MULTITHREADED		(1)
+#define FICL_HASH_SIZE                  (1009)
 
 #ifdef darwin
 #define FICL_OS   1
