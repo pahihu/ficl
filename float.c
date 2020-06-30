@@ -1262,6 +1262,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     ficlInteger exponent = 0;
     char flag = 0;
     FloatParseState estate = FPS_START;
+    int allspace, i;
 #ifdef FICL_USE_STRTOD
     char buff[128], *endptr, *ptr;
     int dynamic;
@@ -1280,6 +1281,17 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
 
     trace = FICL_STRING_GET_POINTER(s);
     length = FICL_STRING_GET_LENGTH(s);
+
+    allspace = 1;
+    for (i = 0; i < length; i++)
+        if (' ' != trace[i])
+        {
+             allspace = 0;
+             break;
+        }
+
+    if (!allspace)
+    {
 
 #ifdef FICL_USE_STRTOD
 
@@ -1433,6 +1445,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     }
 
 #endif
+    } /* not all space? */
 
     ficlStackPushFloat(vm->floatStack, (ficlFloat) accum);
     if (vm->state == FICL_VM_STATE_COMPILE)
