@@ -1322,10 +1322,12 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
     if (dynamic)
         free(ptr);
 
-    if (*endptr)
-        return 0;
+    /* strtod() succeeded, skip parsing */
+    if (0 == *endptr)
+        goto Lparsed;
 
-#else
+    accum = 0.0;
+#endif
 
     /* Loop through the string's characters. */
     while ((length--) && ((c = *trace++) != 0))
@@ -1360,6 +1362,10 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
                 {
                     estate = FPS_STARTEXP;
                 }
+                else if ((c == '+') || (c == '-'))
+                {
+                    goto LStartExp;
+                }
                 else
                 {
                     digit = (unsigned char)(c - '0');
@@ -1381,6 +1387,10 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
                 {
                     estate = FPS_STARTEXP;
                 }
+                else if ((c == '+') || (c == '-'))
+                {
+                    goto LStartExp;
+                }
                 else
                 {
                     digit = (unsigned char)(c - '0');
@@ -1396,6 +1406,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
             /* Look for sign. */
             case FPS_STARTEXP:
             {
+LStartExp:
                 estate = FPS_INEXP;
 
                 if (c == '-')
@@ -1446,8 +1457,8 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
         accum *= power;
     }
 
-#endif
     } /* not all space? */
+Lparsed:
 
     ficlStackPushFloat(vm->floatStack, (ficlFloat) accum);
     if (vm->state == FICL_VM_STATE_COMPILE)
