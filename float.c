@@ -1358,7 +1358,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
                 {
                     estate = FPS_INMANT;
                 }
-                else if ((c == 'e') || (c == 'E'))
+                else if ((c == 'e') || (c == 'E') || (c == 'd') || (c == 'D'))
                 {
                     estate = FPS_STARTEXP;
                 }
@@ -1383,7 +1383,7 @@ int ficlVmParseFloatNumber( ficlVm *vm, ficlString s)
             */
             case FPS_INMANT:
             {
-                if ((c == 'e') || (c == 'E'))
+                if ((c == 'e') || (c == 'E') || (c == 'd') || (c == 'D'))
                 {
                     estate = FPS_STARTEXP;
                 }
