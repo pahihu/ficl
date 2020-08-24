@@ -209,6 +209,8 @@ DECIMAL
 : D- ( d1 d2 -- d ) dnegate d+ ;
 : D0= ( d -- f ) or 0= ;
 : D0< ( d -- f ) 0< nip ;
+: D= ( d1 d2 -- f ) d- d0= ;
+: D<> ( d1 d2 -- f ) d= 0= ;
 
 : M+ ( d1 n -- d2 ) s>d d+ ;
 : <= ( n1 n2 -- ff ) > 0= ;

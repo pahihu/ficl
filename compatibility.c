@@ -45,7 +45,7 @@ FICL_PLATFORM_EXTERN ficlString  vmGetWord      (ficlVm *vm) { return ficlVmGetW
 FICL_PLATFORM_EXTERN ficlString  vmGetWord0     (ficlVm *vm) { return ficlVmGetWord0(vm); }
 FICL_PLATFORM_EXTERN int         vmGetWordToPad (ficlVm *vm) { return ficlVmGetWordToPad(vm); }
 FICL_PLATFORM_EXTERN ficlString  vmParseString  (ficlVm *vm, char delimiter) { return ficlVmParseString(vm, delimiter); }
-FICL_PLATFORM_EXTERN ficlString  vmParseStringEx(ficlVm *vm, char delimiter, char skipLeading) { return ficlVmParseStringEx(vm, delimiter, skipLeading); }
+FICL_PLATFORM_EXTERN ficlString  vmParseStringEx(ficlVm *vm, char delimiter, char skipLeading) { return ficlVmParseStringEx(vm, delimiter, skipLeading, 1); }
 FICL_PLATFORM_EXTERN ficlCell    vmPop          (ficlVm *vm) { return ficlVmPop(vm); }
 FICL_PLATFORM_EXTERN void        vmPush         (ficlVm *vm, ficlCell cell) { ficlVmPush(vm, cell); }
 FICL_PLATFORM_EXTERN void        vmPopIP        (ficlVm *vm) { ficlVmPopIP(vm); }

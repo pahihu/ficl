@@ -1224,7 +1224,8 @@ static void ficlPrimitiveFInfiniteQ(ficlVm *vm)
     FICL_STACK_CHECK(vm->dataStack,  0, 1);
 
     r = ficlStackPopFloat(vm->floatStack);
-    ficlStackPushInteger(vm->dataStack, FICL_BOOL(isinf(r)));
+    ficlStackPushInteger(vm->dataStack,
+                            isnan(r) ? FICL_FALSE : FICL_BOOL(isinf(r)));
 }
 
 /**************************************************************************

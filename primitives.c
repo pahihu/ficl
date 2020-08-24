@@ -577,7 +577,7 @@ static void ficlPrimitiveBackslash(ficlVm *vm)
 */
 static void ficlPrimitiveParenthesis(ficlVm *vm)
 {
-    ficlVmParseStringEx(vm, ')', 0);
+    ficlVmParseStringEx(vm, ')', 0, 0);
     return;
 }
 
@@ -2265,7 +2265,7 @@ static void ficlPrimitiveWord(ficlVm *vm)
 
     counted = (ficlCountedString *)vm->Pad;
     delim = (char)ficlStackPopInteger(vm->dataStack);
-    name = ficlVmParseStringEx(vm, delim, 1);
+    name = ficlVmParseStringEx(vm, delim, 1, 1);
 
     if (FICL_STRING_GET_LENGTH(name) > FICL_PAD_SIZE - 1)
         FICL_STRING_SET_LENGTH(name, FICL_PAD_SIZE - 1);
@@ -2323,7 +2323,7 @@ static void ficlPrimitiveParse(ficlVm *vm)
 
     delim = (char)ficlStackPopInteger(vm->dataStack);
 
-    s = ficlVmParseStringEx(vm, delim, 0);
+    s = ficlVmParseStringEx(vm, delim, 0, 1);
     ficlStackPushPointer(vm->dataStack, FICL_STRING_GET_POINTER(s));
     ficlStackPushUnsigned(vm->dataStack, FICL_STRING_GET_LENGTH(s));
     return;

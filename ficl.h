@@ -1147,7 +1147,7 @@ FICL_PLATFORM_EXTERN ficlString  ficlVmGetWord0     (ficlVm *vm);
 FICL_PLATFORM_EXTERN int         ficlVmGetWordToPad (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmInnerLoop    (ficlVm *vm, ficlWord *word);
 FICL_PLATFORM_EXTERN ficlString  ficlVmParseString  (ficlVm *vm, char delimiter);
-FICL_PLATFORM_EXTERN ficlString  ficlVmParseStringEx(ficlVm *vm, char delimiter, char fSkipLeading);
+FICL_PLATFORM_EXTERN ficlString  ficlVmParseStringEx(ficlVm *vm, char delimiter, char fSkipLeading, char fFindEol);
 FICL_PLATFORM_EXTERN ficlCell    ficlVmPop          (ficlVm *vm);
 FICL_PLATFORM_EXTERN void        ficlVmPush         (ficlVm *vm, ficlCell c);
 FICL_PLATFORM_EXTERN void        ficlVmPopIP        (ficlVm *vm);

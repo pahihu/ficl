@@ -2931,7 +2931,7 @@ ficlDictionary  *ficlVmGetDictionary(ficlVm *vm)
 **************************************************************************/
 char *ficlVmGetString(ficlVm *vm, ficlCountedString *counted, char delimiter)
 {
-    ficlString s = ficlVmParseStringEx(vm, delimiter, 0);
+    ficlString s = ficlVmParseStringEx(vm, delimiter, 0, 1);
 
     if (FICL_STRING_GET_LENGTH(s) > FICL_COUNTED_STRING_MAX)
     {
@@ -3041,10 +3041,10 @@ int ficlVmGetWordToPad(ficlVm *vm)
 **************************************************************************/
 ficlString ficlVmParseString(ficlVm *vm, char delimiter)
 { 
-    return ficlVmParseStringEx(vm, delimiter, 1);
+    return ficlVmParseStringEx(vm, delimiter, 1, 1);
 }
 
-ficlString ficlVmParseStringEx(ficlVm *vm, char delimiter, char skipLeadingDelimiters)
+ficlString ficlVmParseStringEx(ficlVm *vm, char delimiter, char skipLeadingDelimiters, char findEol)
 {
     ficlString s;
     char *trace      = ficlVmGetInBuf(vm);
@@ -3060,11 +3060,12 @@ ficlString ficlVmParseStringEx(ficlVm *vm, char delimiter, char skipLeadingDelim
     FICL_STRING_SET_POINTER(s, trace);    /* mark start of text */
 
     for (c = *trace;
-        (trace != stop) && (c != delimiter)
-            && (c != '\r') && (c != '\n');
+        (trace != stop) && (c != delimiter);
         c = *++trace)
     {
-        ;                   /* find next delimiter or end of line */
+        ;                                         /* find next delimiter */
+        if (findEol && (c == '\r' || c == '\n'))  /* or end of line */
+            break;
     }
 
                             /* set length of result */
