@@ -80,6 +80,16 @@ int fpclassify(double x)
     return ret;
 }
 
+int signbit(double x)
+{
+    union {
+        double d;
+        unsigned long long ull;
+    } u;
+    u.d = x;
+    return (u.ull & 0x8000000000000000ULL) ? 0 == 0 : 0;
+}
+
 #endif
 
 #include "ficlblas.h"
@@ -1134,21 +1144,21 @@ static void ficlPrimitiveFProximate(ficlVm *vm)
     r3 = ficlStackPopFloat(vm->floatStack);
     r2 = ficlStackPopFloat(vm->floatStack);
     r1 = ficlStackPopFloat(vm->floatStack);
-    if (r3 > 0.0)
-    {
-        if (fabs(r1 - r2) < r3)
-            flag = FICL_TRUE;
-    }
-    else if (r3 < 0.0)
-    {
-        if (fabs(r1 - r2) < fabs(r3 * (fabs(r1) + fabs(r2))))
-            flag = FICL_TRUE;
-    }
-    else
+    if (r3 == 0.0)
     {
         d1.f = r1;
         d2.f = r2;
         if (d1.u == d2.u)
+            flag = FICL_TRUE;
+    }
+    else if (signbit(r3))
+    {
+        if (fabs(r1 - r2) < fabs(r3) * (fabs(r1) + fabs(r2)))
+            flag = FICL_TRUE;
+    }
+    else
+    {
+        if (fabs(r1 - r2) < r3)
             flag = FICL_TRUE;
     }
     ficlStackPushUnsigned(vm->dataStack, flag);
