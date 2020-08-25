@@ -5,8 +5,7 @@ FLOATS? [IF]
 
 HIDE
 
-CREATE FTMP1 0 , 0 ,
-CREATE FTMP2 0 , 0 ,
+CREATE FTMP 0 , 0 ,
 
 SET-CURRENT
 
@@ -24,21 +23,21 @@ AKA >FLOAT FPOPD
 
 : FPUSHS ( F: r -- ) ( -- u )
 \G Move an IEEE 32bit float from the float to the parameter stack.
-   FTMP1 SF!  FTMP1 Q@ ;
+   FTMP SF!  FTMP Q@ ;
 
 : FPOPS ( u -- ) ( F: -- r )
 \G Move a 32bit pattern from parameter to float stack.
-   FTMP1 Q!  FTMP1 SF@ ;
+   FTMP Q!  FTMP SF@ ;
 
 [ELSE]
 
 : FPUSHD ( F: r -- ) ( -- u )
 \G Move an IEEE 64bit float from the float to the parameter stack.
-   FTMP1 DF!  FTMP1 2@ ;
+   FTMP DF!  FTMP 2@ ;
 
 : FPOPD ( u -- ) ( F: -- r )
 \G Move a 64bit pattern from parameter to float stack.
-   FTMP1 2!  FTMP1 DF@ ;
+   FTMP 2!  FTMP DF@ ;
 
 AKA FLOAT> FPUSHS
 AKA >FLOAT FPOPS
@@ -91,11 +90,14 @@ PI 180.0e F/ FCONSTANT PI/180
 \G True if r is finite.
    FDUP FINFINITE? FNAN? OR 0= ;
 
-: FSAME? ( F: r1 r2 -- ) ( -- ff )
-\G Testing FP number equality including NaN/Inf.
-   FDUP FINITE? FOVER FINITE? AND  IF F= EXIT THEN
-   FTMP1 DF!  FTMP2 DF!
-   FTMP1 2@   FTMP2 2@  D= ;
+: FEXACTLY= ( F: r1 r2 -- ) ( -- ff )
+\G True if r1 exactly equal to r2.
+   0e F~ ;
+
+: FEQU? ( F: r1 r2 -- ) ( -- ff )
+\G Testing FP number equality.
+   FDUP FINITE? FOVER FINITE? AND
+   IF  F=  ELSE  FEXACTLY=  THEN ;
 
 PREVIOUS
 
