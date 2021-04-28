@@ -1,10 +1,12 @@
-.( loading SYSTEM STACK -- iForth ) CR
+.( loading IFCOMPAT -- iForth ) CR
 
 \ ANEW -systack
 
 HIDE
 
 DECIMAL
+
+VARIABLE diff0
 
 128 CELLS CONSTANT |SACK
 
@@ -40,6 +42,27 @@ SET-CURRENT
 : SDEPTH ( -- n )
 \G Depth of system stack.
    |SACK SACK +  S @ - /CELL / ;
+
+( --- timers ------------------------------------------------- )
+
+: TIMER-RESET ( -- )
+\G Reset timer.
+   GET-MSECS diff0 ! ;
+
+: ?MS ( -- u )
+\G Return milliseconds elapsed since TIMER-RESET.
+   GET-MSECS diff0 @  - ;
+
+: .ELAPSED ( -- )
+\G Display milliseconds elapsed since TIMER-RESET.
+   ?MS . ." ms" ;
+
+: =:         CONSTANT ;
+
+: 2^x ( n -- 2^n )   1 SWAP LSHIFT ;
+
+: []CELL ( u a-addr -- c-addr )   S" SWAP CELLS + " EVALUATE ; IMMEDIATE
+: CELL[] ( a-addr u -- c-addr )   S"      CELLS + " EVALUATE ; IMMEDIATE
 
 PREVIOUS
 
