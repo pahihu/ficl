@@ -210,6 +210,8 @@ int main(int argc, char **argv)
     {
         sprintf(buffer, ".( loading %s ) cr load %s\n cr", argv[narg], argv[narg]);
 		returnValue = ficlVmEvaluate(f_vm, buffer);
+        if (returnValue == FICL_VM_STATUS_USER_EXIT)
+            goto Lexit;
 		narg++;
 	}
 
@@ -260,6 +262,7 @@ int main(int argc, char **argv)
 		}
     }
 
+Lexit:
 #if FICL_WANT_MULTITHREADED
     pthread_mutex_destroy(&dictionaryMutex);
     pthread_mutex_destroy(&systemMutex);
