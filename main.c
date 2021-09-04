@@ -44,6 +44,7 @@
 
 ficlVm *f_vm;
 ficlSystem *f_system;
+int quiet;
 
 #include <signal.h>
 
@@ -102,7 +103,7 @@ static void install_handlers(void)
 
 static void usage()
 {
-	fprintf(stderr,"usage: ficl [-sN] [-dN] [-eN] [file1 file2 ...]\n");
+	fprintf(stderr,"usage: ficl [-q] [-sN] [-dN] [-eN] [file1 file2 ...]\n");
 	exit(1);
 }
 
@@ -174,6 +175,7 @@ int main(int argc, char **argv)
 	ficlSystemInformation fsi;
     unsigned gotSignal;
 
+    quiet = 0;
 	install_handlers();
 	ficlSystemInformationInitialize(&fsi);
 
@@ -184,7 +186,8 @@ int main(int argc, char **argv)
 		case 's': fsi.stackSize = atoi(argv[narg]+2); break;
 		case 'e': fsi.environmentSize = atoi(argv[narg]+2); break;
 		case 'd': fsi.dictionarySize = atoi(argv[narg]+2); break;
-		default:	 usage();
+        case 'q': quiet = fsi.quiet = 1; break;
+		default:  usage();
 		}
 		narg++;
 	}
@@ -201,14 +204,23 @@ int main(int argc, char **argv)
     f_system = ficlSystemCreate(&fsi);
     f_vm = ficlSystemCreateVm(f_system);
 
-    returnValue = ficlVmEvaluate(f_vm, ".ver .( " __DATE__ " ) cr quit");
+    ficlSystemSetVerbose(f_system);
+    ficlVmSetVerbose(f_vm);
+
+    if (!quiet)
+        returnValue = ficlVmEvaluate(f_vm, ".ver .( " __DATE__ " ) cr quit");
 
     /*
     ** load files specified on command-line
     */
     while (narg < argc)
     {
-        sprintf(buffer, ".( loading %s ) cr load %s\n cr", argv[narg], argv[narg]);
+        if (!quiet)
+        {
+            sprintf(buffer, "loading %s\n", argv[narg]);
+            ficlVmTextOut(f_vm, buffer);
+        }
+        sprintf(buffer, "load %s", argv[narg]);
 		returnValue = ficlVmEvaluate(f_vm, buffer);
         if (returnValue == FICL_VM_STATUS_USER_EXIT)
             goto Lexit;

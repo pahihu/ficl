@@ -59,11 +59,10 @@ void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
     outFile = vm ? vm->outFile : 0;
     out = outFile ? outFile->f : stdout;
     if (message != NULL) {
-        fputs(message, out);
-        fflush(out);
+        if (0 == callback->quiet)
+            fputs(message, out);
     }
-    else
-        fflush(out);
+    fflush(out);
     return;
 }
 

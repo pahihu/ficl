@@ -1024,6 +1024,7 @@ struct ficlCallback
     ficlOutputFunction errorOut;
     ficlSystem *system;
     ficlVm *vm;
+    int quiet;
 };
 
 FICL_PLATFORM_EXTERN void ficlCallbackTextOut(ficlCallback *callback, char *text);
@@ -1625,11 +1626,14 @@ struct ficlSystemInformation
     ficlOutputFunction textOut;    /* default textOut function */
     ficlOutputFunction errorOut;    /* textOut function used for errors */
     int environmentSize;      /* Size of Environment dictionary, in cells */
+    int quiet;          /* Suppress ficlVmTextOut() output during startup */
 };
 
 #define ficlSystemInformationInitialize(x) { memset((x), 0, sizeof(ficlSystemInformation)); \
          (x)->size = sizeof(ficlSystemInformation); }
 
+#define ficlSystemSetVerbose(x) { (x)->callback.quiet = 0; }
+#define ficlVmSetVerbose(x) { (x)->callback.quiet = 0; }
 
 
 

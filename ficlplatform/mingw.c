@@ -107,10 +107,10 @@ void ficlFree(void *p)
 
 void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
 {
-    FICL_IGNORE(callback);
-    if (message != NULL)
-        fputs(message, stdout);
-    else
+    if (message != NULL) {
+        if (0 == callback->quiet)
+            fputs(message, stdout);
+    } else
         fflush(stdout);
     return;
 }

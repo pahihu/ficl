@@ -169,6 +169,7 @@ ficlSystem *ficlSystemCreate(ficlSystemInformation *fsi)
     system->callback.context = fsi->context;
     system->callback.system = system;
     system->callback.vm = NULL;
+    system->callback.quiet = fsi->quiet;
     system->stackSize = stackSize;
 
 #if FICL_WANT_LOCALS
