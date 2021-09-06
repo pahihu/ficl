@@ -174,6 +174,7 @@ int main(int argc, char **argv)
 	int prompt;
 	ficlSystemInformation fsi;
     unsigned gotSignal;
+    FILE *inFile;
 
     quiet = 0;
 	install_handlers();
@@ -237,7 +238,7 @@ int main(int argc, char **argv)
 	}
 
 	done = 0;
-	prompt = 1;
+	prompt = isatty(fileno(stdin));
     /* while (returnValue != FICL_VM_STATUS_USER_EXIT) */
 	while (!done)
 	{
@@ -252,9 +253,26 @@ int main(int argc, char **argv)
             else
 			    fputs("  ] ", stdout);
         }
-		fgets(buffer, sizeof(buffer), stdin);
-		prompt = 1;
+        switch (f_vm->sourceId.i)
+        {
+            case 0:
+                inFile = stdin;
+                break;
+            case -1:
+                ficlVmAbort(f_vm);
+                break;
+            default:
+                {
+                    ficlFile *ff = (ficlFile*)f_vm->sourceId.p;
+                    inFile = ff->f;
+                }
+                break;
+        }
+		if (!fgets(buffer, sizeof(buffer), inFile))
+            break;
+		prompt = (stdin == inFile) && isatty(fileno(stdin));
 		returnValue = ficlVmEvaluate(f_vm, buffer);
+        // fprintf(stderr,"ret=%d\n",returnValue);
 		switch (returnValue)
         {
 		    case FICL_VM_STATUS_OUT_OF_TEXT:

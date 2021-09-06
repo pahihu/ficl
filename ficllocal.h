@@ -6,12 +6,12 @@
 */
 
 #ifndef FICL_ROBUST
-#define FICL_ROBUST                     (1)
+#define FICL_ROBUST                     (0)
 #endif
 #define FICL_WANT_EXTENDED_PREFIX       (1)
 #define FICL_DEFAULT_DICTIONARY_SIZE    (32768)
 #define FICL_USER_CELLS                 (64)
-#define FICL_WANT_MULTITHREADED		(1)
+#define FICL_WANT_MULTITHREADED		    (1)
 #define FICL_HASH_SIZE                  (1009)
 
 #ifdef darwin

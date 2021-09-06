@@ -1537,6 +1537,26 @@ static void ficlPrimitiveDoesCoIm(ficlVm *vm)
     return;
 }
 
+/**************************************************************************
+                        s c r e a t e
+** Ficl ( c-addr u -- )
+** Like CREATE, but takes c-addr/u for the word name.
+**************************************************************************/
+
+
+static void ficlPrimitiveSCreate(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    ficlString name;
+
+    FICL_STRING_SET_LENGTH(name, ficlStackPopUnsigned(vm->dataStack));
+    FICL_STRING_SET_POINTER(name, ficlStackPopPointer(vm->dataStack));
+
+    ficlDictionaryAppendWord(dictionary, name, (ficlPrimitive)ficlInstructionCreateParen, FICL_WORD_DEFAULT);
+    ficlVmDictionaryAllotCells(vm, dictionary, 1);
+    return;
+}
+
 
 /**************************************************************************
                         t o   b o d y
@@ -3592,6 +3612,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "x.",        ficlPrimitiveHexDot,         FICL_WORD_DEFAULT);
 #if FICL_WANT_USER
     ficlDictionarySetPrimitive(dictionary, "user",      ficlPrimitiveUser,   FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "screate",   ficlPrimitiveSCreate,         FICL_WORD_DEFAULT);
 #endif
 
     /*

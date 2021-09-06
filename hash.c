@@ -2,6 +2,7 @@
 
 
 #define FICL_ASSERT_PHASH(hash, expression) FICL_ASSERT(NULL, expression)
+#define FICL_BUCKET(hash, size)             ((hash) % (size))
 
 
 
@@ -45,8 +46,10 @@ void ficlHashForget(ficlHash *hash, void *where)
 **************************************************************************/
 ficlUnsigned16 ficlHashCode(ficlString s)
 {   
-    /* hashPJW */
     ficlUnsigned8 *trace;
+
+#if 0
+    /* hashPJW */
     ficlUnsigned16 code = (ficlUnsigned16)s.length;
     ficlUnsigned16 shift = 0;
 
@@ -66,6 +69,19 @@ ficlUnsigned16 ficlHashCode(ficlString s)
     }
 
     return (ficlUnsigned16)code;
+
+#else
+    /* hashFNV-1a */
+    ficlUnsigned32 code32 = 2166136261UL;
+
+    for (trace = (ficlUnsigned8 *)s.text; s.length && *trace; trace++, s.length--)
+    {
+        code32 ^= (unsigned char)tolower(*trace);
+        code32 *= 16777619UL;
+    }
+
+    return (ficlUnsigned16)(code32 & 65535UL);
+#endif
 }
 
 
@@ -89,7 +105,7 @@ void ficlHashInsertWord(ficlHash *hash, ficlWord *word)
     }
     else
     {
-        pList = hash->table + (word->hash % hash->size);
+        pList = hash->table + FICL_BUCKET(word->hash, hash->size);
     }
 
     word->link = *pList;
@@ -119,7 +135,7 @@ ficlWord *ficlHashLookup(ficlHash *hash, ficlString name, ficlUnsigned16 hashCod
     for (; hash != NULL; hash = hash->link)
     {
         if (hash->size > 1)
-            hashIdx = (ficlUnsigned16)(hashCode % hash->size);
+            hashIdx = (ficlUnsigned16)FICL_BUCKET(hashCode, hash->size);
         else            /* avoid the modulo op for single threaded lists */
             hashIdx = 0;
 
