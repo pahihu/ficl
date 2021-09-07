@@ -1559,6 +1559,36 @@ static void ficlPrimitiveSCreate(ficlVm *vm)
 
 
 /**************************************************************************
+                        e x e c u t e - p a r s i n g
+** execute-parsing ( ... c-addr u xt -- ... )
+** Make c-addr/u the current input source, execute xt ( ... -- ... ),
+** then restore the previous input source.
+**************************************************************************/
+
+static void ficlPrimitiveExecuteParsing(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    ficlWord   *word;
+    ficlString name;
+    ficlTIB    saveficlTIB;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+    word = ficlStackPopPointer(vm->dataStack);
+
+    FICL_STRING_SET_LENGTH(name, ficlStackPopUnsigned(vm->dataStack));
+    FICL_STRING_SET_POINTER(name, ficlStackPopPointer(vm->dataStack));
+
+    ficlVmPushTib(vm, FICL_STRING_GET_POINTER(name), FICL_STRING_GET_LENGTH(name), &saveficlTIB);
+
+    ficlVmExecuteXT(vm, word);
+
+    ficlVmPopTib(vm, &saveficlTIB);
+    return;
+}
+
+
+/**************************************************************************
                         t o   b o d y
 ** to-body      CORE ( xt -- a-addr )
 ** a-addr is the data-field address corresponding to xt. An ambiguous
@@ -3610,6 +3640,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "sprintf",   ficlPrimitiveSprintf,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "strlen",    ficlPrimitiveStrlen,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "x.",        ficlPrimitiveHexDot,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "execute-parsing",   ficlPrimitiveExecuteParsing,        FICL_WORD_DEFAULT);
 #if FICL_WANT_USER
     ficlDictionarySetPrimitive(dictionary, "user",      ficlPrimitiveUser,   FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "screate",   ficlPrimitiveSCreate,         FICL_WORD_DEFAULT);
