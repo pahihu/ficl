@@ -68,9 +68,7 @@ PREVIOUS
 
 : ZLENGTH ( za -- u )
 \G Length of NULL terminated string.
-   DUP
-   BEGIN COUNT WHILE REPEAT
-   SWAP - 1- ;
+   strlen ;
 
 : ZCOUNT ( za -- ca u )
 \G Address and length of NULL terminated string.
