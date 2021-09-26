@@ -67,7 +67,7 @@ FALSE CONSTANT [VOID] IMMEDIATE
 
 : ENDS? ( str len pat len2 -- str len flag )
 \G Check end of string.
-   DUP >R  2OVER  DUP R> - /STRING  COMPARE 0= ;
+   DUP >R  2OVER  DUP R> -  0 MAX  /STRING  COMPARE 0= ;
 
 : CONTAINS? ( str1 n1 str2 n2 -- str1 n1 flag )
 \G Test that str1 contains str2.

@@ -62,13 +62,8 @@ DECIMAL
 
 : STRING, ( ca n -- )   here over chars allot  swap move ;
 : ," ( "string" -- )   [char] " word count string, ;
-: /STRING ( ca1 u1 +n -- ca2 u2 ) \ remove +n chars from sc
-   over
-   IF 0 max  over min
-      swap over - >R  +  R>
-   ELSE drop
-   THEN
-;
+: /STRING ( ca1 u1 n -- ca2 u2 ) \ remove +n chars from sc
+   swap over - >R + R> ;
 
 ( Character constants ---------------------------------------- )
 
