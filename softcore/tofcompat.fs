@@ -6,11 +6,11 @@
 
 : 0>= ( n -- f )
 \G True if n >= 0.
-   0 >= ;
+   0< 0= ;
 
 : 0<= ( n -- f )
 \G True if n <= 0.
-   0 <= ;
+   0> 0= ;
 
 : UNDER+ ( a b c -- a+c b )
 \G Add TOS to under NOS.
