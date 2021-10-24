@@ -20,5 +20,5 @@
 : END-STRING-ARRAY ( i*caddrI n "name" -- )
    CREATE DUP 1- , 0 ?DO , LOOP
    DOES>  ( # addr -- caddr u )
-     @+ ( # addr2 n) ROT - CELLS + @ COUNT ;
+     @+ ( # addr2 n) ROT - CELLS+ @ COUNT ;
 

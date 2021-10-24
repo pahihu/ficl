@@ -61,8 +61,8 @@ SET-CURRENT
 
 : 2^x ( n -- 2^n )   1 SWAP LSHIFT ;
 
-: []CELL ( u a-addr -- c-addr )   S" SWAP CELLS + " EVALUATE ; IMMEDIATE
-: CELL[] ( a-addr u -- c-addr )   S"      CELLS + " EVALUATE ; IMMEDIATE
+: []CELL ( u a-addr -- c-addr )   S" SWAP CELLS+ " EVALUATE ; IMMEDIATE
+: CELL[] ( a-addr u -- c-addr )   S"      CELLS+ " EVALUATE ; IMMEDIATE
 
 PREVIOUS
 

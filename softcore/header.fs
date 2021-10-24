@@ -32,9 +32,9 @@ HIDE
 SET-CURRENT
 
 : LFA ( xt -- lfa ) ;
-: NFA ( lfa -- nfa )   2 CELLS + ;
-: CFA ( lfa -- cfa )   3 CELLS + ;
-: PFA ( lfa -- pfa )   5 CELLS + ;
+: NFA ( lfa -- nfa )   2 CELLS+ ;
+: CFA ( lfa -- cfa )   3 CELLS+ ;
+: PFA ( lfa -- pfa )   5 CELLS+ ;
   
 : .ID ( lfa -- )   NFA  NFA>NAME  TYPE SPACE ;
 
