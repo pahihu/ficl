@@ -24,13 +24,13 @@ SET-CURRENT
 
 : >S ( n -- ) ( S: -- n)
 \G Push value to system stack.
-   [ /CELL NEGATE ] LITERAL S +!  S @  !   
+   [ /CELL NEGATE ] LITERAL S +!  S @!
 ;
 
 
 : S@ ( -- n ) ( S: n -- n )
 \G Copy value from system stack.
-   S @ @
+   S @@
 ;
 
 
