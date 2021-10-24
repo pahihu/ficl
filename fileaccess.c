@@ -343,7 +343,7 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
     ficlUnsigned length;
     char *address;
     int error;
-    int flag;
+    ficlInteger flag;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 3);
 
@@ -353,7 +353,7 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 
     if (feof(ff->f))
     {
-        ficlStackPushUnsigned(vm->dataStack, (ficlUnsigned) -1);
+        ficlStackPushUnsigned(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, 0);
         return;
@@ -361,19 +361,19 @@ static void ficlPrimitiveReadLine(ficlVm *vm) /* ( c-addr u1 fileid -- u2 flag i
 
     clearerr(ff->f);
     *address = 0;
-    fgets(address, length, ff->f);
+    fgets(address, length + 1, ff->f);
 
     error = ferror(ff->f);
     if (error != 0)
     {
-        ficlStackPushUnsigned(vm->dataStack, (ficlUnsigned) -1);
+        ficlStackPushUnsigned(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, 0);
         ficlStackPushInteger(vm->dataStack, error);
         return;
     }
 
     length = strlen(address);
-    flag = (length > 0);
+    flag = (length > 0) ? FICL_TRUE : FICL_FALSE;
     if (length && ((address[length - 1] == '\r') || (address[length - 1] == '\n')))
         length--;
     
