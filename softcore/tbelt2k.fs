@@ -39,7 +39,7 @@ FALSE CONSTANT [VOID] IMMEDIATE
 
 : IS-WHITE ( char -- flag )
 \G Test char for white space.
-   33 - 0< ;
+   33 < ;
 
 : TRIM ( str len -- str len-i )
 \G Trim white space from end of string.
