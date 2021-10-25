@@ -9,14 +9,23 @@ S" FICL_WANT_FILE" ENVIRONMENT? drop [if]
 : w/o 2 ; 
 : bin 8 or ; 
 
+-1 value strict-include
+
 : included
-    r/o bin open-file 0= if
-        include-file
+    2dup r/o bin open-file
+    ?dup if
+        swap drop
+        strict-include if
+            why type ." : " type cr
+            -56 throw
+        then
+        drop 2drop
     else
-        drop
+        >r 2drop r>
+        include-file
     endif
     ;
-
+    
 : include parse-word included ;
 
 [endif]
