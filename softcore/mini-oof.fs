@@ -16,7 +16,7 @@
    dup 2@ ;
 
 : end-class ( class methods vars -- )
-   CREATE  here >R , dup , 0 ?DO ['] noop , LOOP
+   CREATE  here >R , dup , 2 cells ?DO ['] noop , /cell +LOOP
    cell+ dup cell+ swap @ -2 cells+
    R> 2 cells+ swap move ;
 
