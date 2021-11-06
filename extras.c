@@ -171,6 +171,8 @@ static void ficlPrimitiveLoad(ficlVm *vm)
 
         if (buffer[length] == '\n')
             buffer[length--] = '\0';
+        else
+            ficlVmThrowError(vm, "Error: file <%s> line %d is too long", FICL_COUNTED_STRING_GET_POINTER(*counted), line);
 
         FICL_STRING_SET_POINTER(s, buffer);
         FICL_STRING_SET_LENGTH(s, length + 1);

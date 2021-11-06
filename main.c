@@ -168,6 +168,7 @@ int main(int argc, char **argv)
 {
     int returnValue = 0;
     char buffer[256];
+    int buflen;
 	int sig;
 	int done;
 	int narg;
@@ -239,7 +240,6 @@ int main(int argc, char **argv)
 
 	done = 0;
 	prompt = isatty(fileno(stdin));
-    /* while (returnValue != FICL_VM_STATUS_USER_EXIT) */
 	while (!done)
 	{
 		if (prompt) {
@@ -271,7 +271,14 @@ int main(int argc, char **argv)
 		if (!fgets(buffer, sizeof(buffer), inFile))
             break;
 		prompt = (stdin == inFile) && isatty(fileno(stdin));
-		returnValue = ficlVmEvaluate(f_vm, buffer);
+        buflen = strlen(buffer);
+        if (buflen && buffer[buflen-1] == '\n')
+		    returnValue = ficlVmEvaluate(f_vm, buffer);
+        else {
+	        sprintf(f_vm->Pad, "Error: input line too long\n");
+		    ficlVmErrorOut(f_vm, f_vm->Pad);
+            returnValue = FICL_VM_STATUS_ERROR_EXIT;
+        }
         // fprintf(stderr,"ret=%d\n",returnValue);
 		switch (returnValue)
         {

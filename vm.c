@@ -2935,7 +2935,9 @@ char *ficlVmGetString(ficlVm *vm, ficlCountedString *counted, char delimiter)
 
     if (FICL_STRING_GET_LENGTH(s) > FICL_COUNTED_STRING_MAX)
     {
-        FICL_STRING_SET_LENGTH(s, FICL_COUNTED_STRING_MAX);
+	/* do not truncate silently */
+        /* FICL_STRING_SET_LENGTH(s, FICL_COUNTED_STRING_MAX); */
+	ficlVmThrowError(vm, "Error: counted string should be less than 256 characters");
     }
 
     strncpy(counted->text, FICL_STRING_GET_POINTER(s), FICL_STRING_GET_LENGTH(s));
