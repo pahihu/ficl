@@ -167,7 +167,7 @@ int ficlDTOALock(int n, ficlUnsigned lockIncrement)
 int main(int argc, char **argv)
 {
     int returnValue = 0;
-    char buffer[256];
+    char buffer[LINE_BUFFER_SIZE];
     int buflen;
 	int sig;
 	int done;

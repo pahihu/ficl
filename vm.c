@@ -317,6 +317,7 @@ void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
     ficlUnsigned u;
     ficlCell c;
     ficlCountedString *s;
+    ficlPairedString *ps;
     ficlCell *cell;
     char *cp;
     ficlCell areg, breg;
@@ -417,14 +418,14 @@ AGAIN:
             **************************************************************************/
             case ficlInstructionStringLiteralParen:
             {
-                ficlUnsigned8 length;
+                ficlUnsigned length;
                 CHECK_STACK(0, 2);
 
-                s = (ficlCountedString *)(ip);
-                length = s->length;
-                cp = s->text;
+                ps = (ficlPairedString *)(ip);
+                length = ps->length;
+                cp = ps->text;
                 (++dataTop)->p = cp;
-                (++dataTop)->i = length;
+                (++dataTop)->u = length;
 
                 cp += length + 1;
                 cp = ficlAlignPointer(cp);
@@ -2945,6 +2946,26 @@ char *ficlVmGetString(ficlVm *vm, ficlCountedString *counted, char delimiter)
     counted->length = (ficlUnsigned8)FICL_STRING_GET_LENGTH(s);
 
     return counted->text + FICL_STRING_GET_LENGTH(s) + 1;
+}
+
+
+/**************************************************************************
+                    v m G e t P a i r e d S t r i n g
+** Parses a string out of the VM input buffer and copies to the supplied
+** destination buffer, a ficlString. The destination string is NULL
+** terminated.
+**
+** Returns the address of the first unused character in the dest buffer.
+**************************************************************************/
+char *ficlVmGetPairedString(ficlVm *vm, ficlPairedString *paired, char delimiter)
+{
+    ficlString s = ficlVmParseStringEx(vm, delimiter, 0, 1);
+
+    strncpy(paired->text, FICL_STRING_GET_POINTER(s), FICL_STRING_GET_LENGTH(s));
+    paired->text[FICL_STRING_GET_LENGTH(s)] = '\0';
+    paired->length = (ficlUnsigned)FICL_STRING_GET_LENGTH(s);
+
+    return paired->text + FICL_STRING_GET_LENGTH(s) + 1;
 }
 
 

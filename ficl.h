@@ -614,6 +614,8 @@ struct ficlCallback;
 typedef struct ficlCallback ficlCallback;
 struct ficlCountedString;
 typedef struct ficlCountedString ficlCountedString;
+struct ficlPairedString;
+typedef struct ficlPairedString ficlPairedString;
 struct ficlString;
 typedef struct ficlString ficlString;
 struct ficlFile;
@@ -889,6 +891,15 @@ struct ficlCountedString
 #define FICL_COUNTED_STRING_MAX  (256)
 #define FICL_POINTER_TO_COUNTED_STRING(p)   ((ficlCountedString *)(void *)p)
 
+struct ficlPairedString
+{
+    ficlUnsigned length;
+    char text[1];
+};
+
+#define FICL_PAIRED_STRING_GET_LENGTH(ps)  ((ps).length)
+#define FICL_PAIRED_STRING_GET_POINTER(ps) ((ps).text)
+
 struct ficlString
 {
     ficlUnsigned length;
@@ -1140,9 +1151,10 @@ struct ficlVm
 
 FICL_PLATFORM_EXTERN void        ficlVmBranchRelative(ficlVm *vm, int offset);
 FICL_PLATFORM_EXTERN ficlVm *    ficlVmCreate       (ficlVm *vm, unsigned nPStack, unsigned nRStack);
-FICL_PLATFORM_EXTERN void        ficlVmDestroy       (ficlVm *vm);
+FICL_PLATFORM_EXTERN void        ficlVmDestroy      (ficlVm *vm);
 FICL_PLATFORM_EXTERN ficlDictionary *ficlVmGetDictionary(ficlVm *vm);
 FICL_PLATFORM_EXTERN char *      ficlVmGetString    (ficlVm *vm, ficlCountedString *spDest, char delimiter);
+FICL_PLATFORM_EXTERN char *      ficlVmGetPairedString(ficlVm *vm, ficlPairedString *spDest, char delimiter);
 FICL_PLATFORM_EXTERN ficlString  ficlVmGetWord      (ficlVm *vm);
 FICL_PLATFORM_EXTERN ficlString  ficlVmGetWord0     (ficlVm *vm);
 FICL_PLATFORM_EXTERN int         ficlVmGetWordToPad (ficlVm *vm);
@@ -1923,6 +1935,8 @@ FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsig
 #include <stdint.h>
 extern void init_genrand(uint64_t *state);
 extern uint64_t genrand_INT(void);
+
+#define LINE_BUFFER_SIZE    4096
 
 #if FICL_WANT_COMPATIBILITY
 	#include "ficlcompatibility.h"

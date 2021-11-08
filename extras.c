@@ -124,11 +124,10 @@ static void ficlPrimitiveSystem(ficlVm *vm)
 ** Example:
 **    load test.f
 */
-#define BUFFER_SIZE 256
 static void ficlPrimitiveLoad(ficlVm *vm)
 {
-    char    buffer[BUFFER_SIZE];
-    char    filename[BUFFER_SIZE];
+    char    buffer[LINE_BUFFER_SIZE];
+    char    filename[LINE_BUFFER_SIZE];
     ficlCountedString *counted = (ficlCountedString *)filename;
     int     line = 0;
     FILE   *f;
@@ -161,7 +160,7 @@ static void ficlPrimitiveLoad(ficlVm *vm)
     vm->sourceId.p = (void *)f;
 
     /* feed each line to ficlExec */
-    while (fgets(buffer, BUFFER_SIZE, f))
+    while (fgets(buffer, sizeof(buffer), f))
     {
         int length = strlen(buffer) - 1;
 

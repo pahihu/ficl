@@ -1416,7 +1416,7 @@ static void ficlPrimitiveDotQuoteCoIm(ficlVm *vm)
     ficlWord *pType = ficlSystemLookup(vm->callback.system, "type");
     FICL_VM_ASSERT(vm, pType);
     ficlDictionaryAppendUnsigned(dictionary, ficlInstructionStringLiteralParen);
-    dictionary->here = FICL_POINTER_TO_CELL(ficlVmGetString(vm, (ficlCountedString *)dictionary->here, '\"'));
+    dictionary->here = FICL_POINTER_TO_CELL(ficlVmGetPairedString(vm, (ficlPairedString *)dictionary->here, '\"'));
     ficlDictionaryAlign(dictionary);
     ficlDictionaryAppendCell(dictionary, FICL_LVALUE_TO_CELL(pType));
     return;
@@ -1464,6 +1464,7 @@ static void ficlPrimitiveSLiteralCoIm(ficlVm *vm)
     char *from;
     char *to;
     ficlUnsigned length;
+    ficlPairedString *paired;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 0);
 
@@ -1472,15 +1473,13 @@ static void ficlPrimitiveSLiteralCoIm(ficlVm *vm)
     from = ficlStackPopPointer(vm->dataStack);
 
     ficlDictionaryAppendUnsigned(dictionary, ficlInstructionStringLiteralParen);
-    to    = (char *) dictionary->here;
-    *to++ = (char)   length;
+    paired = (ficlPairedString*) dictionary->here;
+    memmove(paired->text, from, length);
+    paired->text[length] = '\0';
+    paired->length = length;
 
-    for (; length > 0; --length)
-    {
-        *to++ = *from++;
-    }
+    to = paired->text + length + 1;
 
-    *to++ = 0;
     dictionary->here = FICL_POINTER_TO_CELL(ficlAlignPointer(to));
     return;
 }
@@ -2216,17 +2215,17 @@ static void ficlPrimitiveStringQuoteIm(ficlVm *vm)
 
     if (vm->state == FICL_VM_STATE_INTERPRET)
     {
-        ficlCountedString *counted = (ficlCountedString *)dictionary->here;
-        ficlVmGetString(vm, counted, '\"');
-        ficlStackPushPointer(vm->dataStack, counted->text);
-        ficlStackPushUnsigned(vm->dataStack, counted->length);
+        ficlPairedString *paired = (ficlPairedString *)dictionary->here;
+        ficlVmGetPairedString(vm, paired, '\"');
+        ficlStackPushPointer(vm->dataStack, paired->text);
+        ficlStackPushUnsigned(vm->dataStack, paired->length);
         /* move HERE past string so it doesn't get overwritten.  --ap */
-        ficlVmDictionaryAllot(vm, dictionary, counted->length + sizeof(ficlUnsigned8));
+        ficlVmDictionaryAllot(vm, dictionary, paired->length + sizeof(ficlUnsigned));
     }
     else    /* FICL_VM_STATE_COMPILE state */
     {
         ficlDictionaryAppendUnsigned(dictionary, ficlInstructionStringLiteralParen);
-        dictionary->here = FICL_POINTER_TO_CELL(ficlVmGetString(vm, (ficlCountedString *)dictionary->here, '\"'));
+        dictionary->here = FICL_POINTER_TO_CELL(ficlVmGetPairedString(vm, (ficlPairedString *)dictionary->here, '\"'));
         ficlDictionaryAlign(dictionary);
     }
 
@@ -2244,10 +2243,10 @@ static void ficlPrimitiveStringParen(ficlVm *vm)
 {
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
 
-    ficlCountedString *counted = (ficlCountedString *)dictionary->here;
-    ficlVmGetString(vm, counted, ')');
-    ficlStackPushPointer(vm->dataStack, counted->text);
-    ficlStackPushUnsigned(vm->dataStack, counted->length);
+    ficlPairedString *paired = (ficlPairedString *)dictionary->here;
+    ficlVmGetPairedString(vm, paired, ')');
+    ficlStackPushPointer(vm->dataStack, paired->text);
+    ficlStackPushUnsigned(vm->dataStack, paired->length);
 
     return;
 }
