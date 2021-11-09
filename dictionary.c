@@ -651,7 +651,7 @@ void ficlDictionarySee(ficlDictionary *dictionary, ficlWord *word, ficlCallback 
     char *trace;
     ficlCell *cell = word->param;
     ficlCell *param0 = cell;
-    char buffer[128];
+    char buffer[2 * FICL_COUNTED_STRING_MAX];
 
     for (; cell->i != ficlInstructionSemiParen; cell++)
     {
@@ -705,9 +705,12 @@ void ficlDictionarySee(ficlDictionary *dictionary, ficlWord *word, ficlCallback 
 #endif /* FICL_WANT_FLOAT */
             case FICL_WORDKIND_STRING_LITERAL:
                 {
-                    ficlCountedString *counted = (ficlCountedString *)(void *)++cell;
-                    cell = (ficlCell *)ficlAlignPointer(counted->text + counted->length + 1) - 1;
-                    sprintf(trace, "s\" %.*s\"", counted->length, counted->text);
+                    ficlPairedString *paired = (ficlPairedString *)(void *)++cell;
+                    cell = (ficlCell *)ficlAlignPointer(paired->text + paired->length + 1) - 1;
+                    if (paired->length > 255)
+                        sprintf(trace, "s\" %.*s...\"", 255, paired->text);
+                    else
+                        sprintf(trace, "s\" %.*s\"", (int)paired->length, paired->text);
                 }
                 break;
             case FICL_WORDKIND_CSTRING_LITERAL:
