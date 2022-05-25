@@ -1,12 +1,15 @@
 ( String constant --- ap 27jul2018 )
 
-: PLACE ( from n to -- )
+: PLACE ( from len to -- )
+\G Place string <from/len> as counted string <to>.
    2DUP C! CHAR+ SWAP MOVE ;
 
 : APPEND ( from len to -- )
-   2DUP 2>R  COUNT + SWAP MOVE  2R> C+! ;
+\G Append string <from/len> to counted string <to>.
+   2DUP C+!  COUNT CHARS+ OVER - SWAP MOVE ;
 
 : APPEND-CHAR ( c to -- )
+\G Append char <c> to counted string <to>.
    1 OVER C+!  COUNT 1- CHARS+ C! ;
 
 : PRINT ( ca -- )

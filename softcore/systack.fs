@@ -49,13 +49,17 @@ SET-CURRENT
 \G Reset timer.
    GET-MSECS diff0 ! ;
 
+: MS? ( -- u )
+\G Return elapsed time since TIMER-RESET, update diff0.
+   GET-MSECS diff0 @  over diff0 !  - ;
+
 : ?MS ( -- u )
-\G Return milliseconds elapsed since TIMER-RESET.
-   GET-MSECS diff0 @  - ;
+\G Return milliseconds elapsed.
+   GET-MSECS ;
 
 : .ELAPSED ( -- )
 \G Display milliseconds elapsed since TIMER-RESET.
-   ?MS . ." ms" ;
+   MS? . ." ms" ;
 
 : =:         CONSTANT ;
 
