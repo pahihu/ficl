@@ -68,10 +68,6 @@
 \G Type string and a space.
    TYPE SPACE ;
 
-: BIT? ( bit# addr -- f )
-\G Test bit# of cell at <addr>.
-   @ SWAP BIT AND  0= NOT ;
-
 : MULTI ( -- )
 \G Execute loop until TOR is not negative.
 \G Example: n >R MULTI ... REPEAT R>DROP 

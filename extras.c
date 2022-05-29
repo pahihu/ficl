@@ -1251,6 +1251,65 @@ static void ficlPrimitiveWRulez(ficlVm *vm)
     }
 }
 
+/* : bit? ( ix c-addr -- ff ) */
+static void ficlPrimitiveBitQ(ficlVm *vm)
+{
+    unsigned char *addr, ret;
+    int ix;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ix   = ficlStackPopInteger(vm->dataStack);
+
+    ret = addr[ix >> 3] & (1U << (ix & 7));
+
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(ret));
+}
+
+/* : bit-set ( ix c-addr -- ) */
+static void ficlPrimitiveBitSet(ficlVm *vm)
+{
+    unsigned char *addr;
+    int ix;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ix   = ficlStackPopInteger(vm->dataStack);
+
+    addr[ix >> 3] |= (1U << (ix & 7));
+}
+
+/* : bit-reset ( ix c-addr -- ) */
+static void ficlPrimitiveBitReset(ficlVm *vm)
+{
+    unsigned char *addr;
+    int ix;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 0);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ix   = ficlStackPopInteger(vm->dataStack);
+
+    addr[ix >> 3] &= ~(1U << (ix & 7));
+}
+
+/* : bit-flip ( ix c-addr -- ) */
+static void ficlPrimitiveBitFlip(ficlVm *vm)
+{
+    unsigned char *addr;
+    int ix;
+
+    FICL_STACK_CHECK(vm->dataStack, 2, 1);
+
+    addr = ficlStackPopPointer(vm->dataStack);
+    ix   = ficlStackPopInteger(vm->dataStack);
+
+    addr[ix >> 3] ^= (1U << (ix & 7));
+}
+
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -1335,6 +1394,11 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "rulez",   ficlPrimitiveRulez);
     addPrimitive(dictionary, "wrulez",  ficlPrimitiveWRulez);
     addPrimitive(dictionary, "defuzzify", ficlPrimitiveDefuzzify);
+
+    addPrimitive(dictionary, "bit?", ficlPrimitiveBitQ);
+    addPrimitive(dictionary, "bit-set", ficlPrimitiveBitSet);
+    addPrimitive(dictionary, "bit-reset", ficlPrimitiveBitReset);
+    addPrimitive(dictionary, "bit-flip", ficlPrimitiveBitFlip);
 
     return;
 }
