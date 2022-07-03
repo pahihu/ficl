@@ -367,7 +367,7 @@ static void ficlPrimitiveStrlen(ficlVm *vm)
 **************************************************************************/
 static void ficlPrimitiveSprintf(ficlVm *vm) /*  */
 {
-    int bufferLength = ficlStackPopInteger(vm->dataStack);
+    ficlInteger bufferLength = ficlStackPopInteger(vm->dataStack);
     char *buffer = (char *)ficlStackPopPointer(vm->dataStack);
     char *bufferStart = buffer;
 
@@ -516,7 +516,7 @@ static void ficlPrimitiveDepth(ficlVm *vm)
 static void ficlPrimitiveEmit(ficlVm *vm)
 {
     char buffer[8];
-    int i;
+    ficlInteger i;
 
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
@@ -1763,7 +1763,7 @@ static void ficlPrimitiveNumberSignS(ficlVm *vm)
 static void ficlPrimitiveHold(ficlVm *vm)
 {
     ficlCountedString *counted;
-    int i;
+    ficlInteger i;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
@@ -1782,7 +1782,7 @@ static void ficlPrimitiveHold(ficlVm *vm)
 static void ficlPrimitiveSign(ficlVm *vm)
 {
     ficlCountedString *counted;
-    int i;
+    ficlInteger i;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
 
