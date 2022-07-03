@@ -21,6 +21,8 @@ hide
 set-current
 
 : [else]  ( -- )
+\G Conditionally interpret/compile the following text,
+\G if the flag was false at the matching [if].
     1                                     \ ( level )
     begin
       begin
@@ -40,9 +42,14 @@ set-current
 ;  immediate
 
 : [if]  ( flag -- )
+\G If flag true, interpret/compile the following text.
 0= if postpone [else] then ;  immediate
 
-: [then]  ( -- )  ;  immediate
-: [endif]  ( -- )  ;  immediate
+: [then]  ( -- )
+\G Ends the conditional compilation.
+   ;  immediate
+: [endif]  ( -- )
+\G A synonym for [then].
+   ;  immediate
 
 previous

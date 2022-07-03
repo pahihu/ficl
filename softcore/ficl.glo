@@ -1,3 +1,6 @@
+"   "text" -- caddr u                                                          
+define " (double-quote) as an alias for s", and make it a prefix
+
 $"   i*caI n "string" -- [i+1]*caI [n+1]                                       
 Define a string item.
 
@@ -61,6 +64,9 @@ Create string variable of length <len>.
 $~=   ca1 u1 ca2 u2 -- f                                                       
 Return true if ca1/u1 = ca2/u2 case insensitive.
 
+'   'char' -- c                                                                
+define ' as an alias for [char] or char, and make it a prefix
+
 'TH   n "addr" -- &addr[n]                                                     
 Address of cell <n> at array <addr>.
 
@@ -83,6 +89,10 @@ Change to next PAD address <caddr>.
 
 +STRING   src n1 dst n2 -- dst n1+n2                                           
 Append <src/n1> to <dst/n2>, return <dst/n1+n2>. [OTA]
+
++USER   n1 n2 "name" -- n1+n2                                                  
+Add a user variable `name' with size `n2'
+update user variable offset.
 
 +WARNING   --                                                                  
 Enable redefinition warnings.
@@ -108,6 +118,9 @@ Trim, strip leading and trailing spaces.
 -WARNING   --                                                                  
 Disable redefinition warnings.
 
+.(                                                                             
+make .( a prefix (we just create an alias for it in the prefixes list)
+
 .ELAPSED   --                                                                  
 Display milliseconds elapsed since TIMER-RESET.
 
@@ -116,6 +129,12 @@ Prints str/n in lower case.
 
 .UPPER   str n --                                                              
 Prints str/n in upper case.
+
+//   "//comment" --                                                            
+make // as a prefix for comments.
+
+/ALLOT   n --                                                                  
+Allot `n' bytes, erase the area.
 
 0<=   n -- f                                                                   
 True if n <= 0.
@@ -126,8 +145,20 @@ Return true, if n1 does not equal to zero.
 0>=   n -- f                                                                   
 True if n >= 0.
 
+0B   "0b..." -- n                                                              
+Prefix for binary numbers.
+
+0D   "0d..." -- n                                                              
+Prefix for decimal numbers.
+
 0MAX   x -- u                                                                  
 Limit top to x.
+
+0O   "0o..." -- n                                                              
+Prefix for octal numbers.
+
+0X   "0x..." -- n                                                              
+Prefix for hexadecimal numbers.
 
 1-                                                                             
 Converts a <bit> to a <mask>.
@@ -143,6 +174,9 @@ Converts bit number <#> to a <bit>.
 
 2FIELD                                                                         
 Create two name fields with the same offset and size
+
+2LOCAL   name --                                                               
+Define a double-cell local named `name'.
 
 2NIP   w x y z -- y z                                                          
 Drop 3rd and 4th element from stack.
@@ -319,6 +353,9 @@ Empty the dictionary.
 END-C@   ca u -- b                                                             
 Last char of string ca/u.
 
+END-LOCALS   --                                                                
+End the definitio of locals.
+
 END-STRING-ARRAY   i*caddrI n "name" --                                        
 Close the definition of string array `name'.
 Executing n `name' will return the nth string in the array
@@ -458,6 +495,12 @@ LEXEME   "name" -- str len
 Get next word on the line. If it's a single character, use
 it as the delimiter to get a phrase.
 
+LOCAL   name --                                                                
+Define a single-cell local named `name'.
+
+LOCALS|   name...name | --                                                     
+Define locals.
+
 LOSE   --                                                                      
 Abort execution.
 
@@ -489,6 +532,9 @@ Return elapsed time since TIMER-RESET, update diff0.
 MULTI   --                                                                     
 Execute loop until TOR is not negative.
 Example: n >R MULTI ... REPEAT R>DROP 
+
+MUTEX   "name" --                                                              
+Define a mutex with `name'.
 
 MUX   a b mask -- out                                                          
 Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
@@ -594,6 +640,9 @@ Pop value from system stack.
 S@   -- n                                                                      
 Copy value from system stack.
 
+SAFE-ALLOCATE   n --                                                           
+Allocate `n' bytes, abort if allocation failed.
+
 SCAN   ca1 u1 b -- ca2 u2                                                      
 Search for <b> in ca1/u1.
 
@@ -630,6 +679,16 @@ Returns the remaining source line.
 STARTS?   str len pat len2 -- str len flag                                     
 Check start of string.
 
+STRCAT   2:a 2:b -- 2:new-a                                                    
+Concatenate `b' to `a'.
+
+STRCPY   2:a 2:b -- 2:new-a                                                    
+Copy `b' to `a'.
+
+STRDUP   c-addr length -- c-addr2 length2 ior                                  
+Duplicate the string c-addr/length on the heap
+ior is 0 if done,-1 if allocation failed.
+
 STRING-ARRAY   --                                                              
 Begin definition of a literal string array.
 
@@ -649,6 +708,9 @@ triple number.
 T/   t . . u -- d .                                                            
 Divide a triple number by an unsigned number to get a
 double number.
+
+TASK   "name" --                                                               
+Define a task with `name'.
 
 TH-WORD   str n i -- str+I n-i                                                 
 The ith white-space delimited substring of str/n.
@@ -763,9 +825,25 @@ Extend switch `name'.
 [DEFINED]   "name" -- flag                                                     
 Returns true if "name" defined.
 
+[ELSE]   --                                                                    
+Conditionally interpret/compile the following text,
+if the flag was false at the matching [if].
+
+[ENDIF]   --                                                                   
+A synonym for [then].
+
+[IF]   flag --                                                                 
+If flag true, interpret/compile the following text.
+
 [SWITCH   "name" "default-word" -- head                                        
 Define a switch named `name', the default word will be `default-word'.
 
+[THEN]   --                                                                    
+Ends the conditional compilation.
+
 [UNDEFINED]   "name" -- flag                                                   
 Returns true if "name" undefined.
+
+\   "\comment" --                                                              
+make \ a prefix
 

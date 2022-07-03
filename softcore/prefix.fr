@@ -15,20 +15,26 @@ start-prefixes
 
 S" FICL_WANT_EXTENDED_PREFIX" ENVIRONMENT? drop [if]
 
-\ define " (double-quote) as an alias for s", and make it a prefix
-: " postpone s" ; immediate
+: " ( "text" -- caddr u )
+\G define " (double-quote) as an alias for s", and make it a prefix
+   postpone s" ; immediate
 
-\ define ' as an alias for [char] or char, and make it a prefix
-: ' state @ if postpone [char] else char then ; immediate
-
-
-\ make .( a prefix (we just create an alias for it in the prefixes list)
-: .( postpone .( ; immediate
+: ' ( 'char' -- c )
+\G define ' as an alias for [char] or char, and make it a prefix
+   state @ if postpone [char] else char then ; immediate
 
 
-\ make \ a prefix, and add // (same thing) as a prefix too
-: \ postpone \ ; immediate
-: // postpone \ ; immediate
+: .(
+\G make .( a prefix (we just create an alias for it in the prefixes list)
+   postpone .( ; immediate
+
+
+: \ ( "\comment" -- )
+\G make \ a prefix
+   postpone \ ; immediate
+: // ( "//comment" -- )
+\G make // as a prefix for comments.
+   postpone \ ; immediate
 
 
 \ ** add 0b, 0o, 0d, and 0x as prefixes 
@@ -38,13 +44,21 @@ S" FICL_WANT_EXTENDED_PREFIX" ENVIRONMENT? drop [if]
 \ **
 \ ** __tempbase is precompiled, see prefix.c
 
-: 0b  2 __tempbase ; immediate
-: 0o  8 __tempbase ; immediate
+: 0b ( "0b..." -- n )
+\G Prefix for binary numbers.
+   2 __tempbase ; immediate
+: 0o ( "0o..." -- n )
+\G Prefix for octal numbers.
+   8 __tempbase ; immediate
 
 [endif]
 
-: 0d 10 __tempbase ; immediate
-: 0x 16 __tempbase ; immediate
+: 0d ( "0d..." -- n )
+\G Prefix for decimal numbers.
+   10 __tempbase ; immediate
+: 0x ( "0x..." -- n )
+\G Prefix for hexadecimal numbers.
+   16 __tempbase ; immediate
 
 end-prefixes
 

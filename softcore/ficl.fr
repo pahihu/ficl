@@ -16,7 +16,9 @@ S" FICL_WANT_USER" ENVIRONMENT? drop [if]
 
 0 value #user
 
-: +user    \ name ( n1 n2 -- n1+n2 )
+: +user ( n1 n2 "name" -- n1+n2 )
+\G Add a user variable `name' with size `n2'
+\G update user variable offset.
     over + swap user ;
 
 [endif]
@@ -28,16 +30,20 @@ S" FICL_WANT_MULTITHREADED" ENVIRONMENT? drop [if]
 \ ** See extras.c for definitions
 
 : /allot ( n -- )
+\G Allot `n' bytes, erase the area.
     here  over erase  allot ;
 
 : safe-allocate ( n -- )
+\G Allocate `n' bytes, abort if allocation failed.
     allocate abort" allocate failed" ;
 
-: task \ name ( -- )
+: task ( "name" -- )
+\G Define a task with `name'.
     /task safe-allocate
     dup construct  value ;
 
-: mutex \ name ( -- )
+: mutex ( "name" -- )
+\G Define a mutex with `name'.
     create  here /mutex /allot  mutex-init ;
 
 [endif]
@@ -49,6 +55,7 @@ S" FICL_WANT_LOCALS" ENVIRONMENT? drop [if]
 \ ** LOCAL EXT word set
 
 : locals|  ( name...name | -- )
+\G Define locals.
     begin
         bl word   count
         dup 0= abort" where's the delimiter??"
@@ -59,15 +66,23 @@ S" FICL_WANT_LOCALS" ENVIRONMENT? drop [if]
     repeat 2drop   0 0 (local)
 ; immediate
 
-: local  ( name -- )  bl word count (local) ;  immediate
+: local  ( name -- )
+\G Define a single-cell local named `name'.
+   bl word count (local) ;  immediate
 
-: 2local  ( name -- ) bl word count (2local) ; immediate
+: 2local  ( name -- )
+\G Define a double-cell local named `name'.
+   bl word count (2local) ; immediate
 
-: end-locals  ( -- )  0 0 (local) ;  immediate
+: end-locals  ( -- )
+\G End the definitio of locals.
+   0 0 (local) ;  immediate
 
 
 \ Submitted by lch.
 : strdup ( c-addr length -- c-addr2 length2 ior )
+\G Duplicate the string c-addr/length on the heap
+\G ior is 0 if done,-1 if allocation failed.
 	0 locals| addr2 length c-addr | end-locals
 	length 1 + allocate
 	0= if
@@ -80,6 +95,7 @@ S" FICL_WANT_LOCALS" ENVIRONMENT? drop [if]
 	;
 
 : strcat ( 2:a 2:b -- 2:new-a )
+\G Concatenate `b' to `a'.
 	0 locals|  b-length b-u b-addr a-u a-addr | end-locals
 	b-u  to b-length
 	b-addr a-addr a-u + b-length  move
@@ -87,6 +103,7 @@ S" FICL_WANT_LOCALS" ENVIRONMENT? drop [if]
 	;
 
 : strcpy ( 2:a 2:b -- 2:new-a )
+\G Copy `b' to `a'.
 	locals| b-u b-addr a-u a-addr | end-locals
 	a-addr 0  b-addr b-u  strcat
 	;
