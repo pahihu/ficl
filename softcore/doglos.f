@@ -8,9 +8,9 @@ MAKEGLOS ficl.fr
 MAKEGLOS jhlocal.fr
 MAKEGLOS marker.fr
 MAKEGLOS mini-oof.fs
-
 MAKEGLOS ficllocal.fr
 MAKEGLOS fileaccess.fr
+
 MAKEGLOS chkredef.fs
 MAKEGLOS header.fs
 MAKEGLOS srcline.fs

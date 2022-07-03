@@ -114,7 +114,9 @@ floats? [IF]
 set-current
 
 : { ( "{" a b c | cleared -- d e "}" )
-\G Define Johns-Hopkins locals.
+\G Define Johns-Hopkins locals. Variables before the "|" are
+\G initialized in reverse order. Variable before the "--" are
+\G cleared.
 \G Prefix flags:
 \G	   1  single-cell
 \G	   2  double-cell

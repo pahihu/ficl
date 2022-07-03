@@ -272,6 +272,9 @@ BEHAVIOR   xt1 -- xt2
 Retrieve <xt2> the word currently associated with the
 deferred word <xt1>.
 
+BIN   fam1 -- fam2                                                             
+Specify binary file access mode.
+
 BJOIN   cl ch -- n                                                             
 Join lo and hi 8bit bytes.
 
@@ -479,6 +482,12 @@ Hold string in conversion buffer.
 HUNT   str1 n1 pat n2 -- str+I n1-i                                            
 Scan for a string pat/n2.
 
+INCLUDE   "path" --                                                            
+Include the contents of file specified by path.
+
+INCLUDED   c-addr u --                                                         
+Include the contents of file specified by c-addr/u.
+
 INCR   addr --                                                                 
 Increment value at <addr>.
 
@@ -644,6 +653,12 @@ Split 64bit word to 32bit words.
 
 R'@   -- x1                                                                    
 2nd element of return stack.
+
+R/O   -- fam                                                                   
+Read-only mode.
+
+R/W   -- fam                                                                   
+Read-write mode.
 
 R>DROP   --                                                                    
 Drop item from return stack.
@@ -816,6 +831,9 @@ Copy next line above current line.
 VOCABULARY   name --                                                           
 Define a new vocabulary named `name'.
 
+W/O   -- fam                                                                   
+Write-only mode.
+
 W>N   w -- x                                                                   
 Sign extend 16bit word to cell.
 
@@ -887,7 +905,9 @@ Returns true if "name" undefined.
 make \ a prefix
 
 {   "{" a b c | cleared -- d e "}"                                             
-Define Johns-Hopkins locals.
+Define Johns-Hopkins locals. Variables before the "|" are
+initialized in reverse order. Variable before the "--" are
+cleared.
 Prefix flags:
    1  single-cell
    2  double-cell
@@ -897,4 +917,8 @@ Prefix flags:
    s  single-cell
 Specify as many as you like; later flags have precidence.
 Thus, "f2:foo" and "2is2f:foo" are both double-cell floats.
+
+{{   "{{" a b c -- d e "}}"                                                    
+FiCL locals, variable before the "--" are initialized
+in reverse order.
 

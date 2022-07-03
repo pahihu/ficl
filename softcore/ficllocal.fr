@@ -14,7 +14,9 @@ hide
 
 set-current
 
-: {{
+: {{ ( "{{" a b c -- d e "}}" )
+\G FiCL locals, variable before the "--" are initialized
+\G in reverse order.
     0 dup  locals| nLocs locstate |
     begin
         parse-word 

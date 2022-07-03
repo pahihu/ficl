@@ -4,14 +4,23 @@ S" FICL_WANT_FILE" ENVIRONMENT? drop [if]
 \ ** submitted by Larry Hastings, larry@hastings.org
 \ **
 
-: r/o 1 ;
-: r/w 3 ; 
-: w/o 2 ; 
-: bin 8 or ; 
+: r/o ( -- fam )
+\G Read-only mode.
+   1 ;
+: r/w ( -- fam )
+\G Read-write mode.
+   3 ; 
+: w/o ( -- fam )
+\G Write-only mode.
+   2 ; 
+: bin ( fam1 -- fam2 )
+\G Specify binary file access mode.
+   8 or ; 
 
 -1 value strict-include
 
-: included
+: included ( c-addr u -- )
+\G Include the contents of file specified by c-addr/u.
     2dup r/o bin open-file
     ?dup if
         swap drop
@@ -26,6 +35,8 @@ S" FICL_WANT_FILE" ENVIRONMENT? drop [if]
     endif
     ;
     
-: include parse-word included ;
+: include ( "path" -- )
+\G Include the contents of file specified by path.
+   parse-word included ;
 
 [endif]
