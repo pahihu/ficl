@@ -113,7 +113,17 @@ floats? [IF]
 
 set-current
 
-: {
+: { ( "{" a b c | cleared -- d e "}" )
+\G Define Johns-Hopkins locals.
+\G Prefix flags:
+\G	   1  single-cell
+\G	   2  double-cell
+\G	   d  double-cell
+\G	   f  floating-point (use floating stack)
+\G	   i  integer (use data stack)
+\G	   s  single-cell
+\G Specify as many as you like; later flags have precidence.
+\G Thus, "f2:foo" and "2is2f:foo" are both double-cell floats.
     0 0 0 locals| flags local-state nLocals |
     
     \ stack locals until we hit a delimiter

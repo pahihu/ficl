@@ -187,6 +187,11 @@ Drop top three elements from stack.
 4DUP   x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 x3 x4                                  
 Duplicate top 4 items.
 
+::   class "method" --                                                         
+Compile xt for `method' of `class'.
+Example:
+   myobj [ myclass :: mymethod ] ...
+
 :SWITCH   xt "name" -- addr                                                    
 Define a switch named `name', default behavior will be `xt'.
 
@@ -302,6 +307,14 @@ Return random integer between u and u-1.
 CHOP   a m b n -- b n a m-n                                                    
 Split string <a/m> at place given by <b/n>.
 
+CLASS   superclass -- class methods vars                                       
+Begin class definition with base class `superclass'.
+Example:
+   object class
+      cell var mVar
+      method :mymethod
+   end-class myclass
+
 CLEAR   i*x --                                                                 
 Clear parameter stack.
 
@@ -331,6 +344,11 @@ DEFER   <name>
 Define a word which does nothing. Later it could
 be defined to execute any xt.
 
+DEFINES   xt class "method" --                                                 
+Define `xt' for `method' in `class'.
+Example:
+   :noname ( obj -- ) ... ; myclass defines :mymethod
+
 DO-UNDEFINED   caddr u -- i*x f                                                
 Report unknown word, compile LOSE.
 
@@ -352,6 +370,9 @@ Empty the dictionary.
 
 END-C@   ca u -- b                                                             
 Last char of string ca/u.
+
+END-CLASS   class methods vars "classname" --                                  
+Ends class definition for class `classname'.
 
 END-LOCALS   --                                                                
 End the definitio of locals.
@@ -523,8 +544,15 @@ Divide <d> by <n1>, giving signed quotient <n2>.
 MACRO   "name <char> ccc<char>" --                                             
 Define a macro.
 
+MARKER   "name" --                                                             
+Define marker `name'. When executed forgets all words
+defined later.
+
 MEMORY-CHECK   n --                                                            
 Check for memory allocation error.
+
+METHOD   m v "method" -- m' v                                                  
+Define method `method'.
 
 MS?   -- u                                                                     
 Return elapsed time since TIMER-RESET, update diff0.
@@ -543,11 +571,19 @@ Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
 N>R   xn .. x1 n --                                                            
 Push n+1 elements on the return stack. [C.Haak]
 
+NEW   class -- o                                                               
+Allot space for instance of `class'.
+Example:
+   myclass new constant myobj
+
 NEXT-WORD   -- str len                                                         
 Get next word across line breaks. len is 0 at EOF.
 
 NIP   y x -- x                                                                 
 Drop the 2nd item of the stack.
+
+NOOP   --                                                                      
+No operation.
 
 NR>   -- xn .. x1 n                                                            
 Pop n+1 elements from the return stack. [C.Haak]
@@ -771,6 +807,9 @@ Convert c1 to upper case.
 UPPER   str n --                                                               
 Convert string to uppercase in-place.
 
+VAR   m v size "var" -- m v'                                                   
+Define `var' with size.
+
 VIEW-NEXT-LINE   src . str len -- src . str len str2 len2                      
 Copy next line above current line.
 
@@ -846,4 +885,16 @@ Returns true if "name" undefined.
 
 \   "\comment" --                                                              
 make \ a prefix
+
+{   "{" a b c | cleared -- d e "}"                                             
+Define Johns-Hopkins locals.
+Prefix flags:
+   1  single-cell
+   2  double-cell
+   d  double-cell
+   f  floating-point (use floating stack)
+   i  integer (use data stack)
+   s  single-cell
+Specify as many as you like; later flags have precidence.
+Thus, "f2:foo" and "2is2f:foo" are both double-cell floats.
 

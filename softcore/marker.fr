@@ -4,6 +4,8 @@
 \ Requires ficl 2.02 FORGET-WID !!
 .( loading MARKER ) cr
 : marker   ( "name" -- )
+\G Define marker `name'. When executed forgets all words
+\G defined later.
     create  
     get-current ,
     get-order dup , 
