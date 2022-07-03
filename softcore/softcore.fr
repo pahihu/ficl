@@ -4,24 +4,38 @@
 \ ** September, 1998
 
 
+: \G POSTPONE \ ; IMMEDIATE
+
 \ ** ficl extras
-\ EMPTY cleans the parameter stack
-: empty   ( xn..x1 -- ) depth 0 ?do drop loop ;
-\ CELL- undoes CELL+
-: cell-   ( addr -- addr )  [ 1 cells ] literal -  ;
-: char-   ( caddr -- caddr )  [ 1 chars ] literal - ;
-: -rot   ( a b c -- c a b )  2 -roll ;
+: empty   ( xn..x1 -- )
+\G Empty cleans the parameter stack.
+   depth 0 ?do drop loop ;
+: cell-   ( addr -- addr )
+\G CELL- undoes CELL+
+   [ 1 cells ] literal -  ;
+: char-   ( caddr -- caddr )
+\G CHAR- undoes CHAR+
+   [ 1 chars ] literal - ;
+: -rot   ( a b c -- c a b )
+\G Rotate top 3 items up.
+   2 -roll ;
 
 \ ** CORE 
 : abs   ( x -- x )
+\G Give absolute value of `x'.
     dup 0< if negate endif ;
 decimal 32 constant bl
 
-: space   ( -- )     bl emit ;
+: space   ( -- )
+\G Emit a space.
+   bl emit ;
 
-: spaces  ( n -- )   0 ?do space loop ;
+: spaces  ( n -- )
+\G If `n' is positive emit `n' spaces.
+   0 ?do space loop ;
 
-: abort"  
+: abort" ( flag "message" -- )
+\G If `flag' is true, display message and abort execution.
     state @ if
         postpone if
         postpone ."
@@ -47,23 +61,43 @@ decimal 32 constant bl
 .( loading CORE EXT words ) cr
 0  constant false 
 false invert constant true 
-: <>   = 0= ; 
-: 0<>  0= 0= ; 
-: compile,  , ; 
+: <> ( n1 n2 -- ff )
+\G Return true, if n1 does not equal to n2.
+   = 0= ; 
+: 0<> ( n1 -- ff )
+\G Return true, if n1 does not equal to zero.
+   0= 0= ; 
+: compile, ( xt -- )
+\G Compile xt into the current definition.
+   , ; 
 : convert   char+ 65535 >number drop ;  \ cribbed from DPANS A.6.2.0970
-: erase   ( addr u -- )    0 fill ; 
+: erase   ( addr u -- )
+\G Erase `u' address units from `addr'.
+   0 fill ; 
 variable span
-: expect  ( c-addr u1 -- ) accept span ! ;
+: expect  ( c-addr u1 -- )
+\G Accept at most `u1' chars at `c-addr', store the actual length
+\G in SPAN.
+   accept span ! ;
 \ see marker.fr for MARKER implementation
-: nip     ( y x -- x )     swap drop ; 
-: tuck    ( y x -- x y x)  swap over ; 
-: within  ( test low high -- flag )   over - >r - r>  u<  ;
+: nip     ( y x -- x )
+\G Drop the 2nd item of the stack.
+   swap drop ; 
+: tuck    ( y x -- x y x)
+\G Put the top of stack under the 2nd item.
+   swap over ; 
+: within  ( test low high -- flag )
+\G Return true if low <= test < high.
+   over - >r - r>  u<  ;
 
 
 
 \ ** TOOLS word set...
-: ?     ( addr -- )  @ . ;
+: ?     ( addr -- )
+\G Display contents of `addr'.
+   @ . ;
 : dump  ( addr u -- )
+\G Dump `u' address units from `addr'.
     0 ?do
         dup c@ . 1+
         i 7 and 7 = if cr endif
@@ -72,34 +106,39 @@ variable span
 
 \ ** SEARCH+EXT words and ficl helpers
 .( loading SEARCH & SEARCH-EXT words ) cr 
-\ BRAND-WORDLIST is a helper for ficl-named-wordlist. Usage idiom:
-\   wordlist dup create , brand-wordlist
-\ gets the name of the word made by create and applies it to the wordlist...
-: brand-wordlist  ( wid -- )   last-word >name drop wid-set-name ;
+: brand-wordlist  ( wid -- )
+\G BRAND-WORDLIST is a helper for ficl-named-wordlist.
+\G Usage: wordlist dup create , brand-wordlist
+\G gets the name of the word made by create and applies it to the wordlist.
+   last-word >name drop wid-set-name ;
 
 : ficl-named-wordlist  \ ( hash-size name -- ) run: ( -- wid )
+\G Create a wordlist named `name' with `hash-size'.
     ficl-wordlist dup create , brand-wordlist does> @ ;
 
 : wordlist   ( -- )  
+\G Create an unnamed wordlist, with default hash-size of 1.
     1 ficl-wordlist ;
 
-\ FICL-SET-CURRENT sets the compile wordlist and pushes the previous value
 : ficl-set-current   ( wid -- old-wid )  
+\G FICL-SET-CURRENT sets the compile wordlist and pushes the previous value
     get-current swap set-current ; 
 
-\ DO_VOCABULARY handles the DOES> part of a VOCABULARY
-\ When executed, new voc replaces top of search stack
 : do-vocabulary   ( -- ) 
+\G DO_VOCABULARY handles the DOES> part of a VOCABULARY
+\G When executed, new voc replaces top of search stack
     does>  @ search> drop >search ;
 
 : ficl-vocabulary   ( nBuckets name -- )  
     ficl-named-wordlist do-vocabulary ; 
 
 : vocabulary   ( name -- )  
+\G Define a new vocabulary named `name'.
     1 ficl-vocabulary ; 
 
-\ PREVIOUS drops the search order stack
-: previous  ( --  )  search> drop ; 
+: previous  ( --  )
+\G PREVIOUS drops the search order stack
+   search> drop ; 
 
 \ HIDDEN vocabulary is a place to keep helper words from cluttering the namespace
 \ USAGE:
@@ -110,22 +149,23 @@ variable span
 \ previous ( pop HIDDEN off the search order )
 
 1 ficl-named-wordlist hidden
-: hide     hidden dup >search ficl-set-current ;
+: hide
+\G Hide the following definitions.
+   hidden dup >search ficl-set-current ;
 
-\ ALSO dups the search stack...
 : also   ( -- )  
+\G ALSO dups the search stack...
     search> dup >search >search ; 
 
-\ FORTH drops the top of the search stack and pushes FORTH-WORDLIST
 : forth   ( -- )  
+\G FORTH drops the top of the search stack and pushes FORTH-WORDLIST
     search> drop  
     forth-wordlist >search ; 
 
-\ ONLY sets the search order to a default state
 : only   ( -- )  
+\G ONLY sets the search order to a default state
     -1 set-order ; 
 
-\ ORDER displays the compile wid and the search order list
 hide
 : list-wid ( wid -- )   
     dup wid-get-name   ( wid c-addr u )
@@ -138,6 +178,7 @@ hide
 set-current   \ stop hiding words
 
 : order   ( -- )  
+\G ORDER displays the compile wid and the search order list
     ." Search:" cr
     get-order  0 ?do 3 spaces list-wid loop cr 
    ." Compile: " get-current list-wid cr  

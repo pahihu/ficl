@@ -93,6 +93,9 @@ Decrement value at <addr>.
 -LEADING   ca1 u1 -- ca2 u2                                                    
 Strip leading whitespace.
 
+-ROT   a b c -- c a b                                                          
+Rotate top 3 items up.
+
 -SKIP   ca u1 b -- ca u2                                                       
 Remove trailing <b> chars from ca/u1.
 
@@ -116,6 +119,9 @@ Prints str/n in upper case.
 
 0<=   n -- f                                                                   
 True if n <= 0.
+
+0<>   n1 -- ff                                                                 
+Return true, if n1 does not equal to zero.
 
 0>=   n -- f                                                                   
 True if n >= 0.
@@ -150,6 +156,9 @@ Duplicate top 4 items.
 :SWITCH   xt "name" -- addr                                                    
 Define a switch named `name', default behavior will be `xt'.
 
+<>   n1 n2 -- ff                                                               
+Return true, if n1 does not equal to n2.
+
 <W@   w-addr -- n                                                              
 Fetch 16bit value, sign extend.
 
@@ -172,6 +181,9 @@ Move <caddr>/<u> to next PAD area, return new <caddr2>/<u>.
 >S   n --                                                                      
 Push value to system stack.
 
+?   addr --                                                                    
+Display contents of `addr'.
+
 ??   ff <word> --                                                              
 Execute following word if flag is true.
 
@@ -190,8 +202,17 @@ Answer TRUE if char is CR/LF.
 @EXECUTE   addr --                                                             
 Execute xt at addr, if not zero.
 
+ABORT"   flag "message" --                                                     
+If `flag' is true, display message and abort execution.
+
+ABS   x -- x                                                                   
+Give absolute value of `x'.
+
 AKA   old new --                                                               
 Make alias `new' for `old'.
+
+ALSO   --                                                                      
+ALSO dups the search stack...
 
 ANDIF   f --                                                                   
 Shortcut logical AND.
@@ -221,6 +242,11 @@ Look for white space from start.
 BL-SKIP   str len -- str+i len-i                                               
 Skip over white space at start.
 
+BRAND-WORDLIST   wid --                                                        
+BRAND-WORDLIST is a helper for ficl-named-wordlist.
+Usage: wordlist dup create , brand-wordlist
+gets the name of the word made by create and applies it to the wordlist.
+
 BSPLIT   w -- bl bh                                                            
 Split 16bit word to 8bit bytes.
 
@@ -229,6 +255,12 @@ Sign extend char to cell.
 
 CASE?   n lit -- true | n false                                                
 Alternative CASE branch.
+
+CELL-   addr -- addr                                                           
+CELL- undoes CELL+
+
+CHAR-   caddr -- caddr                                                         
+CHAR- undoes CHAR+
 
 CHOOSE   u -- 0..u-1                                                           
 Return random integer between u and u-1.
@@ -245,6 +277,9 @@ Reset <mask> bits in cell at <addr>.
 CO   --                                                                        
 Suspend current, return to caller. When caller exits
 continue with current. [CI]
+
+COMPILE,   xt --                                                               
+Compile xt into the current definition.
 
 CONTAINS?   str1 n1 str2 n2 -- str1 n1 flag                                    
 Test that str1 contains str2.
@@ -265,8 +300,18 @@ be defined to execute any xt.
 DO-UNDEFINED   caddr u -- i*x f                                                
 Report unknown word, compile LOSE.
 
+DO-VOCABULARY   --                                                             
+DO_VOCABULARY handles the DOES> part of a VOCABULARY
+When executed, new voc replaces top of search stack
+
+DUMP   addr u --                                                               
+Dump `u' address units from `addr'.
+
 EMITS   n char --                                                              
 Emit <n> <char>s.
+
+EMPTY   xn..x1 --                                                              
+Empty cleans the parameter stack.
 
 EMPTY   --                                                                     
 Empty the dictionary.
@@ -294,8 +339,15 @@ Define an enum with "name", increment number on stack by 4.
 EQUALS?   str1 n1 str2 n2 -- str1 n1 flag                                      
 Check for the string equal to the pattern.
 
+ERASE   addr u --                                                              
+Erase `u' address units from `addr'.
+
 EXCHANGE   n1 addr -- n2                                                       
 Store <n1> at <addr>, return old contents. [MAX]
+
+EXPECT   c-addr u1 --                                                          
+Accept at most `u1' chars at `c-addr', store the actual length
+in SPAN.
 
 EXPIRED   u -- flag                                                            
 Return true if time passed.
@@ -315,6 +367,12 @@ Testing FP number equality.
 FEXACTLY=   F: r1 r2 --                                                        
 True if r1 exactly equal to r2.
 
+FICL-NAMED-WORDLIST                                                            
+Create a wordlist named `name' with `hash-size'.
+
+FICL-SET-CURRENT   wid -- old-wid                                              
+FICL-SET-CURRENT sets the compile wordlist and pushes the previous value
+
 FIELD                                                                          
 Define a field with offset and size. 
 
@@ -326,6 +384,9 @@ True if r is finite.
 
 FNIP   F: r1 r2 -- r2                                                          
 Drop 2nd item of floating-point stack.
+
+FORTH   --                                                                     
+FORTH drops the top of the search stack and pushes FORTH-WORDLIST
 
 FOURTH   w x y z -- w x y z w                                                  
 Copy 4th element to top of stack.
@@ -347,6 +408,9 @@ Print SFLOAT bit pattern of r in hex.
 
 FTUCK   F: r1 r2 -- r2 r1 r2                                                   
 Put top of floating-point stack under the 2nd item.
+
+HIDE                                                                           
+Hide the following definitions.
 
 HIWORD   xxyy -- xx                                                            
 High half of value.
@@ -436,6 +500,9 @@ Push n+1 elements on the return stack. [C.Haak]
 NEXT-WORD   -- str len                                                         
 Get next word across line breaks. len is 0 at EOF.
 
+NIP   y x -- x                                                                 
+Drop the 2nd item of the stack.
+
 NR>   -- xn .. x1 n                                                            
 Pop n+1 elements from the return stack. [C.Haak]
 
@@ -451,8 +518,14 @@ Set flag at <addr>.
 ON?   addr -- f                                                                
 Flag at <addr> set ?
 
+ONLY   --                                                                      
+ONLY sets the search order to a default state
+
 OPTION   ff "name" --                                                          
 Create option flag, which turns a line into comment. [M.Gassanenko]
+
+ORDER   --                                                                     
+ORDER displays the compile wid and the search order list
 
 ORELSE   f --                                                                  
 Shortcut logical OR.
@@ -471,6 +544,9 @@ Place string <from/len> as counted string <to>.
 
 POSSIBLY   "name" --                                                           
 Execute "name" if found.
+
+PREVIOUS   --                                                                  
+PREVIOUS drops the search order stack
 
 PRINT   ca --                                                                  
 Print counted string <ca>.
@@ -536,6 +612,12 @@ Check for the string equal to the pattern.
 SKIP   ca1 u1 b -- ca2 u2                                                      
 Skip <b> chars in ca1/u1.
 
+SPACE   --                                                                     
+Emit a space.
+
+SPACES   n --                                                                  
+If `n' is positive emit `n' spaces.
+
 SPLIT   str n c -- str+i n-i str i                                             
 Divide a string at a given character.
 
@@ -600,6 +682,9 @@ Toggle <mask> bits in cell at <addr>.
 TRIM   str len -- str len-i                                                    
 Trim white space from end of string.
 
+TUCK   y x -- x y x                                                            
+Put the top of stack under the 2nd item.
+
 TYPE.   ca u --                                                                
 Type string and a space.
 
@@ -627,11 +712,20 @@ Convert string to uppercase in-place.
 VIEW-NEXT-LINE   src . str len -- src . str len str2 len2                      
 Copy next line above current line.
 
+VOCABULARY   name --                                                           
+Define a new vocabulary named `name'.
+
 W>N   w -- x                                                                   
 Sign extend 16bit word to cell.
 
+WITHIN   test low high -- flag                                                 
+Return true if low <= test < high.
+
 WJOIN   wl wh -- n                                                             
 Join lo and hi 16bit words.
+
+WORDLIST   --                                                                  
+Create an unnamed wordlist, with default hash-size of 1.
 
 WORDS:   "name" --                                                             
 iForth variant.

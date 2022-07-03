@@ -5,8 +5,6 @@
 
 .( loading TOOLBELT -- N.Bawd ) CR
 
-: \G POSTPONE \ ; IMMEDIATE
-
 \ ******************  Forth Programmer's Handbook  ******************
 
 : NOT  ( x -- flag )  S" 0= " EVALUATE ; IMMEDIATE
