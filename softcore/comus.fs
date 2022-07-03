@@ -9,14 +9,22 @@
 MACRO #DO " 0 ?DO"
 
 FLOATS? [IF]
-: 1/F ( F: r1 -- r2 )   1  I/F ;
-: F**2 ( F: r1 -- r2 )   FDUP  F* ;
-: FNIP ( F: r1 r2 -- r2 )   FSWAP  FDROP ;
-: FTUCK ( F: r1 r2 -- r2 r1 r2 )   FSWAP  FOVER ;
+: 1/F ( F: r1 -- r2 )
+\G Calculate 1/r1.
+   1  I/F ;
+: F**2 ( F: r1 -- r2 )
+\G Calculate r1^2.
+   FDUP  F* ;
+: FNIP ( F: r1 r2 -- r2 )
+\G Drop 2nd item of floating-point stack.
+   FSWAP  FDROP ;
+: FTUCK ( F: r1 r2 -- r2 r1 r2 )
+\G Put top of floating-point stack under the 2nd item.
+   FSWAP  FOVER ;
 [THEN]
 
 : 4DUP ( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 x3 x4 )
-\G Duplicatetop 4 items.
+\G Duplicate top 4 items.
    2OVER 2OVER ;
 
 : ?? ( ff <word> -- )

@@ -1,0 +1,648 @@
+$<   ca1 u1 ca2 u2 -- f                                                        
+Return true if ca1/u1 < ca2/u2.
+
+$=   ca1 u1 ca2 u2 -- f                                                        
+Return true if ca1/u1 = ca2/u2.
+
+$>   ca1 u1 ca2 u2 -- f                                                        
+Return true if ca1/u1 > ca2/u2.
+
+$APPEND   ca u sa --                                                           
+Append ca/u to string <sa>.
+
+$APPEND-CHAR   c sa --                                                         
+Append char <c> to string <sa>.
+
+$COUNT   sa -- ca u                                                            
+Length of string <sa>.
+
+$EMPTY   ca u -- f                                                             
+Return true if ca/u has zero len.
+
+$LEFT   ca u1 +n -- ca u2                                                      
+Return the left str of ca/u1.
+
+$LEN   ca u -- u                                                               
+Return the len of ca/u.
+
+$MID   ca1 u offs len -- ca2 u2                                                
+Return the mid str of ca1/u from offs, running len. 
+
+$MOVUP   ca n m --                                                             
+Move string <ca/n> m chars up.
+
+$PLACE   ca u sa --                                                            
+Overwrite string <sa> with ca/u.
+
+$POSTFIX   ca1 u1 ca2 u2 -- f                                                  
+Return true if ca1/u1 has postfix ca2/u2.
+
+$PREFIX   ca1 u1 ca2 u2 -- f                                                   
+Return true if ca1/u1 has prefix ca2/u2.
+
+$PRINT   sa --                                                                 
+Print string.
+
+$RIGHT   ca1 u +n -- ca2 n                                                     
+Return the right str of ca1/u.
+
+$SAVE   from n to -- to+1 n                                                    
+Place <from/n> to to, return as counted string.
+
+$SPLIT   ca1 u1 c -- ca2 u2 ca3 u3                                             
+Split <ca1/u1> at char <c>.
+
+$VARIABLE   len "name" --                                                      
+Create string variable of length <len>.
+
+$~=   ca1 u1 ca2 u2 -- f                                                       
+Return true if ca1/u1 = ca2/u2 case insensitive.
+
+'TH   n "addr" -- &addr[n]                                                     
+Address of cell <n> at array <addr>.
+
+(WORDS:)   <substr> --                                                         
+List those word names in the current word list that partly
+match name.
+
+(WORDS:)   <substr> --                                                         
+List those word names in the current word list that partly
+match name.
+
+++   addr --                                                                   
+Increment value at <addr>.
+
++IS   xt <name>                                                                
+Chain <xt> to deferred <name>.
+
++PAD   -- caddr                                                                
+Change to next PAD address <caddr>.
+
++STRING   src n1 dst n2 -- dst n1+n2                                           
+Append <src/n1> to <dst/n2>, return <dst/n1+n2>. [OTA]
+
++WARNING   --                                                                  
+Enable redefinition warnings.
+
+--   addr --                                                                   
+Decrement value at <addr>.
+
+-LEADING   ca1 u1 -- ca2 u2                                                    
+Strip leading whitespace.
+
+-SKIP   ca u1 b -- ca u2                                                       
+Remove trailing <b> chars from ca/u1.
+
+-TRAILING   ca u1 -- ca u2                                                     
+Strip trailing whitespace.
+
+-TRIM   ca1 u1 -- ca2 u2                                                       
+Trim, strip leading and trailing spaces.
+
+-WARNING   --                                                                  
+Disable redefinition warnings.
+
+.ELAPSED   --                                                                  
+Display milliseconds elapsed since TIMER-RESET.
+
+.LOWER   str n --                                                              
+Prints str/n in lower case.
+
+.UPPER   str n --                                                              
+Prints str/n in upper case.
+
+0<=   n -- f                                                                   
+True if n <= 0.
+
+0>=   n -- f                                                                   
+True if n >= 0.
+
+0MAX   x -- u                                                                  
+Limit top to x.
+
+1-                                                                             
+Converts a <bit> to a <mask>.
+
+1/F   F: r1 -- r2                                                              
+Calculate 1/r1.
+
+2**   n -- 2^n                                                                 
+Computes 2^<n>.
+
+2**                                                                            
+Converts bit number <#> to a <bit>.
+
+2FIELD                                                                         
+Create two name fields with the same offset and size
+
+2NIP   w x y z -- y z                                                          
+Drop 3rd and 4th element from stack.
+
+3DROP   x y z --                                                               
+Drop top three elements from stack.
+
+4DUP   x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 x3 x4                                  
+Duplicate top 4 items.
+
+<W@   w-addr -- n                                                              
+Fetch 16bit value, sign extend.
+
+>BUFFER   ca u buf -- buf u                                                    
+Move string to buffer. Returns buffer address and string
+length.
+
+>CELLS   #bytes -- #cells                                                      
+Round up <#bytes> to the corresponding <#cells>.
+
+>FLOAT   ca u -- true | false                                                  
+Convert ca/u to FP number, return success or failure.
+
+>HEAP   ca u -- addr u                                                         
+Move string <ca/u> to heap.
+
+>PAD   caddr1 u -- caddr2 u                                                    
+Move <caddr>/<u> to next PAD area, return new <caddr2>/<u>.
+
+>S   n --                                                                      
+Push value to system stack.
+
+??   ff <word> --                                                              
+Execute following word if flag is true.
+
+?BLANK   c -- f                                                                
+Answer TRUE if char is white-space (space or tab) or newline.
+
+?EXIT   f --                                                                   
+Exit if <f> is true.
+
+?MS   -- u                                                                     
+Return milliseconds elapsed.
+
+?NEWLINE   c -- f                                                              
+Answer TRUE if char is CR/LF.
+
+@EXECUTE   addr --                                                             
+Execute xt at addr, if not zero.
+
+AKA   old new --                                                               
+Make alias `new' for `old'.
+
+ANDIF   f --                                                                   
+Shortcut logical AND.
+
+ANEW   "name" --                                                               
+Execute "name" if found, define a marker with "name".
+
+APPEND   from len to --                                                        
+Append string <from/len> to counted string <to>.
+
+APPEND-CHAR   c to --                                                          
+Append char <c> to counted string <to>.
+
+BACK   ca u1 b -- ca u2                                                        
+Scan backwards for char <b> in ca/u1.
+
+BEHAVIOR   xt1 -- xt2                                                          
+Retrieve <xt2> the word currently associated with the
+deferred word <xt1>.
+
+BJOIN   cl ch -- n                                                             
+Join lo and hi 8bit bytes.
+
+BL-SCAN   str len -- str+i len-i                                               
+Look for white space from start.
+
+BL-SKIP   str len -- str+i len-i                                               
+Skip over white space at start.
+
+BSPLIT   w -- bl bh                                                            
+Split 16bit word to 8bit bytes.
+
+C>N   c -- x                                                                   
+Sign extend char to cell.
+
+CASE?   n lit -- true | n false                                                
+Alternative CASE branch.
+
+CHOOSE   u -- 0..u-1                                                           
+Return random integer between u and u-1.
+
+CHOP   a m b n -- b n a m-n                                                    
+Split string <a/m> at place given by <b/n>.
+
+CLEAR   i*x --                                                                 
+Clear parameter stack.
+
+CLEAR-BITS   mask addr --                                                      
+Reset <mask> bits in cell at <addr>.
+
+CO   --                                                                        
+Suspend current, return to caller. When caller exits
+continue with current. [CI]
+
+CONTAINS?   str1 n1 str2 n2 -- str1 n1 flag                                    
+Test that str1 contains str2.
+
+COUNTER   -- ms                                                                
+Return current milliseconds.
+
+D0<>   d -- f                                                                  
+True if <d> <> 0.
+
+DECR   addr --                                                                 
+Decrement value at <addr>.
+
+DEFER   <name>                                                                 
+Define a word which does nothing. Later it could
+be defined to execute any xt.
+
+DO-UNDEFINED   caddr u -- i*x f                                                
+Report unknown word, compile LOSE.
+
+EMITS   n char --                                                              
+Emit <n> <char>s.
+
+EMPTY   --                                                                     
+Empty the dictionary.
+
+END-C@   ca u -- b                                                             
+Last char of string ca/u.
+
+END-WORD   str n -- str+/str-i i                                               
+Last word in a string after trimming.
+
+ENDS?   str len pat len2 -- str len flag                                       
+Check end of string.
+
+ENUM                                                                           
+Define an enum with "name", increment number on stack.
+
+ENUM4                                                                          
+Define an enum with "name", increment number on stack by 4.
+
+EQUALS?   str1 n1 str2 n2 -- str1 n1 flag                                      
+Check for the string equal to the pattern.
+
+EXCHANGE   n1 addr -- n2                                                       
+Store <n1> at <addr>, return old contents. [MAX]
+
+EXPIRED   u -- flag                                                            
+Return true if time passed.
+
+F**2   F: r1 -- r2                                                             
+Calculate r1^2.
+
+FCLEAR   F: i*r --                                                             
+Empty FP stack.
+
+FD.P.   F: r --                                                                
+Print bit pattern of r in hex.
+
+FEQU?   F: r1 r2 --                                                            
+Testing FP number equality.
+
+FEXACTLY=   F: r1 r2 --                                                        
+True if r1 exactly equal to r2.
+
+FIELD                                                                          
+Define a field with offset and size. 
+
+FILE-CHECK   n --                                                              
+Check for file access error.
+
+FINITE?   F: r --                                                              
+True if r is finite.
+
+FNIP   F: r1 r2 -- r2                                                          
+Drop 2nd item of floating-point stack.
+
+FOURTH   w x y z -- w x y z w                                                  
+Copy 4th element to top of stack.
+
+FPOPD   u --                                                                   
+Move a 64bit pattern from parameter to float stack.
+
+FPOPS   u --                                                                   
+Move a 32bit pattern from parameter to float stack.
+
+FPUSHD   F: r --                                                               
+Move an IEEE 64bit float from the float to the parameter stack.
+
+FPUSHS   F: r --                                                               
+Move an IEEE 32bit float from the float to the parameter stack.
+
+FS.P.   F: r --                                                                
+Print SFLOAT bit pattern of r in hex.
+
+FTUCK   F: r1 r2 -- r2 r1 r2                                                   
+Put top of floating-point stack under the 2nd item.
+
+HIWORD   xxyy -- xx                                                            
+High half of value.
+
+HOLDS   ca u --                                                                
+Hold string in conversion buffer.
+
+HUNT   str1 n1 pat n2 -- str+I n1-i                                            
+Scan for a string pat/n2.
+
+INCR   addr --                                                                 
+Increment value at <addr>.
+
+IS   xt <name>                                                                 
+Order `name' to execute xt.
+
+IS-ALNUM   char -- flag                                                        
+Test char for alphanumeric [A-Za-z0-9].
+
+IS-ALPHA   char -- flag                                                        
+Test char for alphabetic [A-Za-z].
+
+IS-DIGIT   char -- flag                                                        
+Test char for digit [0-9].
+
+IS-LOWER   char -- flag                                                        
+Test for lowercase letter.
+
+IS-UPPER   char -- flag                                                        
+Test for uppercase letter.
+
+IS-WHITE   char -- flag                                                        
+Test char for white space.
+
+JOIN   dst n1 src n2 -- src n1+n2                                              
+Joint str1 and str2.
+
+LAY   ca1 b -- ca2                                                             
+Lay down next char in string.
+
+LCASE   c1 -- c2                                                               
+Convert c1 to lower case.
+
+LEXEME   "name" -- str len                                                     
+Get next word on the line. If it's a single character, use
+it as the delimiter to get a phrase.
+
+LOSE   --                                                                      
+Abort execution.
+
+LOWER   str n --                                                               
+Convert string to lowercase in-place.
+
+LOWORD   xxyy -- yy                                                            
+Low half of value.
+
+M*/   d . n u -- d .                                                           
+Multiply <d> by <n> to triple result; divide by <u>
+to double result.
+
+M-   d1 n -- d2                                                                
+Subtract <n> from <d1>.
+
+M/   d n1 -- n2                                                                
+Divide <d> by <n1>, giving signed quotient <n2>.
+
+MACRO   "name <char> ccc<char>" --                                             
+Define a macro.
+
+MEMORY-CHECK   n --                                                            
+Check for memory allocation error.
+
+MS?   -- u                                                                     
+Return elapsed time since TIMER-RESET, update diff0.
+
+MULTI   --                                                                     
+Execute loop until TOR is not negative.
+Example: n >R MULTI ... REPEAT R>DROP 
+
+MUX   a b mask -- out                                                          
+Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
+0 selects the bit from <b>.
+
+N>R   xn .. x1 n --                                                            
+Push n+1 elements on the return stack. [C.Haak]
+
+NEXT-WORD   -- str len                                                         
+Get next word across line breaks. len is 0 at EOF.
+
+NR>   -- xn .. x1 n                                                            
+Pop n+1 elements from the return stack. [C.Haak]
+
+OFF   addr --                                                                  
+Clear flag at <addr>.
+
+OFF?   addr -- f                                                               
+Flag at <addr> clear ?
+
+ON   addr --                                                                   
+Set flag at <addr>.
+
+ON?   addr -- f                                                                
+Flag at <addr> set ?
+
+OPTION   ff "name" --                                                          
+Create option flag, which turns a line into comment. [M.Gassanenko]
+
+ORELSE   f --                                                                  
+Shortcut logical OR.
+
+PACK   from n to -- to                                                         
+Like place but returns <to>.
+
+PAD   -- caddr                                                                 
+Return current PAD address <caddr>.
+
+PEEKWORD   -- cstr                                                             
+Get next word, don't advance >IN.
+
+PLACE   from len to --                                                         
+Place string <from/len> as counted string <to>.
+
+POSSIBLY   "name" --                                                           
+Execute "name" if found.
+
+PRINT   ca --                                                                  
+Print counted string <ca>.
+
+Q>N   q -- n                                                                   
+Sign extend 32bit value.
+
+QJOIN   ql qh -- n                                                             
+Join lo and hi 32bit words.
+
+QSPLIT   n -- ql qh                                                            
+Split 64bit word to 32bit words.
+
+R'@   -- x1                                                                    
+2nd element of return stack.
+
+R>DROP   --                                                                    
+Drop item from return stack.
+
+RANDOMIZE   --                                                                 
+Initialize random number generator.
+
+REPLACE-CHAR   str n c1 c2 --                                                  
+Replace c1 with c2 in string str.
+
+RETRY   --                                                                     
+Jump back to the beginning of a word. (W.Baden)
+
+REWIND-FILE   fid -- ior                                                       
+Rewind the file.
+
+RJUSTIFY   ca n m -- ca n+?m                                                   
+Right align string <ca/n> in a field of <m>.
+Modifies buffer <ca> in place!
+
+S>   -- n                                                                      
+Pop value from system stack.
+
+S@   -- n                                                                      
+Copy value from system stack.
+
+SCAN   ca1 u1 b -- ca2 u2                                                      
+Search for <b> in ca1/u1.
+
+SCLEAR   --                                                                    
+Clear system stack.
+
+SDEPTH   -- n                                                                  
+Depth of system stack.
+
+SET-BITS   mask addr --                                                        
+Set <mask> bits in cell at <addr>.
+
+SIMILAR?   str1 n1 str2 n2 -- str1 n1 flag                                     
+Check for the string equal to the pattern.
+
+SKIP   ca1 u1 b -- ca2 u2                                                      
+Skip <b> chars in ca1/u1.
+
+SPLIT   str n c -- str+i n-i str i                                             
+Divide a string at a given character.
+
+SPLIT-NEXT-LINE   src . -- src' . str len                                      
+Split the next line from the string.
+
+SRCLINE   -- ca #                                                              
+Returns the remaining source line.
+
+STARTS?   str len pat len2 -- str len flag                                     
+Check start of string.
+
+STRING/   str n i -- str+i/str-i i                                             
+Get ending characters.
+
+STRUCT   -- initial-offset                                                     
+Begin definition of a struct.
+
+T*   d . n -- t . .                                                            
+Multiply a double number by a single number to get a
+triple number.
+
+T/   t . . u -- d .                                                            
+Divide a triple number by an unsigned number to get a
+double number.
+
+TH-WORD   str n i -- str+I n-i                                                 
+The ith white-space delimited substring of str/n.
+
+TH-WORD-BACK   str n i -- str+I n-I                                            
+All before the ith white-space delimited substring 
+of <str/n>.
+
+TH-WORD-FORWARD   str n i -- str+I n-I                                         
+The ith white-space delimited-substring of <str/n>
+and what follows it.
+
+THENS   CS: 0 orig_1 ... orig_N --                                             
+Close all open IFs up to COND.
+
+THIRD   x y z -- x y z x                                                       
+Copy 3rd element to top of stack.
+
+TIMER   ms --                                                                  
+Display milliseconds elapsed since ms.
+
+TIMER-RESET   --                                                               
+Reset timer.
+
+TNEGATE   t .. - -t . .                                                        
+Negate a triple number.
+
+TOGGLE-BITS   mask addr --                                                     
+Toggle <mask> bits in cell at <addr>.
+
+TRIM   str len -- str len-i                                                    
+Trim white space from end of string.
+
+TYPE.   ca u --                                                                
+Type string and a space.
+
+TYPE.R   ca u n --                                                             
+Display ca/u in a field of n chars width.
+
+UMIN   u1 u2 -- u                                                              
+Minimum of u1 and u2.
+
+UNDER+   a b c -- a+c b                                                        
+Add TOS to under NOS.
+
+UNDER1+   x1 x2 -- x1' x2                                                      
+Add 1 to NOS.
+
+UNDER1-   x1 x2 -- x1' x2                                                      
+Subtract 1 from NOS.
+
+UPCASE   c1 -- c2                                                              
+Convert c1 to upper case.
+
+UPPER   str n --                                                               
+Convert string to uppercase in-place.
+
+VIEW-NEXT-LINE   src . str len -- src . str len str2 len2                      
+Copy next line above current line.
+
+W>N   w -- x                                                                   
+Sign extend 16bit word to cell.
+
+WJOIN   wl wh -- n                                                             
+Join lo and hi 16bit words.
+
+WORDS:   "name" --                                                             
+iForth variant.
+
+WORDS:   "name" --                                                             
+iForth variant.
+
+WSPLIT   n -- wl wh                                                            
+Split 32bit word to 16bit words.
+
+ZAPPEND   from n zto --                                                        
+Append to NULL terminated string.
+
+ZAPPEND-CHAR   c zto --                                                        
+Append char to NULL terminated string.
+
+ZCOUNT   za -- ca u                                                            
+Address and length of NULL terminated string.
+
+ZERO   x -- 0                                                                  
+Replace x with zero.
+
+ZLENGTH   za -- u                                                              
+Length of NULL terminated string.
+
+ZPLACE   from n zto --                                                         
+Place to NULL terminated string.
+
+ZPRINT   cstr --                                                               
+Print C-string <cstr>.
+
+[DEFINED]   "name" -- flag                                                     
+Returns true if "name" defined.
+
+[UNDEFINED]   "name" -- flag                                                   
+Returns true if "name" undefined.
+
