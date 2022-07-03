@@ -1,3 +1,6 @@
+$"   i*caI n "string" -- [i+1]*caI [n+1]                                       
+Define a string item.
+
 $<   ca1 u1 ca2 u2 -- f                                                        
 Return true if ca1/u1 < ca2/u2.
 
@@ -144,6 +147,9 @@ Drop top three elements from stack.
 4DUP   x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 x3 x4                                  
 Duplicate top 4 items.
 
+:SWITCH   xt "name" -- addr                                                    
+Define a switch named `name', default behavior will be `xt'.
+
 <W@   w-addr -- n                                                              
 Fetch 16bit value, sign extend.
 
@@ -267,6 +273,11 @@ Empty the dictionary.
 
 END-C@   ca u -- b                                                             
 Last char of string ca/u.
+
+END-STRING-ARRAY   i*caddrI n "name" --                                        
+Close the definition of string array `name'.
+Executing n `name' will return the nth string in the array
+as caddr/u.
 
 END-WORD   str n -- str+/str-i i                                               
 Last word in a string after trimming.
@@ -495,6 +506,12 @@ RJUSTIFY   ca n m -- ca n+?m
 Right align string <ca/n> in a field of <m>.
 Modifies buffer <ca> in place!
 
+RUN:   head n --                                                               
+Define the behavior for `n'. Close the definition with `;'.
+
+RUNS   head n "word" --                                                        
+For `n' run `word' at runtime.
+
 S>   -- n                                                                      
 Pop value from system stack.
 
@@ -531,11 +548,17 @@ Returns the remaining source line.
 STARTS?   str len pat len2 -- str len flag                                     
 Check start of string.
 
+STRING-ARRAY   --                                                              
+Begin definition of a literal string array.
+
 STRING/   str n i -- str+i/str-i i                                             
 Get ending characters.
 
 STRUCT   -- initial-offset                                                     
 Begin definition of a struct.
+
+SWITCH]   head --                                                              
+Close definition of switch.
 
 T*   d . n -- t . .                                                            
 Multiply a double number by a single number to get a
@@ -640,8 +663,14 @@ Place to NULL terminated string.
 ZPRINT   cstr --                                                               
 Print C-string <cstr>.
 
+[+SWITCH   "name" -- head                                                      
+Extend switch `name'.
+
 [DEFINED]   "name" -- flag                                                     
 Returns true if "name" defined.
+
+[SWITCH   "name" "default-word" -- head                                        
+Define a switch named `name', the default word will be `default-word'.
 
 [UNDEFINED]   "name" -- flag                                                   
 Returns true if "name" undefined.

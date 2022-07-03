@@ -23,7 +23,8 @@
    
 
 \ ***
-: :SWITCH ( xt -- addr )
+: :SWITCH ( xt "name" -- addr )
+\G Define a switch named `name', default behavior will be `xt'.
    CREATE  HERE 0 , SWAP ,  DOES> SWITCHER ;
    
 : <SWITCH ( head xt n -- head )
@@ -31,21 +32,26 @@
 
 
 \ ***
-: [SWITCH ( -- head )
+: [SWITCH ( "name" "default-word" -- head )
+\G Define a switch named `name', the default word will be `default-word'.
    CREATE  HERE 0 ,  ' ,  DOES> SWITCHER ;
    
-: [+SWITCH ( -- head )
+: [+SWITCH ( "name" -- head )
+\G Extend switch `name'.
    ' >BODY ;
    
 : SWITCH] ( head -- )
+\G Close definition of switch.
    DROP ;
    
 
 \ ***
-: RUNS ( head n -- )
+: RUNS ( head n "word" -- )
+\G For `n' run `word' at runtime.
    ' SWAP <SWITCH ;
    
 : RUN: ( head n -- )
+\G Define the behavior for `n'. Close the definition with `;'.
    :NONAME [CHAR] ; PARSE EVALUATE  POSTPONE ;  ( xt) SWAP <SWITCH ;
 
 
