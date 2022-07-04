@@ -1,6 +1,12 @@
 "   "text" -- caddr u                                                          
 define " (double-quote) as an alias for s", and make it a prefix
 
+#   "#..." -- n                                                                
+Decimal number prefix.
+
+$   "$..." -- n                                                                
+Hexadecimal number prefix.
+
 $"   i*caI n "string" -- [i+1]*caI [n+1]                                       
 Define a string item.
 
@@ -21,6 +27,9 @@ Append char <c> to string <sa>.
 
 $COUNT   sa -- ca u                                                            
 Length of string <sa>.
+
+$DUMP   ca n -- ca n                                                           
+Display string on output device as "[string]".
 
 $EMPTY   ca u -- f                                                             
 Return true if ca/u has zero len.
@@ -64,11 +73,41 @@ Create string variable of length <len>.
 $~=   ca1 u1 ca2 u2 -- f                                                       
 Return true if ca1/u1 = ca2/u2 case insensitive.
 
+%   "%..." -- n                                                                
+Binary number prefix.
+
+&   "&..." -- n                                                                
+Octal number prefix.
+
 '   'char' -- c                                                                
 define ' as an alias for [char] or char, and make it a prefix
 
 'TH   n "addr" -- &addr[n]                                                     
 Address of cell <n> at array <addr>.
+
+(.)   n -- ca n                                                                
+Convert number to string.
+
+(.R)   n m -- ca #                                                             
+Convert number to string in a field right-justified.
+
+(D.)   d -- ca n                                                               
+Convert double number to string.
+
+(D.R)   d m -- ca n                                                            
+Convert double number to string in a field right-justified.
+
+(U.)   u -- ca n                                                               
+Convert unsigned number to string.
+
+(U.R)   u m -- ca #                                                            
+Convert unsigned number to string in a field right-justified.
+
+(UD.)   ud -- ca n                                                             
+Convert unsigned double number to string.
+
+(UD.R)   ud m -- ca #                                                          
+Convert unsigned double number to string in a field right-justified.
 
 (WORDS:)   <substr> --                                                         
 List those word names in the current word list that partly
@@ -97,6 +136,9 @@ update user variable offset.
 +WARNING   --                                                                  
 Enable redefinition warnings.
 
+,"   "string" --                                                               
+Store delimited string in dictionary space.
+
 --   addr --                                                                   
 Decrement value at <addr>.
 
@@ -109,6 +151,9 @@ Rotate top 3 items up.
 -SKIP   ca u1 b -- ca u2                                                       
 Remove trailing <b> chars from ca/u1.
 
+-TERM   --                                                                     
+Turn off raw terminal input.
+
 -TRAILING   ca u1 -- ca u2                                                     
 Strip trailing whitespace.
 
@@ -118,8 +163,23 @@ Trim, strip leading and trailing spaces.
 -WARNING   --                                                                  
 Disable redefinition warnings.
 
+.   n --                                                                       
+Display number.
+
 .(                                                                             
 make .( a prefix (we just create an alias for it in the prefixes list)
+
+..   i*x --                                                                    
+Display the contents of the data stack and clear the stack.
+
+.B   n --                                                                      
+Display `n' in binary.
+
+.BASE   --                                                                     
+Display number base in decimal.
+
+.D   n --                                                                      
+Display `n' in decimal.
 
 .ELAPSED   --                                                                  
 Display milliseconds elapsed since TIMER-RESET.
@@ -130,14 +190,29 @@ Print the name of the word at `lfa'.
 .LOWER   str n --                                                              
 Prints str/n in lower case.
 
+.O   n --                                                                      
+Display `n' in octal.
+
+.R   n m --                                                                    
+Display number in a field right-justified.
+
 .UPPER   str n --                                                              
 Prints str/n in upper case.
+
+.X   n --                                                                      
+Display `n' in hexadecimal.
 
 //   "//comment" --                                                            
 make // as a prefix for comments.
 
 /ALLOT   n --                                                                  
 Allot `n' bytes, erase the area.
+
+/STRING   caddr1 u1 +n -- caddr2 u2                                            
+Remove +n chars from `caddr1/u'.
+
+/TERM   --                                                                     
+Prepare terminal for raw terminal input.
 
 0<=   n -- f                                                                   
 True if n <= 0.
@@ -187,6 +262,9 @@ Drop 3rd and 4th element from stack.
 3DROP   x y z --                                                               
 Drop top three elements from stack.
 
+3DUP   a b c -- a b c a b c                                                    
+Duplicate top three data stack items.
+
 4DUP   x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 x3 x4                                  
 Duplicate top 4 items.
 
@@ -198,11 +276,17 @@ Example:
 :SWITCH   xt "name" -- addr                                                    
 Define a switch named `name', default behavior will be `xt'.
 
+<=   n1 n2 -- ff                                                               
+Return true if `n1' is less-or-equal to `n2'.
+
 <>   n1 n2 -- ff                                                               
 Return true, if n1 does not equal to n2.
 
 <W@   w-addr -- n                                                              
 Fetch 16bit value, sign extend.
+
+>=   n1 n2 -- ff                                                               
+Return true if `n1' is greater-or-equal to `n2'.
 
 >BUFFER   ca u buf -- buf u                                                    
 Move string to buffer. Returns buffer address and string
@@ -241,6 +325,9 @@ Return milliseconds elapsed.
 ?NEWLINE   c -- f                                                              
 Answer TRUE if char is CR/LF.
 
+?PRINTABLE   c -- f                                                            
+Return true if char is printable.
+
 @EXECUTE   addr --                                                             
 Execute xt at addr, if not zero.
 
@@ -252,6 +339,9 @@ Give absolute value of `x'.
 
 AKA   old new --                                                               
 Make alias `new' for `old'.
+
+ALPHA   --                                                                     
+Set number base to 36.
 
 ALSO   --                                                                      
 ALSO dups the search stack...
@@ -268,6 +358,14 @@ Append string <from/len> to counted string <to>.
 APPEND-CHAR   c to --                                                          
 Append char <c> to counted string <to>.
 
+ARRAY   n "name" --                                                            
+Define an array `name' with n cells.
+Usage: name ( n -- addr )
+Return the address of the nth cell.
+
+AT-XY   col row --                                                             
+Position cursor to col/row.
+
 BACK   ca u1 b -- ca u2                                                        
 Scan backwards for char <b> in ca/u1.
 
@@ -275,8 +373,14 @@ BEHAVIOR   xt1 -- xt2
 Retrieve <xt2> the word currently associated with the
 deferred word <xt1>.
 
+BETWEEN   n lo hi -- f                                                         
+Returns true if lo <= n <= hi.
+
 BIN   fam1 -- fam2                                                             
 Specify binary file access mode.
+
+BINARY   --                                                                    
+Set number base to binary.
 
 BJOIN   cl ch -- n                                                             
 Join lo and hi 8bit bytes.
@@ -286,6 +390,12 @@ Look for white space from start.
 
 BL-SKIP   str len -- str+i len-i                                               
 Skip over white space at start.
+
+BLANK   addr u --                                                              
+Fill `u' bytes from `addr' with BL.
+
+BOUNDS   lo count -- hi lo                                                     
+Convert lo/count to boundary.
 
 BRANCH,   addr --                                                              
 Assemble a branch to `addr'.
@@ -298,8 +408,16 @@ gets the name of the word made by create and applies it to the wordlist.
 BSPLIT   w -- bl bh                                                            
 Split 16bit word to 8bit bytes.
 
+BUFFER:   n "name" --                                                          
+Allot a buffer `name' with `n' chars in dictionary space.
+
 C>N   c -- x                                                                   
 Sign extend char to cell.
+
+CARRAY   n "name" --                                                           
+Define an array `name' with n chars.
+Usage: name ( n -- caddr )
+Return the address of the nth char.
 
 CASE?   n lit -- true | n false                                                
 Alternative CASE branch.
@@ -349,8 +467,38 @@ Test that str1 contains str2.
 COUNTER   -- ms                                                                
 Return current milliseconds.
 
+D+   d1 d2 -- d                                                                
+Add two double numbers.
+
+D-   d1 d2 -- d                                                                
+Subtract two double numbers.
+
+D.   d --                                                                      
+Display double number.
+
+D.R   d m --                                                                   
+Display double number in a field right-justified.
+
+D0<   d -- f                                                                   
+Return true if double number is less-than zero.
+
 D0<>   d -- f                                                                  
 True if <d> <> 0.
+
+D0=   d -- f                                                                   
+Return true if double number is zero.
+
+D<>   d1 d2 -- f                                                               
+Returns true if two double numbers are not equal.
+
+D=   d1 d2 -- f                                                                
+Return true if two double numbers are equal.
+
+DABS   d -- ud                                                                 
+Convert double cell number to its absolute value.
+
+DARWIN?   -- ff                                                                
+True if Darwin.
 
 DECR   addr --                                                                 
 Decrement value at <addr>.
@@ -364,6 +512,9 @@ Define `xt' for `method' in `class'.
 Example:
    :noname ( obj -- ) ... ; myclass defines :mymethod
 
+DIRECTIVE   --                                                                 
+Make previous word immediate and compile only.
+
 DO-UNDEFINED   caddr u -- i*x f                                                
 Report unknown word, compile LOSE.
 
@@ -371,8 +522,23 @@ DO-VOCABULARY   --
 DO_VOCABULARY handles the DOES> part of a VOCABULARY
 When executed, new voc replaces top of search stack
 
+DOT   n base --                                                                
+Display `n' in temporary base `base'.
+
 DUMP   addr u --                                                               
 Dump `u' address units from `addr'.
+
+DUMP   addr u --                                                               
+Dump memory `u' bytes from `addr' in hexadecimal.
+
+ED   --                                                                        
+Edit current source.
+
+EDIT   "filename" --                                                           
+Edit file named `filename'.
+
+EDITED   ca u --                                                               
+Edit file named `ca/u'.
 
 EMITS   n char --                                                              
 Emit <n> <char>s.
@@ -482,6 +648,9 @@ Print SFLOAT bit pattern of r in hex.
 FTUCK   F: r1 r2 -- r2 r1 r2                                                   
 Put top of floating-point stack under the 2nd item.
 
+H.   n --                                                                      
+Display `n' in hexadecimal.
+
 HIDE                                                                           
 Hide the following definitions.
 
@@ -491,11 +660,17 @@ High half of value.
 HOLDS   ca u --                                                                
 Hold string in conversion buffer.
 
+HOME   --                                                                      
+Position cursor to top left corner.
+
 HUNT   str1 n1 pat n2 -- str+I n1-i                                            
 Scan for a string pat/n2.
 
 IMMEDIATE?   xt -- f                                                           
 Gives back true if `xt' is immediate.
+
+IN   --                                                                        
+Include current source file.
 
 INCLUDE   "path" --                                                            
 Include the contents of file specified by path.
@@ -546,6 +721,9 @@ it as the delimiter to get a phrase.
 LFA   xt -- lfa                                                                
 Gives back the link field address.
 
+LINUX?   -- ff                                                                 
+True if Linux.
+
 LOCAL   name --                                                                
 Define a single-cell local named `name'.
 
@@ -561,9 +739,15 @@ Convert string to lowercase in-place.
 LOWORD   xxyy -- yy                                                            
 Low half of value.
 
+LS   --                                                                        
+List current directory.
+
 M*/   d . n u -- d .                                                           
 Multiply <d> by <n> to triple result; divide by <u>
 to double result.
+
+M+   d1 n -- d2                                                                
+Add double and single number producing a double result.
 
 M-   d1 n -- d2                                                                
 Subtract <n> from <d1>.
@@ -621,6 +805,9 @@ No operation.
 NR>   -- xn .. x1 n                                                            
 Pop n+1 elements from the return stack. [C.Haak]
 
+OCTAL   --                                                                     
+Set number base to octal.
+
 OFF   addr --                                                                  
 Clear flag at <addr>.
 
@@ -650,6 +837,9 @@ Like place but returns <to>.
 
 PAD   -- caddr                                                                 
 Return current PAD address <caddr>.
+
+PAGE   --                                                                      
+Clear page.
 
 PEEKWORD   -- cstr                                                             
 Get next word, don't advance >IN.
@@ -706,11 +896,17 @@ RJUSTIFY   ca n m -- ca n+?m
 Right align string <ca/n> in a field of <m>.
 Modifies buffer <ca> in place!
 
+RM   "name" --                                                                 
+Remove file named `name'.
+
 RUN:   head n --                                                               
 Define the behavior for `n'. Close the definition with `;'.
 
 RUNS   head n "word" --                                                        
 For `n' run `word' at runtime.
+
+S.   n --                                                                      
+Display `n' as signed number.
 
 S>   -- n                                                                      
 Pop value from system stack.
@@ -742,6 +938,9 @@ Skip <b> chars in ca1/u1.
 SMUDGED?   xt -- f                                                             
 Gives back true, if `xt' is smudged.
 
+SOURCE!   ca u --                                                              
+Set source file name to `ca/u'.
+
 SPACE   --                                                                     
 Emit a space.
 
@@ -770,6 +969,9 @@ STRDUP   c-addr length -- c-addr2 length2 ior
 Duplicate the string c-addr/length on the heap
 ior is 0 if done,-1 if allocation failed.
 
+STRING,   caddr u --                                                           
+Store string `caddr/u' in dictionary space.
+
 STRING-ARRAY   --                                                              
 Begin definition of a literal string array.
 
@@ -792,6 +994,9 @@ double number.
 
 TASK   "name" --                                                               
 Define a task with `name'.
+
+TEXT   delim --                                                                
+Move following text delimited with `delim' to PAD.
 
 TH-WORD   str n i -- str+I n-i                                                 
 The ith white-space delimited substring of str/n.
@@ -834,6 +1039,21 @@ Type string and a space.
 TYPE.R   ca u n --                                                             
 Display ca/u in a field of n chars width.
 
+U.R   u m --                                                                   
+Display unsigned number in a field right-justified.
+
+UD.   ud --                                                                    
+Display unsigned double number.
+
+UD.R   ud m --                                                                 
+Display unsigned double number in a field right-justified.
+
+UM+   u1 u2 -- ud                                                              
+Add two unsigned number producing an unsigned double result.
+
+UMAX   u1 u2 -- u                                                              
+Return the maximum of two unsigned numbers.
+
 UMIN   u1 u2 -- u                                                              
 Minimum of u1 and u2.
 
@@ -867,6 +1087,9 @@ Write-only mode.
 W>N   w -- x                                                                   
 Sign extend 16bit word to cell.
 
+WINNT?   --                                                                    
+True if Windows.
+
 WITHIN   test low high -- flag                                                 
 Return true if low <= test < high.
 
@@ -884,6 +1107,9 @@ iForth variant.
 
 WSPLIT   n -- wl wh                                                            
 Split 32bit word to 16bit words.
+
+XXX   --                                                                       
+Abort with `not implemented' message.
 
 ZAPPEND   from n zto --                                                        
 Append to NULL terminated string.
@@ -933,6 +1159,9 @@ Returns true if "name" undefined.
 
 \   "\comment" --                                                              
 make \ a prefix
+
+\\   --                                                                        
+Skip remaining text in a file.
 
 {   "{" a b c | cleared -- d e "}"                                             
 Define Johns-Hopkins locals. Variables before the "|" are
