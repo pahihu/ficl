@@ -31,16 +31,34 @@ HIDE
 
 SET-CURRENT
 
-: LFA ( xt -- lfa ) ;
-: NFA ( lfa -- nfa )   2 CELLS+ ;
-: CFA ( lfa -- cfa )   3 CELLS+ ;
-: PFA ( lfa -- pfa )   5 CELLS+ ;
+: LFA ( xt -- lfa )
+\G Gives back the link field address.
+   ;
+: NFA ( lfa -- nfa )
+\G Gives back the name field address.
+   2 CELLS+ ;
+: CFA ( lfa -- cfa )
+\G Gives back the code field address.
+   3 CELLS+ ;
+: PFA ( lfa -- pfa )
+\G Gives back the parameter field address.
+   5 CELLS+ ;
   
-: .ID ( lfa -- )   NFA  NFA>NAME  TYPE SPACE ;
+: .ID ( lfa -- )
+\G Print the name of the word at `lfa'.
+   NFA  NFA>NAME  TYPE SPACE ;
 
-: IMMEDIATE? ( xt -- f )   ?IMMEDIATE FLAG? ;
-: COMPILE-ONLY? ( xt -- f )   ?COMPILE-ONLY FLAG? ;
-: SMUDGED? ( xt -- f )   ?SMUDGED FLAG? ;
-: INSTRUCTION? ( xt -- f )   ?INSTRUCTION FLAG? ;
+: IMMEDIATE? ( xt -- f )
+\G Gives back true if `xt' is immediate.
+   ?IMMEDIATE FLAG? ;
+: COMPILE-ONLY? ( xt -- f )
+\G Gives back true, if `xt' is compile only.
+   ?COMPILE-ONLY FLAG? ;
+: SMUDGED? ( xt -- f )
+\G Gives back true, if `xt' is smudged.
+   ?SMUDGED FLAG? ;
+: INSTRUCTION? ( xt -- f )
+\G Gives back true, if `xt' is a VM instruction.
+   ?INSTRUCTION FLAG? ;
 
 PREVIOUS

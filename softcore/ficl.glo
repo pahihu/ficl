@@ -124,6 +124,9 @@ make .( a prefix (we just create an alias for it in the prefixes list)
 .ELAPSED   --                                                                  
 Display milliseconds elapsed since TIMER-RESET.
 
+.ID   lfa --                                                                   
+Print the name of the word at `lfa'.
+
 .LOWER   str n --                                                              
 Prints str/n in lower case.
 
@@ -284,6 +287,9 @@ Look for white space from start.
 BL-SKIP   str len -- str+i len-i                                               
 Skip over white space at start.
 
+BRANCH,   addr --                                                              
+Assemble a branch to `addr'.
+
 BRAND-WORDLIST   wid --                                                        
 BRAND-WORDLIST is a helper for ficl-named-wordlist.
 Usage: wordlist dup create , brand-wordlist
@@ -300,6 +306,9 @@ Alternative CASE branch.
 
 CELL-   addr -- addr                                                           
 CELL- undoes CELL+
+
+CFA   lfa -- cfa                                                               
+Gives back the code field address.
 
 CHAR-   caddr -- caddr                                                         
 CHAR- undoes CHAR+
@@ -330,6 +339,9 @@ continue with current. [CI]
 
 COMPILE,   xt --                                                               
 Compile xt into the current definition.
+
+COMPILE-ONLY?   xt -- f                                                        
+Gives back true, if `xt' is compile only.
 
 CONTAINS?   str1 n1 str2 n2 -- str1 n1 flag                                    
 Test that str1 contains str2.
@@ -482,6 +494,9 @@ Hold string in conversion buffer.
 HUNT   str1 n1 pat n2 -- str+I n1-i                                            
 Scan for a string pat/n2.
 
+IMMEDIATE?   xt -- f                                                           
+Gives back true if `xt' is immediate.
+
 INCLUDE   "path" --                                                            
 Include the contents of file specified by path.
 
@@ -490,6 +505,9 @@ Include the contents of file specified by c-addr/u.
 
 INCR   addr --                                                                 
 Increment value at <addr>.
+
+INSTRUCTION?   xt -- f                                                         
+Gives back true, if `xt' is a VM instruction.
 
 IS   xt <name>                                                                 
 Order `name' to execute xt.
@@ -524,6 +542,9 @@ Convert c1 to lower case.
 LEXEME   "name" -- str len                                                     
 Get next word on the line. If it's a single character, use
 it as the delimiter to get a phrase.
+
+LFA   xt -- lfa                                                                
+Gives back the link field address.
 
 LOCAL   name --                                                                
 Define a single-cell local named `name'.
@@ -588,6 +609,9 @@ Example:
 NEXT-WORD   -- str len                                                         
 Get next word across line breaks. len is 0 at EOF.
 
+NFA   lfa -- nfa                                                               
+Gives back the name field address.
+
 NIP   y x -- x                                                                 
 Drop the 2nd item of the stack.
 
@@ -629,6 +653,9 @@ Return current PAD address <caddr>.
 
 PEEKWORD   -- cstr                                                             
 Get next word, don't advance >IN.
+
+PFA   lfa -- pfa                                                               
+Gives back the parameter field address.
 
 PLACE   from len to --                                                         
 Place string <from/len> as counted string <to>.
@@ -711,6 +738,9 @@ Check for the string equal to the pattern.
 
 SKIP   ca1 u1 b -- ca2 u2                                                      
 Skip <b> chars in ca1/u1.
+
+SMUDGED?   xt -- f                                                             
+Gives back true, if `xt' is smudged.
 
 SPACE   --                                                                     
 Emit a space.

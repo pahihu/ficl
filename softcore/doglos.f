@@ -10,7 +10,6 @@ MAKEGLOS marker.fr
 MAKEGLOS mini-oof.fs
 MAKEGLOS ficllocal.fr
 MAKEGLOS fileaccess.fr
-
 MAKEGLOS chkredef.fs
 MAKEGLOS header.fs
 MAKEGLOS srcline.fs
@@ -20,6 +19,7 @@ MAKEGLOS struct.fth
 MAKEGLOS sfcompat.fs
 MAKEGLOS bitwise.fs
 MAKEGLOS circ-pad.fs
+
 MAKEGLOS missing.fs
 MAKEGLOS clf.fs
 MAKEGLOS floats.fs

@@ -30,7 +30,8 @@ HIDE
 
 SET-CURRENT
 
-: BRANCH, ( addr -- )      \ assemble a branch to addr
+: BRANCH, ( addr -- )
+\G Assemble a branch to `addr'.
    HERE CELL+ -  /CELL /
    <branch> , , ;
 
