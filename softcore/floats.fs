@@ -1,7 +1,9 @@
 FLOATS? [IF]
 \ ANEW -floats
 
-: FVARIABLE ( "name" -- )   VARIABLE ;
+: FVARIABLE ( "name" -- )
+\G Define a floating-point variable.
+   VARIABLE ;
 
 HIDE
 
@@ -44,14 +46,22 @@ AKA >FLOAT FPOPS
 
 [THEN]
 
-: SF, ( F: r -- )   FPUSHS HERE Q!  4 ALLOT ;
-: DF, ( F: r -- )   FPUSHD HERE  !  8 ALLOT ;
+: SF, ( F: r -- )
+\G Store the single-precision FP number in dictionary space. Also F,
+   FPUSHS HERE Q!  4 ALLOT ;
+: DF, ( F: r -- )
+\G Store the double-precision FP number in dictionary space. Also F,
+   FPUSHD HERE  !  8 ALLOT ;
 
 \DFLOATS AKA DF, F,
 \SFLOATS AKA SF, F,
 
-: SF? ( addr -- )   SF@ F. ;
-: DF? ( addr -- )   DF@ F. ;
+: SF? ( addr -- )
+\G Display the single-precision FP number at `addr'. Also F?
+   SF@ F. ;
+: DF? ( addr -- )
+\G Display the double FP number at `addr'. Also F?
+   DF@ F. ;
 
 \DFLOATS AKA DF? F?
 \SFLOATS AKA SF? F?
@@ -73,11 +83,15 @@ PI   2.0e F/ FCONSTANT PI/2
 PI   4.0e F/ FCONSTANT PI/4
 PI 180.0e F/ FCONSTANT PI/180
 
-: D>R ( deg -- rad )   PI/180 F* ;
-: R>D ( rad -- deg )   PI/180 F/ ;
+: D>R ( deg -- rad )
+\G Convert degrees to radians.
+   PI/180 F* ;
+: R>D ( rad -- deg )
+\G Convert radians to degrees.
+   PI/180 F/ ;
 
 -WARNING
-: >FLOAT ( ca u -- true | false ) ( F: -- r | )
+: $>FLOAT ( ca u -- true | false ) ( F: -- r | )
 \G Convert ca/u to FP number, return success or failure.
    ?FLOAT NEGATE ;
 +WARNING

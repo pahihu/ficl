@@ -19,6 +19,9 @@ Return true if ca1/u1 = ca2/u2.
 $>   ca1 u1 ca2 u2 -- f                                                        
 Return true if ca1/u1 > ca2/u2.
 
+$>FLOAT   ca u -- true | false                                                 
+Convert ca/u to FP number, return success or failure.
+
 $APPEND   ca u sa --                                                           
 Append ca/u to string <sa>.
 
@@ -295,9 +298,6 @@ length.
 >CELLS   #bytes -- #cells                                                      
 Round up <#bytes> to the corresponding <#cells>.
 
->FLOAT   ca u -- true | false                                                  
-Convert ca/u to FP number, return success or failure.
-
 >HEAP   ca u -- addr u                                                         
 Move string <ca/u> to heap.
 
@@ -494,6 +494,9 @@ Returns true if two double numbers are not equal.
 D=   d1 d2 -- f                                                                
 Return true if two double numbers are equal.
 
+D>R   deg -- rad                                                               
+Convert degrees to radians.
+
 DABS   d -- ud                                                                 
 Convert double cell number to its absolute value.
 
@@ -511,6 +514,12 @@ DEFINES   xt class "method" --
 Define `xt' for `method' in `class'.
 Example:
    :noname ( obj -- ) ... ; myclass defines :mymethod
+
+DF,   F: r --                                                                  
+Store the double-precision FP number in dictionary space. Also F,
+
+DF?   addr --                                                                  
+Display the double FP number at `addr'. Also F?
 
 DIRECTIVE   --                                                                 
 Make previous word immediate and compile only.
@@ -647,6 +656,9 @@ Print SFLOAT bit pattern of r in hex.
 
 FTUCK   F: r1 r2 -- r2 r1 r2                                                   
 Put top of floating-point stack under the 2nd item.
+
+FVARIABLE   "name" --                                                          
+Define a floating-point variable.
 
 H.   n --                                                                      
 Display `n' in hexadecimal.
@@ -877,6 +889,9 @@ Read-only mode.
 R/W   -- fam                                                                   
 Read-write mode.
 
+R>D   rad -- deg                                                               
+Convert radians to degrees.
+
 R>DROP   --                                                                    
 Drop item from return stack.
 
@@ -928,6 +943,12 @@ Depth of system stack.
 
 SET-BITS   mask addr --                                                        
 Set <mask> bits in cell at <addr>.
+
+SF,   F: r --                                                                  
+Store the single-precision FP number in dictionary space. Also F,
+
+SF?   addr --                                                                  
+Display the single-precision FP number at `addr'. Also F?
 
 SIMILAR?   str1 n1 str2 n2 -- str1 n1 flag                                     
 Check for the string equal to the pattern.

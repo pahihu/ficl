@@ -19,10 +19,10 @@ MAKEGLOS struct.fth
 MAKEGLOS sfcompat.fs
 MAKEGLOS bitwise.fs
 MAKEGLOS circ-pad.fs
-
 MAKEGLOS missing.fs
 MAKEGLOS clf.fs
 MAKEGLOS floats.fs
+
 MAKEGLOS tester.fr
 MAKEGLOS dshift.fs
 MAKEGLOS cond.fs
