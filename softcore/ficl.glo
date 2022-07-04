@@ -145,6 +145,9 @@ Store delimited string in dictionary space.
 --   addr --                                                                   
 Decrement value at <addr>.
 
+->   ... --                                                                    
+RECORD DEPTH AND CONTENT OF STACK.
+
 -LEADING   ca1 u1 -- ca2 u2                                                    
 Strip leading whitespace.
 
@@ -363,6 +366,12 @@ Define an array `name' with n cells.
 Usage: name ( n -- addr )
 Return the address of the nth cell.
 
+ARSHIFT   n1 m -- n2                                                           
+Double number arithmetic right shift.
+
+ASHIFT   n1 m -- n2                                                            
+If m > 0 perform LSHIFT, else arithmetic right shift.
+
 AT-XY   col row --                                                             
 Position cursor to col/row.
 
@@ -488,6 +497,12 @@ True if <d> <> 0.
 D0=   d -- f                                                                   
 Return true if double number is zero.
 
+D2*   d1 - d2                                                                  
+Double number 2*.
+
+D2/   d1 -- d2                                                                 
+Double number 2/.
+
 D<>   d1 d2 -- f                                                               
 Returns true if two double numbers are not equal.
 
@@ -524,6 +539,9 @@ Display the double FP number at `addr'. Also F?
 DIRECTIVE   --                                                                 
 Make previous word immediate and compile only.
 
+DLSHIFT   d1 n -- d2                                                           
+Double number LSHIFT.
+
 DO-UNDEFINED   caddr u -- i*x f                                                
 Report unknown word, compile LOSE.
 
@@ -533,6 +551,9 @@ When executed, new voc replaces top of search stack
 
 DOT   n base --                                                                
 Display `n' in temporary base `base'.
+
+DRSHIFT   d1 n -- d2                                                           
+Double number RSHIFT.
 
 DUMP   addr u --                                                               
 Dump `u' address units from `addr'.
@@ -751,6 +772,9 @@ Convert string to lowercase in-place.
 LOWORD   xxyy -- yy                                                            
 Low half of value.
 
+LROTATE   n1 m -- n2                                                           
+Rotate left number m places.
+
 LS   --                                                                        
 List current directory.
 
@@ -914,6 +938,12 @@ Modifies buffer <ca> in place!
 RM   "name" --                                                                 
 Remove file named `name'.
 
+ROTATE   n1 m -- n2                                                            
+If m > 0 rotate left, else rotate right number.
+
+RROTATE   n1 m -- n2                                                           
+Rotate right number m places.
+
 RUN:   head n --                                                               
 Define the behavior for `n'. Close the definition with `;'.
 
@@ -949,6 +979,9 @@ Store the single-precision FP number in dictionary space. Also F,
 
 SF?   addr --                                                                  
 Display the single-precision FP number at `addr'. Also F?
+
+SHIFT   n1 m -- n2                                                             
+If m > 0 perform LSHIFT, else RSHIFT.
 
 SIMILAR?   str1 n1 str2 n2 -- str1 n1 flag                                     
 Check for the string equal to the pattern.
@@ -1013,8 +1046,17 @@ T/   t . . u -- d .
 Divide a triple number by an unsigned number to get a
 double number.
 
+TALKING   --                                                                   
+Set verbose mode for tester.
+
+TALKING?   -- ff                                                               
+Return true if tester inn verbose mode.
+
 TASK   "name" --                                                               
 Define a task with `name'.
+
+TESTING   --                                                                   
+Talking comment for tester.
 
 TEXT   delim --                                                                
 Move following text delimited with `delim' to PAD.
@@ -1060,14 +1102,23 @@ Type string and a space.
 TYPE.R   ca u n --                                                             
 Display ca/u in a field of n chars width.
 
+T{   --                                                                        
+Syntactic sugar.
+
 U.R   u m --                                                                   
 Display unsigned number in a field right-justified.
+
+U2/   u1 -- u2                                                                 
+Unsigned number 2/.
 
 UD.   ud --                                                                    
 Display unsigned double number.
 
 UD.R   ud m --                                                                 
 Display unsigned double number in a field right-justified.
+
+UD2/   ud1 -- ud2                                                              
+Unsigned double number 2/.
 
 UM+   u1 u2 -- ud                                                              
 Add two unsigned number producing an unsigned double result.
@@ -1201,4 +1252,7 @@ Thus, "f2:foo" and "2is2f:foo" are both double-cell floats.
 {{   "{{" a b c -- d e "}}"                                                    
 FiCL locals, variable before the "--" are initialized
 in reverse order.
+
+}T   ... --                                                                    
+Compare stack (expected) contents with saved (actual) contents.
 

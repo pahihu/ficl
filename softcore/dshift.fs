@@ -4,30 +4,51 @@
 /CELL 8 *        CONSTANT #CELLBITS
 #CELLBITS 1- BIT CONSTANT HIGH-BIT
 
-: U2/ ( u1 -- u2 ) 1 RSHIFT ;
+: U2/ ( u1 -- u2 )
+\G Unsigned number 2/.
+   1 RSHIFT ;
 : D2/ ( d1 -- d2 )
+\G Double number 2/.
   SWAP U2/ OVER 1 AND IF  HIGH-BIT +  THEN
   SWAP 2/ ;
-: UD2/ ( ud1 -- ud2 ) D2/ [ HIGH-BIT INVERT ] LITERAL AND ;
-: D2* ( d1 - d2 ) 2*  OVER 0< ABS +  >R 2* R> ;
-: DLSHIFT ( d1 n -- d2 ) 0 ?DO  D2* LOOP ;
-: DRSHIFT ( d1 n -- d2 ) 0 ?DO UD2/ LOOP ;
-: ARSHIFT ( n1 m -- n2 ) 0 ?DO 2/ LOOP ;
-: SHIFT ( n1 m -- n2 ) DUP 0< IF NEGATE RSHIFT ELSE LSHIFT THEN ;
-: ASHIFT ( n1 m -- n2 ) DUP 0< IF NEGATE ARSHIFT ELSE LSHIFT THEN ;
+: UD2/ ( ud1 -- ud2 )
+\G Unsigned double number 2/.
+   D2/ [ HIGH-BIT INVERT ] LITERAL AND ;
+: D2* ( d1 - d2 )
+\G Double number 2*.
+   2*  OVER 0< ABS +  >R 2* R> ;
+: DLSHIFT ( d1 n -- d2 )
+\G Double number LSHIFT.
+   0 ?DO  D2* LOOP ;
+: DRSHIFT ( d1 n -- d2 )
+\G Double number RSHIFT.
+   0 ?DO UD2/ LOOP ;
+: ARSHIFT ( n1 m -- n2 )
+\G Double number arithmetic right shift.
+   0 ?DO 2/ LOOP ;
+: SHIFT ( n1 m -- n2 )
+\G If m > 0 perform LSHIFT, else RSHIFT.
+   DUP 0< IF NEGATE RSHIFT ELSE LSHIFT THEN ;
+: ASHIFT ( n1 m -- n2 )
+\G If m > 0 perform LSHIFT, else arithmetic right shift.
+   DUP 0< IF NEGATE ARSHIFT ELSE LSHIFT THEN ;
 : LROTATE ( n1 m -- n2 )
+\G Rotate left number m places.
   ?DUP IF
      2DUP LSHIFT >R           \ ; hllll000
      #CELLBITS SWAP - RSHIFT  \ ; 00000hhh
      R> OR
   THEN ;
 : RROTATE ( n1 m -- n2 )
+\G Rotate right number m places.
    ?DUP IF
      2DUP RSHIFT >R	      \ ; 000hhhhl
      #CELLBITS SWAP - LSHIFT  \ lll00000
      R> OR
    THEN ;
-: ROTATE ( n1 m -- n2 ) DUP 0< IF NEGATE RROTATE ELSE LROTATE THEN ;
+: ROTATE ( n1 m -- n2 )
+\G If m > 0 rotate left, else rotate right number.
+   DUP 0< IF NEGATE RROTATE ELSE LROTATE THEN ;
 
 0
 [IF]

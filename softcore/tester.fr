@@ -64,11 +64,13 @@ CREATE ACTUAL-FRESULTS 32 FLOATS ALLOT
 
 SET-CURRENT
 
-: T{        \ ( -- ) SYNTACTIC SUGAR
+: T{ ( -- )
+\G Syntactic sugar.
    >IN @ 3 CHARS - LASTLINE !
    ;
 
-: ->        \ ( ... -- ) RECORD DEPTH AND CONTENT OF STACK.
+: -> ( ... -- )
+\G RECORD DEPTH AND CONTENT OF STACK.
    DEPTH DUP ACTUAL-DEPTH !   \ RECORD DEPTH
    ?DUP IF                    \ IF THERE IS SOMETHING ON STACK
       0 DO ACTUAL-RESULTS I CELLS + ! LOOP   \ SAVE THEM
@@ -81,8 +83,8 @@ FLOATS? [IF]
 [THEN]
 ;
 
-: }T        \ ( ... -- ) COMPARE STACK (EXPECTED) CONTENTS WITH SAVED
-            \ (ACTUAL) CONTENTS.
+: }T ( ... -- )
+\G Compare stack (expected) contents with saved (actual) contents.
    DEPTH ACTUAL-DEPTH @ = IF  \ IF DEPTHS MATCH
       DEPTH ?DUP IF           \ IF THERE IS SOMETHING ON THE STACK
          0 DO                 \ FOR EACH STACK ITEM
@@ -108,12 +110,15 @@ FLOATS? [IF]
 ;
 
 : TALKING ( -- )
+\G Set verbose mode for tester.
    TRUE VERBOSE ! ;
 
 : TALKING? ( -- ff )
+\G Return true if tester inn verbose mode.
    VERBOSE @ ;
 
-: TESTING   \ ( -- ) TALKING COMMENT.
+: TESTING ( -- )
+\G Talking comment for tester.
    SRCLINE DUP >IN +!
    VERBOSE @
    IF   ." TESTING " TYPE CR
