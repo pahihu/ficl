@@ -1857,9 +1857,9 @@ struct ficlFile
     char filename[256];
 };
 
-ficlFile *ficlStdIn;
-ficlFile *ficlStdOut;
-ficlFile *ficlStdErr;
+extern ficlFile *ficlStdIn;
+extern ficlFile *ficlStdOut;
+extern ficlFile *ficlStdErr;
 
 #ifdef __MINGW64__
 #  define ficlOff_t off64_t
