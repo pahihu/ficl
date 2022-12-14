@@ -23,8 +23,8 @@ void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
     if (message != NULL) {
         if (0 == callback->quiet)
             fputs(message, stdout);
-    } else
-        fflush(stdout);
+    }
+    fflush(stdout);
     return;
 }
 

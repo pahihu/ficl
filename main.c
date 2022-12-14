@@ -249,9 +249,12 @@ int main(int argc, char **argv)
                 for (i = 0; i < FICL_MIN(16,depth); i++)
                     fputs(".", stdout);
 			    fputs("ok> ", stdout);
+                fflush(stdout);
             }
-            else
+            else {
 			    fputs("  ] ", stdout);
+                fflush(stdout);
+            }
         }
         switch (f_vm->sourceId.i)
         {
