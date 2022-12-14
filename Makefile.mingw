@@ -18,7 +18,7 @@ MAJOR = 4
 MINOR = 2.0
 
 ficlw.exe: $(HEADERS) softcore.c main.o libficl.a
-	$(CC) main.o -o $@ libficl.a -lgdi32 $(LIBM)
+	$(CC) -static main.o -o $@ libficl.a -lgdi32 -lpthread $(LIBM)
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
