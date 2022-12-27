@@ -575,10 +575,11 @@ static void ficlPrivateFDot(ficlVm *vm)
             {
                 if (rExp < 0)
                 {
-                    *pHold++ = '0'; *pHold++ = '.';
-                    for (i = rExp + 1; i < 0; i++)
+                    int cnt = prec;
+                    *pHold++ = '0'; *pHold++ = '.'; cnt--;
+                    for (i = rExp + 1; (cnt > 0) && (i < 0); cnt--,i++)
                         *pHold++ = '0';
-                    for (i = 0; i < prec; i++)
+                    for (i = 0; (cnt > 0) && (i < prec); cnt--,i++)
                         *pHold++ = tmp[i];
                 }
                 else
@@ -592,7 +593,7 @@ static void ficlPrivateFDot(ficlVm *vm)
             }
             // zero supression
             len = pHold - vm->pob - 1;
-            while ('0' == vm->pob[len]) len--;
+            // while ('0' == vm->pob[len]) len--;
             vm->pob[++len] = ' ';
             vm->pob[++len] = '\0';
     }
