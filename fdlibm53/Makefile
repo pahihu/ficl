@@ -51,7 +51,7 @@ TARGET = libfdm.a
 #
 # Default IEEE libm
 #
-CFLAGS = -Os -D_IEEE_LIBM -fomit-frame-pointer -march=native
+CFLAGS = -DNDEBUG=1 -Os -D_IEEE_LIBM -fomit-frame-pointer -march=native
 
 CC = cc
 
