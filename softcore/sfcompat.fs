@@ -97,5 +97,28 @@ PREVIOUS
 \G Decrement value at <addr>.
    -1 SWAP +! ;
 
+( --- FP display --------------------------------------------- )
+
+HIDE
+
+VARIABLE NPREC
+VARIABLE 'N
+
+SET-CURRENT
+
+: N. ( r: r -- )
+   PRECISION
+      NPREC @ SET-PRECISION
+      'N @ EXECUTE
+   SET-PRECISION ;
+
+: FIX ( n -- )   NPREC ! [']  F. 'N ! ;
+: SCI ( n -- )   NPREC ! ['] FS. 'N ! ;
+: ENG ( n -- )   NPREC ! ['] FE. 'N ! ;
+
+8 FIX
+
+PREVIOUS
+
    
 
