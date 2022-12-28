@@ -424,7 +424,7 @@ ficlWord   *ficlDictionarySetF2Constant(ficlDictionary *dictionary, char *name, 
 
 static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, double *out_mant, int *out_exp)
 {
-    int expof10, sign;
+    int expof10, sign, scale;
     double value, fract, display;
 
     sign = 0;
@@ -442,7 +442,10 @@ static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, do
     if (out_exp)
         *out_exp = expof10;
 
-    value   *= pow(10.0, precision - 1 - expof10);
+    scale = precision;
+    if (expof10 < 0)
+        scale = scale - expof10 - 1;
+    value   *= pow(10.0, scale);
     fract    = modf(value, &display);
     if (fract >= 0.5)
     {
@@ -454,7 +457,7 @@ static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, do
     if (out_mant)
         *out_mant = display;
 
-    value = display * pow(10.0, expof10 - precision + 1.0);
+    value = display * pow(10.0, -scale);
 
     return (ficlFloat) value;
 }
@@ -535,7 +538,7 @@ static void ficlPrivateFDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
-    int i, prec, len, rSign, rExp;
+    int i, j, prec, len, rSign, rExp;
     char *pHold;
     char tmp[32];
 
@@ -576,10 +579,10 @@ static void ficlPrivateFDot(ficlVm *vm)
                 if (rExp < 0)
                 {
                     int cnt = prec;
-                    *pHold++ = '0'; *pHold++ = '.'; cnt--;
-                    for (i = rExp + 1; (cnt > 0) && (i < 0); cnt--,i++)
+                    *pHold++ = '0'; *pHold++ = '.';
+                    for (i = rExp + 1; (cnt > 0) && (i < 0); cnt--, i++)
                         *pHold++ = '0';
-                    for (i = 0; (cnt > 0) && (i < prec); cnt--,i++)
+                    for (i = 0; (cnt > 0) && (i < prec); cnt--, i++)
                         *pHold++ = tmp[i];
                 }
                 else
@@ -587,7 +590,7 @@ static void ficlPrivateFDot(ficlVm *vm)
                     for (i = 0; i < rExp + 1; i++)
                         *pHold++ = tmp[i];
                     *pHold++ = '.';
-                    for (; i < prec; i++)
+                    for (j = 0; j < prec; i++, j++)
                         *pHold++ = tmp[i];
                 }
             }
@@ -635,7 +638,7 @@ static void ficlPrivateFSDot(ficlVm *vm)
 {
     ficlFloat r;
     double rDisp;
-    int prec, len, rSign, rExp;
+    int prec, len, rSign, rExp, scale;
 
     FICL_STACK_CHECK(vm->floatStack, 1, 0);
 
@@ -659,9 +662,12 @@ static void ficlPrivateFSDot(ficlVm *vm)
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
             if (rSign)
                 vm->pob[len++] = '-';
-            // 1 '.' prec - 1
-            rDisp *= pow(10.0, 1 - prec);
-            sprintf(vm->pob + len, "%.*fE%d ", prec - 1, rDisp, rExp);
+            if (rExp < 0)
+                scale = 1 - prec;
+            else
+                scale = - (rExp + prec);
+            rDisp *= pow(10.0, scale);
+            sprintf(vm->pob + len, "%.*fE%d ", prec, rDisp, rExp);
     }
 }
 
@@ -1054,19 +1060,18 @@ static void ficlPrivateFEDot(ficlVm *vm)
             r = ficlRepresentPriv(r, prec, &rSign, &rDisp, &rExp);
             if (rExp < 0)
             {
-                eng = -((3 - rExp) / 3) * 3;
-                scale = rExp - eng;
+                eng   = -((2 + abs(rExp)) / 3) * 3;
+                scale = rExp + 1 - eng - prec;
             }
             else
             {
-                eng = (rExp / 3) * 3;
-                scale = rExp - eng;
+                eng   = (rExp / 3) * 3;
+                scale = -(eng + prec);
             }
-            // 1 + scale '.' prec - 1 - scale
-            rDisp *= pow(10.0, 1 + scale - prec);
+            rDisp *= pow(10.0, scale);
             if (rSign)
                 vm->pob[len++] = '-';
-            sprintf(vm->pob + len, "%.*fE%d", prec - 1 - scale, rDisp, eng);
+            sprintf(vm->pob + len, "%.*fE%d", prec, rDisp, eng);
     }
 }
 
