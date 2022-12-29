@@ -340,6 +340,9 @@ If `flag' is true, display message and abort execution.
 ABS   x -- x                                                                   
 Give absolute value of `x'.
 
+ACTION-OF   <name> -- xt                                                       
+Return the <xt> associated with the deferred word <name>.
+
 AKA   old new --                                                               
 Make alias `new' for `old'.
 
@@ -379,8 +382,7 @@ BACK   ca u1 b -- ca u2
 Scan backwards for char <b> in ca/u1.
 
 BEHAVIOR   xt1 -- xt2                                                          
-Retrieve <xt2> the word currently associated with the
-deferred word <xt1>.
+Synonym for DEFER@.
 
 BETWEEN   n lo hi -- f                                                         
 Returns true if lo <= n <= hi.
@@ -524,6 +526,13 @@ Decrement value at <addr>.
 DEFER   <name>                                                                 
 Define a word which does nothing. Later it could
 be defined to execute any xt.
+
+DEFER!   xt2 xt1 --                                                            
+Set the word <xt1> to execute <xt2>.
+
+DEFER@   xt1 -- xt2                                                            
+Retrieve <xt2> the word currently associated with the
+deferred word <xt1>.
 
 DEFINES   xt class "method" --                                                 
 Define `xt' for `method' in `class'.
@@ -718,7 +727,7 @@ INSTRUCTION?   xt -- f
 Gives back true, if `xt' is a VM instruction.
 
 IS   xt <name>                                                                 
-Order `name' to execute xt.
+Order <name> to execute xt.
 
 IS-ALNUM   char -- flag                                                        
 Test char for alphanumeric [A-Za-z0-9].
