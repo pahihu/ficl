@@ -123,6 +123,9 @@ match name.
 ++   addr --                                                                   
 Increment value at <addr>.
 
++FIELD   addr offs size <name> -- addr offs2                                   
+Add the field definition <name> with <size>.
+
 +IS   xt <name>                                                                
 Chain <xt> to deferred <name>.
 
@@ -256,8 +259,14 @@ Computes 2^<n>.
 2**                                                                            
 Converts bit number <#> to a <bit>.
 
+2ALIGNED   addr1 -- addr2                                                      
+Align addr1 to double cell boundary.
+
 2FIELD                                                                         
 Create two name fields with the same offset and size
+
+2FIELD:   addr offs <name> -- addr offs2                                       
+Add aligned double cell field.
 
 2LOCAL   name --                                                               
 Define a double-cell local named `name'.
@@ -384,6 +393,9 @@ Position cursor to col/row.
 BACK   ca u1 b -- ca u2                                                        
 Scan backwards for char <b> in ca/u1.
 
+BEGIN-STRUCTURE   <name> -- addr offs                                          
+Begin the definition of the structure <name>.
+
 BEHAVIOR   xt1 -- xt2                                                          
 Synonym for DEFER@.
 
@@ -441,6 +453,9 @@ CELL- undoes CELL+
 
 CFA   lfa -- cfa                                                               
 Gives back the code field address.
+
+CFIELD:   addr offs <name> -- addr offs2                                       
+Add aligned character field.
 
 CHAR-   caddr -- caddr                                                         
 CHAR- undoes CHAR+
@@ -551,6 +566,9 @@ Store the double-precision FP number in dictionary space. Also F,
 DF?   addr --                                                                  
 Display the double FP number at `addr'. Also F?
 
+DFFIELD:   addr offs <name> -- addr offs2                                      
+Add aligned double float field.
+
 DIRECTIVE   --                                                                 
 Make previous word immediate and compile only.
 
@@ -614,6 +632,9 @@ Close the definition of string array `name'.
 Executing n `name' will return the nth string in the array
 as caddr/u.
 
+END-STRUCTURE   addr offs --                                                   
+End the definition of a structure.
+
 END-WORD   str n -- str+/str-i i                                               
 Last word in a string after trimming.
 
@@ -657,6 +678,9 @@ Testing FP number equality.
 FEXACTLY=   F: r1 r2 --                                                        
 True if r1 exactly equal to r2.
 
+FFIELD:   addr offs <name> -- addr offs2                                       
+Add aligned float field.
+
 FICL-NAMED-WORDLIST                                                            
 Create a wordlist named `name' with `hash-size'.
 
@@ -665,6 +689,9 @@ FICL-SET-CURRENT sets the compile wordlist and pushes the previous value
 
 FIELD                                                                          
 Define a field with offset and size. 
+
+FIELD:   addr offs <name> -- addr offs2                                        
+Add aligned cell field.
 
 FILE-CHECK   n --                                                              
 Check for file access error.
@@ -1003,6 +1030,9 @@ Store the single-precision FP number in dictionary space. Also F,
 
 SF?   addr --                                                                  
 Display the single-precision FP number at `addr'. Also F?
+
+SFFIELD:   addr offs <name> -- addr offs2                                      
+Add aligned single float field.
 
 SHIFT   n1 m -- n2                                                             
 If m > 0 perform LSHIFT, else RSHIFT.
