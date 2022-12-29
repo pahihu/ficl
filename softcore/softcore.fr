@@ -89,6 +89,9 @@ variable span
 : within  ( test low high -- flag )
 \G Return true if low <= test < high.
    over - >r - r>  u<  ;
+: parse-name ( <spaces>name -- c-addr u )
+\G Skip leading spaces and parse name delimited by a space.
+   parse-word ;
 
 
 
