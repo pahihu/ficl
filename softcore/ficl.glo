@@ -265,6 +265,9 @@ Define a double-cell local named `name'.
 2NIP   w x y z -- y z                                                          
 Drop 3rd and 4th element from stack.
 
+2ROT   d1 d2 d3 -- d2 d3 d1                                                    
+Rotate top three double elements to left.
+
 3DROP   x y z --                                                               
 Drop top three elements from stack.
 
@@ -514,6 +517,9 @@ Return true if two double numbers are equal.
 D>R   deg -- rad                                                               
 Convert degrees to radians.
 
+D>S   d -- s                                                                   
+Convert double number to single.
+
 DABS   d -- ud                                                                 
 Convert double cell number to its absolute value.
 
@@ -550,6 +556,12 @@ Make previous word immediate and compile only.
 
 DLSHIFT   d1 n -- d2                                                           
 Double number LSHIFT.
+
+DMAX   d1 d2 -- d                                                              
+Return the maximum of d1 and d2.
+
+DMIN   d1 d2 -- d                                                              
+Return the minimum of d1 and d2.
 
 DO-UNDEFINED   caddr u -- i*x f                                                
 Report unknown word, compile LOSE.
@@ -885,6 +897,9 @@ Return current PAD address <caddr>.
 
 PAGE   --                                                                      
 Clear page.
+
+PARSE-NAME   <spaces>name -- c-addr u                                          
+Skip leading spaces and parse name delimited by a space.
 
 PEEKWORD   -- cstr                                                             
 Get next word, don't advance >IN.

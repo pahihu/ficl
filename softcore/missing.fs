@@ -307,6 +307,18 @@ DECIMAL
 : D<> ( d1 d2 -- f )
 \G Returns true if two double numbers are not equal.
    d= 0= ;
+: 2ROT ( d1 d2 d3 -- d2 d3 d1 )
+\G Rotate top three double elements to left.
+   2>r 2swap 2r> 2swap ;
+: D>S ( d -- s )
+\G Convert double number to single.
+   drop ;
+: DMIN ( d1 d2 -- d )
+\G Return the minimum of d1 and d2.
+   2over 2over d< if 2drop else 2swap 2drop then ;
+: DMAX ( d1 d2 -- d )
+\G Return the maximum of d1 and d2.
+   2over 2over d< if  2swap 2drop  else  2drop  then ;
 
 : M+ ( d1 n -- d2 )
 \G Add double and single number producing a double result.

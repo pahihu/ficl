@@ -3140,6 +3140,63 @@ static void ficlPrimitiveDNegate(ficlVm *vm)
 }
 
 
+/**************************************************************************
+                        d u <          
+** DOUBLE   ( ud1 ud2 -- ff )
+** Return true if ud1 is less than ud2.
+**************************************************************************/
+static void ficlPrimitiveDUnsignedLess(ficlVm *vm)
+{
+    ficl2Unsigned ud2 = ficlStackPop2Unsigned(vm->dataStack);
+    ficl2Unsigned ud1 = ficlStackPop2Unsigned(vm->dataStack);
+    int result = ficl2UnsignedCompare(ud1, ud2);
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(result < 0));
+
+    return;
+}
+
+
+/**************************************************************************
+                        d <          
+** DOUBLE   ( d1 d2 -- ff )
+** Return true if d1 is less than d2.
+**************************************************************************/
+static void ficlPrimitiveDLess(ficlVm *vm)
+{
+    ficl2Integer d2 = ficlStackPop2Integer(vm->dataStack);
+    ficl2Integer d1 = ficlStackPop2Integer(vm->dataStack);
+    ficl2Unsigned ud1, ud2;
+    int result;
+
+    if (ficl2IntegerIsNegative(d1))
+    {
+        if (ficl2IntegerIsNegative(d2))
+        {
+            d1 = ficl2IntegerNegate(d1);
+            d2 = ficl2IntegerNegate(d2);
+            ud1 = FICL_2INTEGER_TO_2UNSIGNED(d1);
+            ud2 = FICL_2INTEGER_TO_2UNSIGNED(d2);
+            result = ficl2UnsignedCompare(ud2, ud1) < 0;
+        }
+        else
+            result = 1;
+    }
+    else
+    {
+        if (ficl2IntegerIsNegative(d2))
+            result = 0;
+        else
+        {
+            ud1 = FICL_2INTEGER_TO_2UNSIGNED(d1);
+            ud2 = FICL_2INTEGER_TO_2UNSIGNED(d2);
+            result = ficl2UnsignedCompare(ud1, ud2) < 0;
+        }
+    }
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(result));
+
+    return;
+}
+
 
 
 /**************************************************************************
@@ -3566,6 +3623,8 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "2literal",  ficlPrimitive2LiteralIm,   FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "2variable", ficlPrimitive2Variable,    FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "dnegate",   ficlPrimitiveDNegate,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "du<",       ficlPrimitiveDUnsignedLess,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "d<",        ficlPrimitiveDLess,    FICL_WORD_DEFAULT);
 
 
     /*
