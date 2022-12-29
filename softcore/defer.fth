@@ -13,10 +13,18 @@
    CREATE ['] NOOP ,
    DOES>  @EXECUTE ;
 
-: BEHAVIOR ( xt1 -- xt2 )
+: DEFER@ ( xt1 -- xt2 )
 \G Retrieve <xt2> the word currently associated with the
 \G deferred word <xt1>.
    >BODY @ ;
+
+: DEFER! ( xt2 xt1 -- )
+\G Set the word <xt1> to execute <xt2>.
+   >BODY ! ;
+
+: BEHAVIOR ( xt1 -- xt2 )
+\G Synonym for DEFER@.
+   DEFER@ ;
 
 0 [IF] =========================================================
 
@@ -31,12 +39,18 @@ action of the deferred word, replace action with NONAME def.
    ' >BODY DUP @ COMPILE,
    >R POSTPONE ;  R> ! ;
 
-: IS ( xt <name>)
-\G Order `name' to execute xt.
-   ' >BODY
+: IS ( xt <name> )
+\G Order <name> to execute xt.
    STATE @
-   IF   POSTPONE LITERAL POSTPONE !
-   ELSE !
+   IF   POSTPONE ['] POSTPONE DEFER!
+   ELSE ' DEFER!
+   THEN ; IMMEDIATE
+
+: ACTION-OF ( <name> -- xt )
+\G Return the <xt> associated with the deferred word <name>.
+   STATE @
+   IF   POSTPONE ['] POSTPONE DEFER@
+   ELSE ' DEFER@
    THEN ; IMMEDIATE
 
 \ tests
