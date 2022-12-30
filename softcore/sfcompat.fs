@@ -28,6 +28,12 @@ HIDE
    DUP  <PRIMITIVE>        =
    SWAP <INSTRUCTION-WORD> =  OR ;
 
+: (SYNONYM) ( xt -- )
+          IMMEDIATE ,
+   DOES>  @  STATE @ 0=  OVER IMMEDIATE?  OR
+          IF EXECUTE ELSE COMPILE, THEN
+;
+
 SET-CURRENT
 
 : BRANCH, ( addr -- )
@@ -35,19 +41,13 @@ SET-CURRENT
    HERE CELL+ -  /CELL /
    <branch> , , ;
 
-: AKA ( old new -- )
+: AKA ( "old" "new" -- )
 \G Make alias `new' for `old'.
-   ' DUP BUILT-IN? IF        \ alias for primitive is
-      >R : R>
-      POSTPONE LITERAL        \ simple execution
-      POSTPONE EXECUTE
-   ELSE
-      >BODY CELL-             \ get address of old
-      >R : R>                 \ define new
-      BRANCH,                 \ branch to old
-   THEN
-   POSTPONE ;                 \ close new def
-;
+   ' CREATE (SYNONYM) ;
+
+: SYNONYM ( "new" "old" -- )
+\G Make alias `new' for `old'.
+   CREATE ' (SYNONYM) ;
 
 PREVIOUS
 
@@ -56,11 +56,11 @@ PREVIOUS
 
 0 Value #ENUM
 
-: ENUM  \ name ( n -- n+1 )
+: ENUM ( n "name" -- n+1 )
 \G Define an enum with "name", increment number on stack.
    dup Constant 1+ ;
 
-: ENUM4 \ name ( n -- n+4 )
+: ENUM4 ( n "name" -- n+4 )
 \G Define an enum with "name", increment number on stack by 4.
    dup Constant 4 + ;
 

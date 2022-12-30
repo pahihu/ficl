@@ -262,7 +262,7 @@ Converts bit number <#> to a <bit>.
 2ALIGNED   addr1 -- addr2                                                      
 Align addr1 to double cell boundary.
 
-2FIELD                                                                         
+2FIELD   offset size "name1" "name2" -- offset'                                
 Create two name fields with the same offset and size
 
 2FIELD:   addr offs <name> -- addr offs2                                       
@@ -355,7 +355,7 @@ Give absolute value of `x'.
 ACTION-OF   <name> -- xt                                                       
 Return the <xt> associated with the deferred word <name>.
 
-AKA   old new --                                                               
+AKA   "old" "new" --                                                           
 Make alias `new' for `old'.
 
 ALPHA   --                                                                     
@@ -641,10 +641,10 @@ Last word in a string after trimming.
 ENDS?   str len pat len2 -- str len flag                                       
 Check end of string.
 
-ENUM                                                                           
+ENUM   n "name" -- n+1                                                         
 Define an enum with "name", increment number on stack.
 
-ENUM4                                                                          
+ENUM4   n "name" -- n+4                                                        
 Define an enum with "name", increment number on stack by 4.
 
 EQUALS?   str1 n1 str2 n2 -- str1 n1 flag                                      
@@ -687,7 +687,7 @@ Create a wordlist named `name' with `hash-size'.
 FICL-SET-CURRENT   wid -- old-wid                                              
 FICL-SET-CURRENT sets the compile wordlist and pushes the previous value
 
-FIELD                                                                          
+FIELD   offset size "name" -- offset'                                          
 Define a field with offset and size. 
 
 FIELD:   addr offs <name> -- addr offs2                                        
@@ -1092,6 +1092,9 @@ Begin definition of a struct.
 SWITCH]   head --                                                              
 Close definition of switch.
 
+SYNONYM   "new" "old" --                                                       
+Make alias `new' for `old'.
+
 T*   d . n -- t . .                                                            
 Multiply a double number by a single number to get a
 triple number.
@@ -1302,6 +1305,11 @@ Prefix flags:
    s  single-cell
 Specify as many as you like; later flags have precidence.
 Thus, "f2:foo" and "2is2f:foo" are both double-cell floats.
+
+{:   i*x "<spaces>ccc :}" --                                                   
+Define Johns-Hopkins locals. Variables before the "|" are
+initialized in reverse order. Variable before the "--" are
+cleared.
 
 {{   "{{" a b c -- d e "}}"                                                    
 FiCL locals, variable before the "--" are initialized
