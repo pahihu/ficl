@@ -1015,6 +1015,12 @@ FUNARY(FRound,rint)
 
 
 /*******************************************************************
+** ftrunc ( r1 -- r2 )
+*******************************************************************/
+FUNARY(FTrunc,trunc)
+
+
+/*******************************************************************
 ** f** ( r1 r2 -- r3 )
 *******************************************************************/
 FBINARY(FStarStar,pow)
@@ -1744,6 +1750,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "d>f",       ficlPrimitiveDToF,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f>d",       ficlPrimitiveFToD,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fround",    ficlPrimitiveFRound,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "ftrunc",    ficlPrimitiveFTrunc,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f**",       ficlPrimitiveFStarStar,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fabs",      ficlPrimitiveFAbs,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "(fe.)",     ficlPrimitiveParenFEDot,     FICL_WORD_DEFAULT);

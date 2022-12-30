@@ -2466,7 +2466,7 @@ FMINUSROLL:
                 CHECK_FLOAT_STACK(1, 0);
                 CHECK_STACK(0, 1);
 
-                (++dataTop)->i = FICL_BOOL((floatTop--)->f != 0.0f);
+                (++dataTop)->i = FICL_BOOL((floatTop--)->f == 0.0f);
                 continue;
             }
 
