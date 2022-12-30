@@ -33,7 +33,8 @@ floats? [IF]
 : ?--   ( c-addr u -- c-addr u flag )
     2dup s" --" compare 0= ;
 : ?}    ( c-addr u -- c-addr u flag )
-    2dup s" }"  compare 0= ;
+    2dup s" }"  compare 0= >r
+    2dup s" :}" compare 0= r> or ; 
 : ?|    ( c-addr u -- c-addr u flag )
     2dup s" |"  compare 0= ;
 
@@ -182,6 +183,13 @@ set-current
     endif
 
     local-state 3 <> abort" syntax error in { } local line"
+; immediate compile-only
+
+: {: ( i*x "<spaces>ccc :}" -- )
+\G Define Johns-Hopkins locals. Variables before the "|" are
+\G initialized in reverse order. Variable before the "--" are
+\G cleared.
+   postpone {
 ; immediate compile-only
 
 previous 
