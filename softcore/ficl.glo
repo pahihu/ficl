@@ -112,6 +112,9 @@ Convert unsigned double number to string.
 (UD.R)   ud m -- ca #                                                          
 Convert unsigned double number to string in a field right-justified.
 
+(WID-CREATE)   c-addr u wid --                                                 
+Create word <c-addr/u> in wordlist <wid>.
+
 (WORDS:)   <substr> --                                                         
 List those word names in the current word list that partly
 match name.
@@ -641,6 +644,10 @@ Last word in a string after trimming.
 ENDS?   str len pat len2 -- str len flag                                       
 Check end of string.
 
+ENG   n --                                                                     
+Select engineering notation as default FP display,
+with <n> significant digits.
+
 ENUM   n "name" -- n+1                                                         
 Define an enum with "name", increment number on stack.
 
@@ -698,6 +705,10 @@ Check for file access error.
 
 FINITE?   F: r --                                                              
 True if r is finite.
+
+FIX   n --                                                                     
+Select fixed-point notation as default FP display,
+with <n> significant digits.
 
 FNIP   F: r1 r2 -- r2                                                          
 Drop 2nd item of floating-point stack.
@@ -866,6 +877,10 @@ MUX   a b mask -- out
 Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
 0 selects the bit from <b>.
 
+N.   r: r --                                                                   
+Display FP number as specified by FIX/SCI/ENG.
+Default is fixed-point notation with 8 significant digits.
+
 N>R   xn .. x1 n --                                                            
 Push n+1 elements on the return stack. [C.Haak]
 
@@ -976,6 +991,10 @@ Initialize random number generator.
 REPLACE-CHAR   str n c1 c2 --                                                  
 Replace c1 with c2 in string str.
 
+REPLACES   text tlen name nlen --                                              
+Define the string text/tlen as the text to substitute for the substitution named name/nlen.
+If the substitution does not exist it is created.
+
 RETRY   --                                                                     
 Jump back to the beginning of a word. (W.Baden)
 
@@ -1015,6 +1034,10 @@ Allocate `n' bytes, abort if allocation failed.
 
 SCAN   ca1 u1 b -- ca2 u2                                                      
 Search for <b> in ca1/u1.
+
+SCI   n --                                                                     
+Select scientific notation as default FP display,
+with <n> significant digits.
 
 SCLEAR   --                                                                    
 Clear system stack.
@@ -1088,6 +1111,11 @@ Get ending characters.
 
 STRUCT   -- initial-offset                                                     
 Begin definition of a struct.
+
+SUBSTITUTE   src slen dest dlen -- dest dlen' n                                
+Expand the source string using substitutions.
+Note that this version is simplistic, performs no error checking,
+and requires a global buffer and global variables.
 
 SWITCH]   head --                                                              
 Close definition of switch.

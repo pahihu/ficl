@@ -35,6 +35,7 @@ MAKEGLOS defer.fth
 MAKEGLOS timedate.fs
 MAKEGLOS tofcompat.fs
 MAKEGLOS ofcompat.fs
+MAKEGLOS substitute.fs
 MAKEGLOS words.fs
 MAKEGLOS lose.fs
 MAKEGLOS comus.fs

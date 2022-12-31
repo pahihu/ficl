@@ -27,9 +27,9 @@ WORDLIST CONSTANT wid-subst
 
 SET-CURRENT
 
-: REPLACES \ text tlen name nlen -- 
-\ Define the string text/tlen as the text to substitute for the substitution named name/nlen. 
-\ If the substitution does not exist it is created. 
+: REPLACES ( text tlen name nlen -- )
+\G Define the string text/tlen as the text to substitute for the substitution named name/nlen.
+\G If the substitution does not exist it is created.
    2DUP findSubst IF 
      NIP NIP EXECUTE    \ get buffer address 
    ELSE 
@@ -86,10 +86,10 @@ VARIABLE SubstErr          \ Holds zero or an error code.
 
 SET-CURRENT
 
-: SUBSTITUTE \ src slen dest dlen -- dest dlen' n 
-\ Expand the source string using substitutions. 
-\ Note that this version is simplistic, performs no error checking, 
-\ and requires a global buffer and global variables. 
+: SUBSTITUTE ( src slen dest dlen -- dest dlen' n )
+\G Expand the source string using substitutions.
+\G Note that this version is simplistic, performs no error checking,
+\G and requires a global buffer and global variables.
    Destlen ! 0 Dest 2! 0 -rot \ -- 0 src slen 
    0 SubstErr ! 
    BEGIN 
