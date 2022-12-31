@@ -19,7 +19,7 @@
    field
 ;
 
-.( loading BEGIN-STRUCTURE -- ) cr
+.( loading BEGIN-STRUCTURE -- Forth2012 ) cr
 
 : BEGIN-STRUCTURE ( <name> -- addr offs )
 \G Begin the definition of the structure <name>.

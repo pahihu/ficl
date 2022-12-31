@@ -1,6 +1,6 @@
 \ ANEW -substitute
 
-.( loading REPLACES & SUBSTITUTE -- Forth200x ) CR
+.( loading REPLACES & SUBSTITUTE -- Forth2012 ) CR
 
 \ https://forth-standard.org/standard/string/REPLACES
 
