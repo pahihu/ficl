@@ -87,6 +87,7 @@ PREVIOUS
 \G Append char to NULL terminated string.
    ZCOUNT CHARS+ C!+  0 SWAP C! ;
 
+
 ( --- Increment/decrement ------------------------------------ )
 
 : ++ ( addr -- )
@@ -96,6 +97,17 @@ PREVIOUS
 : -- ( addr -- )
 \G Decrement value at <addr>.
    -1 SWAP +! ;
+
+
+( --- WID create --------------------------------------------- )
+
+: (WID-CREATE) ( c-addr u wid -- )
+\G Create word <c-addr/u> in wordlist <wid>.
+   GET-CURRENT >R
+   SET-CURRENT
+      SCREATE
+   R> SET-CURRENT ;
+
 
 ( --- FP display --------------------------------------------- )
 
@@ -107,14 +119,27 @@ VARIABLE 'N
 SET-CURRENT
 
 : N. ( r: r -- )
+\G Display FP number as specified by FIX/SCI/ENG.
+\G Default is fixed-point notation with 8 significant digits.
    PRECISION
       NPREC @ SET-PRECISION
       'N @ EXECUTE
    SET-PRECISION ;
 
-: FIX ( n -- )   NPREC ! [']  F. 'N ! ;
-: SCI ( n -- )   NPREC ! ['] FS. 'N ! ;
-: ENG ( n -- )   NPREC ! ['] FE. 'N ! ;
+: FIX ( n -- )
+\G Select fixed-point notation as default FP display,
+\G with <n> significant digits.
+   NPREC ! [']  F. 'N ! ;
+
+: SCI ( n -- )
+\G Select scientific notation as default FP display,
+\G with <n> significant digits.
+   NPREC ! ['] FS. 'N ! ;
+
+: ENG ( n -- )
+\G Select engineering notation as default FP display,
+\G with <n> significant digits.
+   NPREC ! ['] FE. 'N ! ;
 
 8 FIX
 

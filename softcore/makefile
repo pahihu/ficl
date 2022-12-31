@@ -10,6 +10,7 @@ SOURCES += bitwise.fs circ-pad.fs missing.fs floats.fs tester.fr
 SOURCES += dshift.fs
 SOURCES += cond.fs systack.fs strarray.fs strops.fs strconst.f
 SOURCES += numcvt.fs defer.fth timedate.fs tofcompat.fs ofcompat.fs
+SOURCES += substitute.fs
 SOURCES += lose.fs comus.fs tbelt2k.fs words.fs
 	
 
