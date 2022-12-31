@@ -641,6 +641,24 @@ static void ficlPrimitiveElseCoIm(ficlVm *vm)
 
 
 /**************************************************************************
+                        a h e a d C o I m
+** 
+**************************************************************************/
+
+static void ficlPrimitiveAheadCoIm(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+
+    /* FICL_VM_STATE_COMPILE branch runtime */
+    ficlDictionaryAppendUnsigned(dictionary, ficlInstructionBranchParenWithCheck);
+    markBranch(dictionary, vm, origTag);           /* push "else" patch addr */
+    ficlDictionaryAppendUnsigned(dictionary, 1);   /* FICL_VM_STATE_COMPILE patch placeholder */
+
+    return;
+}
+
+
+/**************************************************************************
                         e n d i f C o I m
 ** 
 **************************************************************************/
@@ -3537,6 +3555,7 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "here",      ficlPrimitiveHere,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "hold",      ficlPrimitiveHold,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "if",        ficlPrimitiveIfCoIm,         FICL_WORD_COMPILE_ONLY_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "ahead",      ficlPrimitiveAheadCoIm,      FICL_WORD_COMPILE_ONLY_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "immediate", ficlPrimitiveImmediate,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "literal",   ficlPrimitiveLiteralIm,      FICL_WORD_IMMEDIATE);
     ficlDictionarySetPrimitive(dictionary, "loop",      ficlPrimitiveLoopCoIm,       FICL_WORD_COMPILE_ONLY_IMMEDIATE);
