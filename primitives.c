@@ -3255,7 +3255,7 @@ static void ficlPrimitiveSourceID(ficlVm *vm)
 static void ficlPrimitiveUnused(ficlVm *vm)
 {
     ficlDictionary *dictionary = ficlVmGetDictionary(vm);
-    ficlStackPushInteger(vm->dataStack, sizeof(ficlInteger) * ficlDictionaryCellsAvailable(dictionary));
+    ficlStackPushInteger(vm->dataStack, sizeof(ficlCell) * dictionary->size - ((char*)dictionary->here - (char*)dictionary->base));
     return;
 }
 
