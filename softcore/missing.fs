@@ -257,6 +257,12 @@ DECIMAL
 : .R ( n m -- )
 \G Display number in a field right-justified.
    (.R) TYPE ;
+: U> ( u1 u2 -- ff )
+\G True if u1 is greater than u2.
+   SWAP U< ;
+: CMOVE ( from # to -- )
+\G Move from # chars to to.
+   MOVE ;
 
 -WARNING
 : . ( n -- )

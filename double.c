@@ -49,7 +49,23 @@
 
 #if FICL_PLATFORM_HAS_2INTEGER
 
+int ficl2UnsignedCompare(ficl2Unsigned x, ficl2Unsigned y)
+{
+    int result = 0;
+    ficl2Unsigned u   = ficl2UnsignedSubtract(x, y);
+    ficl2Integer  d   = FICL_2UNSIGNED_TO_2INTEGER(u);
 
+    if (d < 0)
+    {
+        result = -1;
+    }
+    else if (d > 0)
+    {
+        result = 1;
+    }
+
+    return result;
+}
 
 ficl2UnsignedQR ficl2UnsignedDivide(ficl2Unsigned q, ficlUnsigned y)
 {

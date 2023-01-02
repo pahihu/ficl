@@ -719,7 +719,7 @@ FICL_PLATFORM_EXTERN void *ficlRealloc(void *p, size_t size);
 #define ficl2UnsignedMultiplyAccumulate(u, mul, add)  (((u) * (mul)) + (add))
 #define ficl2UnsignedArithmeticShiftLeft(x)  ((x) << 1)
 #define ficl2UnsignedArithmeticShiftRight(x) ((x) >> 1)
-#define ficl2UnsignedCompare(x, y)  ficl2UnsignedSubtract(x, y)
+int ficl2UnsignedCompare(ficl2Unsigned x, ficl2Unsigned y);
 #define ficl2UnsignedOr(x, y) ((x) | (y))
 
 #else /* FICL_PLATFORM_HAS_2INTEGER */
@@ -1930,6 +1930,8 @@ FICL_PLATFORM_EXTERN int ficlLzUncompress(const unsigned char *compressed, unsig
 #define FICL_INTEGER_DIGITS         ((int) (4 == sizeof(ficlInteger) ? 9 : 19))
 #define FICL_UNSIGNED_MAX           (~ (ficlUnsigned) 0)
 #define FICL_INTEGER_MAX            (((ficlUnsigned)1 << (8 * sizeof(ficlUnsigned) - 1)) - 1)
+#define FICL_INTEGER_MIN            ((ficlUnsigned)1 << (8 * sizeof(ficlUnsigned) - 1))
+#define FICL_INTEGER_SIGN(x)        (FICL_INTEGER_MIN & (x))
 
 
 #include <stdint.h>

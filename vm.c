@@ -1413,6 +1413,9 @@ BRANCH_PAREN:
                 index = *dataTop--;
                 limit = *dataTop--;
 
+                limit.i += FICL_INTEGER_MIN;
+                index.i -= limit.i;
+
                 /* copy "leave" target addr to stack */
                 (++returnTop)->i = *(ip++);
                 *++returnTop = limit;
@@ -1438,6 +1441,9 @@ BRANCH_PAREN:
                 }
                 else
                 {
+                    limit.i += FICL_INTEGER_MIN;
+                    index.i -= limit.i;
+
                     ip++;
                     *++returnTop = leave;
                     *++returnTop = limit;
@@ -1450,11 +1456,11 @@ BRANCH_PAREN:
             case ficlInstructionLoopParen:
             case ficlInstructionPlusLoopParen:
             {
-                ficlInteger index;
+                ficlInteger index, prev_index;
                 ficlInteger limit;
                 int direction = 0;
 
-                index = returnTop->i;
+                prev_index = index = returnTop->i;
                 limit = returnTop[-1].i;
 
                 if (instruction == ficlInstructionLoopParen)
@@ -1468,7 +1474,8 @@ BRANCH_PAREN:
                     direction = (increment < 0);
                 }
 
-                if (direction ^ (index >= limit))
+                // if (direction ^ (index >= limit))
+                if (FICL_INTEGER_SIGN(prev_index) != FICL_INTEGER_SIGN(index))
                 {
                     returnTop -= 3; /* nuke the loop indices & "leave" addr */
                     ip++;  /* fall through the loop */
@@ -1506,6 +1513,7 @@ BRANCH_PAREN:
             case ficlInstructionI:
             {
                 *++dataTop = *returnTop;
+                dataTop[0].i += returnTop[-1].i;
                 continue;
             }
 
@@ -1513,6 +1521,7 @@ BRANCH_PAREN:
             case ficlInstructionJ:
             {
                 *++dataTop = returnTop[-3];
+                dataTop[0].i += returnTop[-4].i;
                 continue;
             }
 
@@ -1520,6 +1529,7 @@ BRANCH_PAREN:
             case ficlInstructionK:
             {
                 *++dataTop = returnTop[-6];
+                dataTop[0].i += returnTop[-7].i;
                 continue;
             }
 

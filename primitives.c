@@ -3167,8 +3167,8 @@ static void ficlPrimitiveDUnsignedLess(ficlVm *vm)
 {
     ficl2Unsigned ud2 = ficlStackPop2Unsigned(vm->dataStack);
     ficl2Unsigned ud1 = ficlStackPop2Unsigned(vm->dataStack);
-    int result = ficl2UnsignedCompare(ud1, ud2);
-    ficlStackPushInteger(vm->dataStack, FICL_BOOL(result < 0));
+    int result = ficl2UnsignedCompare(ud1, ud2) < 0;
+    ficlStackPushInteger(vm->dataStack, FICL_BOOL(result));
 
     return;
 }
@@ -3181,8 +3181,8 @@ static void ficlPrimitiveDUnsignedLess(ficlVm *vm)
 **************************************************************************/
 static void ficlPrimitiveDLess(ficlVm *vm)
 {
-    ficl2Integer d2 = ficlStackPop2Integer(vm->dataStack);
-    ficl2Integer d1 = ficlStackPop2Integer(vm->dataStack);
+    ficl2Integer  d2 = ficlStackPop2Integer(vm->dataStack);
+    ficl2Integer  d1 = ficlStackPop2Integer(vm->dataStack);
     ficl2Unsigned ud1, ud2;
     int result;
 
@@ -3197,7 +3197,7 @@ static void ficlPrimitiveDLess(ficlVm *vm)
             result = ficl2UnsignedCompare(ud2, ud1) < 0;
         }
         else
-            result = 1;
+            result = -1;
     }
     else
     {
@@ -3243,6 +3243,19 @@ static void ficlPrimitivePad(ficlVm *vm)
 static void ficlPrimitiveSourceID(ficlVm *vm)
 {
     ficlStackPushInteger(vm->dataStack, vm->sourceId.i);
+    return;
+}
+
+
+/**************************************************************************
+                        u n u s e d
+** CORE EXT   ( -- n )
+** Return the number of unused address units.
+**************************************************************************/
+static void ficlPrimitiveUnused(ficlVm *vm)
+{
+    ficlDictionary *dictionary = ficlVmGetDictionary(vm);
+    ficlStackPushInteger(vm->dataStack, sizeof(ficlInteger) * ficlDictionaryCellsAvailable(dictionary));
     return;
 }
 
@@ -3599,7 +3612,8 @@ void ficlSystemCompileCore(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "hex",       ficlPrimitiveHex,            FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "pad",       ficlPrimitivePad,            FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "parse",     ficlPrimitiveParse,          FICL_WORD_DEFAULT);
-    /* query restore-input save-input tib u.r u> unused [FICL_VM_STATE_COMPILE] */
+    /* query restore-input save-input tib u.r u> [FICL_VM_STATE_COMPILE] */
+    ficlDictionarySetPrimitive(dictionary, "unused",    ficlPrimitiveUnused,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "refill",    ficlPrimitiveRefill,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "source-id", ficlPrimitiveSourceID,       FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "(to)",      ficlPrimitiveParenToValue,   FICL_WORD_INTERPRET_ONLY);
@@ -3637,10 +3651,10 @@ void ficlSystemCompileCore(ficlSystem *system)
     /*
     ** The optional Double-Number word set (partial)
     */
-    ficlDictionarySetPrimitive(dictionary, "2constant", ficlPrimitive2Constant,    FICL_WORD_IMMEDIATE);
-    ficlDictionarySetPrimitive(dictionary, "2value",    ficlPrimitive2Constant,    FICL_WORD_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "2constant", ficlPrimitive2Constant,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "2value",    ficlPrimitive2Constant,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "2literal",  ficlPrimitive2LiteralIm,   FICL_WORD_IMMEDIATE);
-    ficlDictionarySetPrimitive(dictionary, "2variable", ficlPrimitive2Variable,    FICL_WORD_IMMEDIATE);
+    ficlDictionarySetPrimitive(dictionary, "2variable", ficlPrimitive2Variable,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "dnegate",   ficlPrimitiveDNegate,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "du<",       ficlPrimitiveDUnsignedLess,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "d<",        ficlPrimitiveDLess,    FICL_WORD_DEFAULT);
