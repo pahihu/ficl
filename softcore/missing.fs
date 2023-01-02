@@ -260,9 +260,6 @@ DECIMAL
 : U> ( u1 u2 -- ff )
 \G True if u1 is greater than u2.
    SWAP U< ;
-: CMOVE ( from # to -- )
-\G Move from # chars to to.
-   MOVE ;
 
 -WARNING
 : . ( n -- )

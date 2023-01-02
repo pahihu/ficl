@@ -1196,6 +1196,9 @@ Display unsigned number in a field right-justified.
 U2/   u1 -- u2                                                                 
 Unsigned number 2/.
 
+U>   u1 u2 -- ff                                                               
+True if u1 is greater than u2.
+
 UD.   ud --                                                                    
 Display unsigned double number.
 
