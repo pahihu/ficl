@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	*trace = 0;
 	
 #define IS_EOL(x) ((*x == '\n') || (*x == '\r'))
-#define IS_EOL_COMMENT(x) (((x[0] == '\\') && isspace(x[1]))  || ((x[0] == '/') && (x[1] == '/') && isspace(x[2])))
+#define IS_EOL_COMMENT(x) (((x[0] == '\\') && isspace(x[1]))  || ((x[0] == '/') && (x[1] == '/') && isspace(x[2])) || ((x[0] == '\\') && (x[1] == 'G') && isspace(x[2])))
 #define IS_BLOCK_COMMENT(x) ((x[0] == '(') && isspace(x[1]) && isspace(x[-1]))
 
 	src = dst = uncompressed;

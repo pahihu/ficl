@@ -6,8 +6,6 @@ HIDE
 
 DECIMAL
 
-VARIABLE diff0
-
 128 CELLS CONSTANT |SACK
 
 |SACK SAFE-ALLOCATE CONSTANT SACK
@@ -44,6 +42,8 @@ SET-CURRENT
    |SACK SACK +  S @ - /CELL / ;
 
 ( --- timers ------------------------------------------------- )
+
+VARIABLE diff0
 
 : TIMER-RESET ( -- )
 \G Reset timer.
