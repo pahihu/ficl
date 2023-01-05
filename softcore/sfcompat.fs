@@ -47,7 +47,7 @@ SET-CURRENT
 
 : SYNONYM ( "new" "old" -- )
 \G Make alias `new' for `old'.
-   CREATE ' (SYNONYM) ;
+   CREATE +SMUDGE ' -SMUDGE (SYNONYM) ;
 
 PREVIOUS
 

@@ -3727,7 +3727,7 @@ int ficlVmParseWord(ficlVm *vm, ficlString name)
     }
     else
 #endif
-    tempFW = ficlDictionaryLookup(dictionary, name);
+    tempFW = ficlDictionaryLookupSmudged(dictionary, name);
 
     if (vm->state == FICL_VM_STATE_INTERPRET)
     {

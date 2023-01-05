@@ -1430,6 +1430,7 @@ FICL_PLATFORM_EXTERN void        ficlHashForget    (ficlHash *hash, void *where)
 FICL_PLATFORM_EXTERN ficlUnsigned16 ficlHashCode  (ficlString s);
 FICL_PLATFORM_EXTERN void        ficlHashInsertWord(ficlHash *hash, ficlWord *word);
 FICL_PLATFORM_EXTERN ficlWord *ficlHashLookup    (ficlHash *hash, ficlString name, ficlUnsigned16 hashCode);
+FICL_PLATFORM_EXTERN ficlWord *ficlHashLookupSmudged    (ficlHash *hash, ficlString name, ficlUnsigned16 hashCode);
 FICL_PLATFORM_EXTERN void        ficlHashReset     (ficlHash *hash);
 
 /*
@@ -1542,6 +1543,7 @@ FICL_PLATFORM_EXTERN void             ficlDictionaryDestroy     (ficlDictionary 
 FICL_PLATFORM_EXTERN void             ficlDictionaryEmpty      (ficlDictionary *dictionary, unsigned nHash);
 FICL_PLATFORM_EXTERN int              ficlDictionaryIncludes   (ficlDictionary *dictionary, void *p);
 FICL_PLATFORM_EXTERN ficlWord        *ficlDictionaryLookup     (ficlDictionary *dictionary, ficlString name);
+FICL_PLATFORM_EXTERN ficlWord        *ficlDictionaryLookupSmudged     (ficlDictionary *dictionary, ficlString name);
 FICL_PLATFORM_EXTERN void             ficlDictionaryResetSearchOrder(ficlDictionary *dictionary);
 FICL_PLATFORM_EXTERN void             ficlDictionarySetFlags   (ficlDictionary *dictionary, ficlUnsigned8 set);
 FICL_PLATFORM_EXTERN void             ficlDictionaryClearFlags(ficlDictionary *dictionary, ficlUnsigned8 clear);

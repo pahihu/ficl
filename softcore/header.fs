@@ -24,7 +24,11 @@ HIDE
  8 CONSTANT ?OBJECT
 16 CONSTANT ?INSTRUCTION
 
-: FLAGS ( lfa -- u )   CELL+  2 CHARS + C@ ;
+: 'FLAGS ( lfa -- caddr )   CELL+ 2 CHARS + ;
+: FLAGS ( lfa -- u )   'FLAGS C@ ;
+: SET-FLAGS ( or and xt -- )
+   'FLAGS ( or and caddr)
+   DUP >R C@  AND OR  R> C! ;
 
 : FLAG? ( xt mask -- f )
    SWAP FLAGS  AND  0= 0= ;
@@ -60,5 +64,12 @@ SET-CURRENT
 : INSTRUCTION? ( xt -- f )
 \G Gives back true, if `xt' is a VM instruction.
    ?INSTRUCTION FLAG? ;
+: -SMUDGE ( -- )
+\G Clear smudge bit on last word defined.
+   0 27 LAST-WORD SET-FLAGS ;
+: +SMUDGE ( xt -- )
+\G Set smudge bit on last word defined.
+   ?SMUDGED 27 LAST-WORD SET-FLAGS ;
+
 
 PREVIOUS

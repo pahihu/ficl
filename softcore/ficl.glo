@@ -135,6 +135,9 @@ Chain <xt> to deferred <name>.
 +PAD   -- caddr                                                                
 Change to next PAD address <caddr>.
 
++SMUDGE   xt --                                                                
+Set smudge bit on last word defined.
+
 +STRING   src n1 dst n2 -- dst n1+n2                                           
 Append <src/n1> to <dst/n2>, return <dst/n1+n2>. [OTA]
 
@@ -162,6 +165,9 @@ Rotate top 3 items up.
 
 -SKIP   ca u1 b -- ca u2                                                       
 Remove trailing <b> chars from ca/u1.
+
+-SMUDGE   --                                                                   
+Clear smudge bit on last word defined.
 
 -TERM   --                                                                     
 Turn off raw terminal input.

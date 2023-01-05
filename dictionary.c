@@ -625,6 +625,34 @@ ficlWord *ficlDictionaryLookup(ficlDictionary *dictionary, ficlString name)
 
 
 /**************************************************************************
+                   d i c t L o o k u p S m u d g e d
+** Find the ficlWord that matches the given name and length.
+** If found, returns the word's address. Otherwise returns NULL.
+** Uses the search order list to search multiple wordlists.
+**************************************************************************/
+ficlWord *ficlDictionaryLookupSmudged(ficlDictionary *dictionary, ficlString name)
+{
+    ficlWord *word = NULL;
+    ficlHash *hash;
+    int i;
+    ficlUnsigned16 hashCode   = ficlHashCode(name);
+
+    FICL_DICTIONARY_ASSERT(dictionary, dictionary != NULL);
+
+    ficlDictionaryLock(dictionary, FICL_TRUE);
+
+    for (i = (int)dictionary->wordlistCount - 1; (i >= 0) && (!word); --i)
+    {
+        hash = dictionary->wordlists[i];
+        word = ficlHashLookupSmudged(hash, name, hashCode);
+    }
+
+    ficlDictionaryLock(dictionary, FICL_TRUE);
+    return word;
+}
+
+
+/**************************************************************************
                         s e e 
 ** TOOLS ( "<spaces>name" -- )
 ** Display a human-readable representation of the named word's definition.

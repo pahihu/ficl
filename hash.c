@@ -155,6 +155,47 @@ ficlWord *ficlHashLookup(ficlHash *hash, ficlString name, ficlUnsigned16 hashCod
 
 
 /**************************************************************************
+                    h a s h L o o k u p S m u d g e d
+** Find a name in the hash table given the hashcode and text of the name.
+** Returns the address of the corresponding ficlWord if found, 
+** otherwise NULL.
+** Note: outer loop on link field supports inheritance in wordlists.
+** It's not part of ANS Forth - Ficl only. hashReset creates wordlists
+** with NULL link fields.
+**************************************************************************/
+ficlWord *ficlHashLookupSmudged(ficlHash *hash, ficlString name, ficlUnsigned16 hashCode)
+{
+    ficlUnsigned nCmp = name.length;
+    ficlWord *word;
+    ficlUnsigned16 hashIdx;
+
+    if (nCmp > FICL_NAME_LENGTH)
+        nCmp = FICL_NAME_LENGTH;
+
+    for (; hash != NULL; hash = hash->link)
+    {
+        if (hash->size > 1)
+            hashIdx = (ficlUnsigned16)FICL_BUCKET(hashCode, hash->size);
+        else            /* avoid the modulo op for single threaded lists */
+            hashIdx = 0;
+
+        for (word = hash->table[hashIdx]; word; word = word->link)
+        {
+            if ( (word->length == name.length) 
+                && (!ficlStrincmp(name.text, word->name, nCmp))
+                && !(word->flags & FICL_WORD_SMUDGED))
+                return word;
+#if FICL_ROBUST
+            FICL_ASSERT_PHASH(hash, word != word->link);
+#endif
+        }
+    }
+
+    return NULL;
+}
+
+
+/**************************************************************************
                              h a s h R e s e t
 ** Initialize a ficlHash to empty state.
 **************************************************************************/

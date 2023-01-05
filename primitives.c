@@ -1282,7 +1282,7 @@ void ficlPrimitiveTick(ficlVm *vm)
 
     FICL_STACK_CHECK(vm->dataStack, 0, 1);
 
-    word = ficlDictionaryLookup(ficlVmGetDictionary(vm), name);
+    word = ficlDictionaryLookupSmudged(ficlVmGetDictionary(vm), name);
     if (!word)
         ficlVmThrowError(vm, "%.*s not found", FICL_STRING_GET_LENGTH(name), FICL_STRING_GET_POINTER(name));
     ficlStackPushPointer(vm->dataStack, word);
@@ -2411,7 +2411,7 @@ static void do_find(ficlVm *vm, ficlString name, void *returnForFailure)
 {
     ficlWord *word;
 
-    word = ficlDictionaryLookup(ficlVmGetDictionary(vm), name);
+    word = ficlDictionaryLookupSmudged(ficlVmGetDictionary(vm), name);
     if (word)
     {
         ficlStackPushPointer(vm->dataStack, word);
