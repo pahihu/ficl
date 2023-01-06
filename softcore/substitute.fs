@@ -54,7 +54,7 @@ VARIABLE SubstErr          \ Holds zero or an error code.
 : addDest \ char -- 
 \ Add the character to the destination string. 
    Dest @ DestLen @ < IF 
-     Dest 2@ + C! 1 CHARS Dest +! 
+     Dest 2@ + C! 1 CHARS Dest +!
    ELSE 
      DROP -1 SubstErr ! 
    THEN 
@@ -86,9 +86,6 @@ VARIABLE SubstErr          \ Holds zero or an error code.
 
 SET-CURRENT
 
-: SHOW ( ca # -- ca # )
-   cr [char] [ emit 2dup type [char] ] emit ;
-
 : SUBSTITUTE ( src slen dest dlen -- dest dlen' n )
 \G Expand the source string using substitutions.
 \G Note that this version is simplistic, performs no error checking,
@@ -96,7 +93,6 @@ SET-CURRENT
    Destlen ! 0 Dest 2! 0 -rot \ -- 0 src slen 
    0 SubstErr ! 
    BEGIN 
-     \ show
      DUP 0 > 
    WHILE 
      OVER C@ delim <> IF                  \ character not % 
