@@ -86,6 +86,9 @@ VARIABLE SubstErr          \ Holds zero or an error code.
 
 SET-CURRENT
 
+: SHOW ( ca # -- ca # )
+   cr [char] [ emit 2dup type [char] ] emit ;
+
 : SUBSTITUTE ( src slen dest dlen -- dest dlen' n )
 \G Expand the source string using substitutions.
 \G Note that this version is simplistic, performs no error checking,
@@ -93,18 +96,28 @@ SET-CURRENT
    Destlen ! 0 Dest 2! 0 -rot \ -- 0 src slen 
    0 SubstErr ! 
    BEGIN 
+     \ show
      DUP 0 > 
    WHILE 
-     OVER C@ delim <> IF                \ character not % 
+     OVER C@ delim <> IF                  \ character not % 
        OVER C@ addDest 1 /STRING 
      ELSE 
-       OVER 1 CHARS + C@ delim = IF    \ %% for one output % 
-         delim addDest 2 /STRING       \ add one % to output 
-       ELSE 
-         formName processName IF 
-           ROT 1+ -rot                    \ count substitutions 
+       DUP 1 = IF                         \ "%"
+         delim addDest 1 /STRING
+       ELSE
+         OVER 1 CHARS + C@ delim = IF     \ %% for one output % 
+           delim addDest 2 /STRING        \ add one % to output 
+         ELSE 
+           2DUP 1 /STRING                 \ skip leading %
+           delim SCAN NIP 0= IF           \ "%<no %*>"
+             delim addDest 1 /STRING
+           ELSE
+             formName processName IF 
+               ROT 1+ -rot                \ count substitutions 
+             THEN 
+           THEN
          THEN 
-       THEN 
+       THEN
      THEN 
    REPEAT 
    2DROP Dest 2@ ROT SubstErr @ IF 
