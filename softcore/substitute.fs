@@ -112,4 +112,17 @@ SET-CURRENT
    THEN 
 ;
 
+: UNESCAPE ( c-addr1 len1 c-addr2 -- c-addr2 len2 )
+\G Replace each '%' character in the input string c-addr1 len1 with two '%' characters.
+\G The output is represented by c-addr2 len2.
+\G If you pass a string through UNESCAPE and then SUBSTITUTE, you get the original string.
+   DUP 2SWAP OVER + SWAP ?DO
+     I C@ [CHAR] % = IF
+       [CHAR] % OVER C! 1+
+     THEN
+     I C@ OVER C! 1+
+   LOOP
+   OVER -
+;
+
 PREVIOUS

@@ -77,6 +77,7 @@
    dup xor ;
 
 : search ( ca1 u1 ca2 u2 -- ca3 u3 f )
+   DUP 0= IF  2drop TRUE EXIT  THEN
    2>R 2dup                \ save search str on R stack, save original
    BEGIN
       2dup 2R@ $prefix not \ not prefix of original
@@ -99,6 +100,7 @@
    $~= ;          \ compare it
 
 : search-nc ( ca1 u1 ca2 u2 -- ca3 u3 f )
+   DUP 0= IF  2drop TRUE EXIT  THEN
    2>R 2dup                \ save search str on R stack, save original
    BEGIN
       2dup 2R@ $prefix-nc not \ not prefix of original

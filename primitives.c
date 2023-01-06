@@ -325,6 +325,44 @@ static void ficlPrimitiveHexDot(ficlVm *vm)
 }
 
 
+static void ficlPrimitiveCmove(ficlVm *vm)
+{
+   char *src, *dst;
+   ficlUnsigned u, i;
+
+   FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+   u   = ficlStackPopUnsigned(vm->dataStack);
+   dst = ficlStackPopPointer(vm->dataStack);
+   src = ficlStackPopPointer(vm->dataStack);
+
+   if (u > 0)
+   {
+       for (i = 0; i < u; i++)
+         *dst++ = *src++;
+   }
+}
+
+static void ficlPrimitiveCmoveGreater(ficlVm *vm)
+{
+   char *src, *dst;
+   ficlUnsigned u, i;
+
+   FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+   u   = ficlStackPopUnsigned(vm->dataStack);
+   dst = ficlStackPopPointer(vm->dataStack);
+   src = ficlStackPopPointer(vm->dataStack);
+
+   if (u > 0)
+   {
+       dst += u; src += u;
+       for (i = 0; i < u; i++)
+         *--dst = *--src;
+   }
+}
+
+
 /**************************************************************************
                         s t r l e n
 ** Ficl   ( c-string -- length )
@@ -3712,6 +3750,12 @@ void ficlSystemCompileCore(ficlSystem *system)
 #if FICL_WANT_FILE
     ficlSystemCompileFile(system);
 #endif
+
+    /*
+    ** String word set
+    */
+    ficlDictionarySetPrimitive(dictionary, "cmove",  ficlPrimitiveCmove,    FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "cmove>", ficlPrimitiveCmoveGreater,    FICL_WORD_DEFAULT);
 
     /*
     ** Ficl extras
