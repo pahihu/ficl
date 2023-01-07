@@ -164,6 +164,32 @@ int ficlDTOALock(int n, ficlUnsigned lockIncrement)
 
 #endif
 
+
+static long tolong(char *s)
+{
+    long ret = 0;
+    char *p, c;
+
+    p = s;
+    while ((c = *p++)) {
+        if ('0' <= c && c <= '9') {
+            ret = 10 * ret + c - '0';
+        }
+        else {
+            switch (tolower(c)) {
+            case 'k': ret <<= 10; break;
+            case 'm': ret <<= 20; break;
+            case 'g': ret <<= 30; break;
+            default:
+                fprintf(stderr, "invalid number: %s\n", s);
+                exit(1);
+            }
+        }
+    }
+    return ret;
+}
+
+
 int main(int argc, char **argv)
 {
     int returnValue = 0;
@@ -185,9 +211,9 @@ int main(int argc, char **argv)
 	while ((narg < argc) && ('-' == *argv[narg]))
     {
 		switch (argv[narg][1]) {
-		case 's': fsi.stackSize = atoi(argv[narg]+2); break;
-		case 'e': fsi.environmentSize = atoi(argv[narg]+2); break;
-		case 'd': fsi.dictionarySize = atoi(argv[narg]+2); break;
+		case 's': fsi.stackSize = tolong(argv[narg]+2); break;
+		case 'e': fsi.environmentSize = tolong(argv[narg]+2); break;
+		case 'd': fsi.dictionarySize = tolong(argv[narg]+2); break;
         case 'q': quiet = fsi.quiet = 1; break;
 		default:  usage();
 		}
