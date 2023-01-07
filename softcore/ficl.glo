@@ -94,11 +94,27 @@ Convert number to string.
 (.R)   n m -- ca #                                                             
 Convert number to string in a field right-justified.
 
+(C-CALL)   arg8 ... arg1 N fnAddr -- ret                                       
+Calls the C function <fnAddr> with <N> arguments
+where N is less-or-equal to 8.
+
+(CALLBACK)   xt nargs cbIndex -- ptr                                           
+Returns a pointer for the <cbIndex>th 
+C callback function executing <xt> with <nargs> arguments.
+Max. 8 callback functions can be installed.
+
 (D.)   d -- ca n                                                               
 Convert double number to string.
 
 (D.R)   d m -- ca n                                                            
 Convert double number to string in a field right-justified.
+
+(DLOPEN)   ca u -- hnd                                                         
+Opens the shared library named by ca/u.
+
+(DLSYM)   ca u hnd -- fnAddr                                                   
+Returns the function address for the symbol ca/u
+in the shared library identified by hnd.
 
 (U.)   u -- ca n                                                               
 Convert unsigned number to string.
@@ -226,8 +242,14 @@ make // as a prefix for comments.
 /ALLOT   n --                                                                  
 Allot `n' bytes, erase the area.
 
+/MUTEX   -- n                                                                  
+Returns the size of a mutex.
+
 /STRING   caddr1 u1 +n -- caddr2 u2                                            
 Remove +n chars from `caddr1/u'.
+
+/TASK   -- tasksize                                                            
+Return the size of a task.
 
 /TERM   --                                                                     
 Prepare terminal for raw terminal input.
@@ -352,6 +374,14 @@ Answer TRUE if char is CR/LF.
 ?PRINTABLE   c -- f                                                            
 Return true if char is printable.
 
+@!   n addr --                                                                 
+Stores <n> thrugh the indirect pointer value at <addr>.
+Equivalent to @ !.
+
+@@   addr -- n                                                                 
+Fetches the indirect pointer value stored at <addr>.
+Equivalent to @ @.
+
 @EXECUTE   addr --                                                             
 Execute xt at addr, if not zero.
 
@@ -363,6 +393,9 @@ Give absolute value of `x'.
 
 ACTION-OF   <name> -- xt                                                       
 Return the <xt> associated with the deferred word <name>.
+
+ACTIVATE   xt addr --                                                          
+Activate task at <addr> to execute <xt>.
 
 AKA   "old" "new" --                                                           
 Make alias `new' for `old'.
@@ -399,6 +432,26 @@ If m > 0 perform LSHIFT, else arithmetic right shift.
 AT-XY   col row --                                                             
 Position cursor to col/row.
 
+ATOM@   addr -- x                                                              
+Atomically reads cell at <addr>.
+
+ATOMIC!   x addr --                                                            
+Atomically stores <x> at <addr>.
+
+ATOMIC-CAS   expected desired addr -- prev                                     
+Compare-and-set at <addr>.
+
+ATOMIC-OP   xt addr --                                                         
+Execute <xt> atomically, xt consumes the value at <addr>
+and produces a new value. The contents of <addr> is tested
+with CAS.
+
+ATOMIC-XCHG   x1 addr -- x2                                                    
+Test-and-set at <addr>.
+
+AWAKEN   task --                                                               
+Awake task at <addr>.
+
 BACK   ca u1 b -- ca u2                                                        
 Scan backwards for char <b> in ca/u1.
 
@@ -416,6 +469,18 @@ Specify binary file access mode.
 
 BINARY   --                                                                    
 Set number base to binary.
+
+BIT-FLIP   ix c-addr --                                                        
+Flips the <ix>th bit in bit-array at <c-addr>.
+
+BIT-RESET   ix c-addr --                                                       
+Resets the <ix>th bit in bit-array at <c-addr>.
+
+BIT-SET   ix c-addr --                                                         
+Sets the <ix>th bit in bit-array at <c-addr>.
+
+BIT?   ix c-addr -- ff                                                         
+Returns TRUE if <ix>th bit is set in bit-array at <c-addr>.
 
 BJOIN   cl ch -- n                                                             
 Join lo and hi 8bit bytes.
@@ -440,6 +505,9 @@ BRAND-WORDLIST is a helper for ficl-named-wordlist.
 Usage: wordlist dup create , brand-wordlist
 gets the name of the word made by create and applies it to the wordlist.
 
+BREAK   --                                                                     
+A handy breakpoint in C.
+
 BSPLIT   w -- bl bh                                                            
 Split 16bit word to 8bit bytes.
 
@@ -456,6 +524,9 @@ Return the address of the nth char.
 
 CASE?   n lit -- true | n false                                                
 Alternative CASE branch.
+
+CD   <path> --                                                                 
+Changes current working directory to <path>.
 
 CELL-   addr -- addr                                                           
 CELL- undoes CELL+
@@ -489,6 +560,9 @@ Clear parameter stack.
 CLEAR-BITS   mask addr --                                                      
 Reset <mask> bits in cell at <addr>.
 
+CLOCK   -- u                                                                   
+Returns the current UNIX clock value.
+
 CO   --                                                                        
 Suspend current, return to caller. When caller exits
 continue with current. [CI]
@@ -498,6 +572,9 @@ Compile xt into the current definition.
 
 COMPILE-ONLY?   xt -- f                                                        
 Gives back true, if `xt' is compile only.
+
+CONSTRUCT   addr --                                                            
+Construct a task at <addr>.
 
 CONTAINS?   str1 n1 str2 n2 -- str1 n1 flag                                    
 Test that str1 contains str2.
@@ -569,6 +646,9 @@ Define `xt' for `method' in `class'.
 Example:
    :noname ( obj -- ) ... ; myclass defines :mymethod
 
+DEFUZZIFY   pFuzzyOuts pSingletons len -- systemOutput                         
+Equivalent to CPU12 WAV instruction.
+
 DF,   F: r --                                                                  
 Store the double-precision FP number in dictionary space. Also F,
 
@@ -603,6 +683,9 @@ Display `n' in temporary base `base'.
 DRSHIFT   d1 n -- d2                                                           
 Double number RSHIFT.
 
+DST?   -- ff                                                                   
+Returns TRUE if daylight saving time.
+
 DUMP   addr u --                                                               
 Dump `u' address units from `addr'.
 
@@ -617,6 +700,9 @@ Edit file named `filename'.
 
 EDITED   ca u --                                                               
 Edit file named `ca/u'.
+
+EKEY   -- code                                                                 
+Reads extended key code.
 
 EMITS   n char --                                                              
 Emit <n> <char>s.
@@ -665,6 +751,9 @@ Check for the string equal to the pattern.
 
 ERASE   addr u --                                                              
 Erase `u' address units from `addr'.
+
+ERRNO   -- #error                                                              
+Return the UNIX error number, errno.
 
 EXCHANGE   n1 addr -- n2                                                       
 Store <n1> at <addr>, return old contents. [MAX]
@@ -716,6 +805,9 @@ FIX   n --
 Select fixed-point notation as default FP display,
 with <n> significant digits.
 
+FLIP   u1 -- u2                                                                
+Swaps the two halves of the cell u1.
+
 FNIP   F: r1 r2 -- r2                                                          
 Drop 2nd item of floating-point stack.
 
@@ -743,14 +835,29 @@ Print SFLOAT bit pattern of r in hex.
 FTUCK   F: r1 r2 -- r2 r1 r2                                                   
 Put top of floating-point stack under the 2nd item.
 
+FUZZIFY   pMemberfuncs pFuzzyInputs len systemInput --                         
+Equivalent to CPU12 MEM instruction.
+
 FVARIABLE   "name" --                                                          
 Define a floating-point variable.
+
+GET   mutex --                                                                 
+Locks mutex.
+
+GET-MSECS   -- u                                                               
+Returns the current UNIX clock value in milliseconds.
 
 H.   n --                                                                      
 Display `n' in hexadecimal.
 
+HALT   --                                                                      
+Halts the task.
+
 HIDE                                                                           
 Hide the following definitions.
+
+HIS   task addr1 -- addr2                                                      
+Returns the user variable address in task.
 
 HIWORD   xxyy -- xx                                                            
 High half of value.
@@ -806,6 +913,12 @@ Test char for white space.
 JOIN   dst n1 src n2 -- src n1+n2                                              
 Joint str1 and str2.
 
+KEY   -- c                                                                     
+Returns the current key pressed.
+
+KEY?   -- ff                                                                   
+Returns TRUE if any key pressed.
+
 LAY   ca1 b -- ca2                                                             
 Lay down next char in string.
 
@@ -821,6 +934,9 @@ Gives back the link field address.
 
 LINUX?   -- ff                                                                 
 True if Linux.
+
+LOAD   <file> --                                                               
+Load a text file and execute it.
 
 LOCAL   name --                                                                
 Define a single-cell local named `name'.
@@ -879,6 +995,9 @@ Example: n >R MULTI ... REPEAT R>DROP
 MUTEX   "name" --                                                              
 Define a mutex with `name'.
 
+MUTEX-INIT   mutex --                                                          
+Initialize mutex at <addr>.
+
 MUX   a b mask -- out                                                          
 Cellwide MUX, 1 in <mask> selects the corrsponding bit from <a>,
 0 selects the bit from <b>.
@@ -906,6 +1025,9 @@ Drop the 2nd item of the stack.
 
 NOOP   --                                                                      
 No operation.
+
+NOW   -- seconds minutes hours                                                 
+Returns the current time.
 
 NR>   -- xn .. x1 n                                                            
 Pop n+1 elements from the return stack. [C.Haak]
@@ -949,6 +1071,9 @@ Clear page.
 PARSE-NAME   <spaces>name -- c-addr u                                          
 Skip leading spaces and parse name delimited by a space.
 
+PAUSE   --                                                                     
+Release processing time of a task.
+
 PEEKWORD   -- cstr                                                             
 Get next word, don't advance >IN.
 
@@ -961,14 +1086,23 @@ Place string <from/len> as counted string <to>.
 POSSIBLY   "name" --                                                           
 Execute "name" if found.
 
+PREPTERM   0|1 --                                                              
+Initialize/finish the terminal for raw terminal I/O.
+
 PREVIOUS   --                                                                  
 PREVIOUS drops the search order stack
 
 PRINT   ca --                                                                  
 Print counted string <ca>.
 
+PWD   --                                                                       
+Prints the current working directory.
+
 Q>N   q -- n                                                                   
 Sign extend 32bit value.
+
+QFLIP   uq1 -- uq2                                                             
+Swaps the two halves of the 32bit quad-word uq1.
 
 QJOIN   ql qh -- n                                                             
 Join lo and hi 32bit words.
@@ -993,6 +1127,9 @@ Drop item from return stack.
 
 RANDOMIZE   --                                                                 
 Initialize random number generator.
+
+RELEASE   mutex --                                                             
+Releases mutex.
 
 REPLACE-CHAR   str n c1 c2 --                                                  
 Replace c1 with c2 in string str.
@@ -1019,6 +1156,9 @@ If m > 0 rotate left, else rotate right number.
 
 RROTATE   n1 m -- n2                                                           
 Rotate right number m places.
+
+RULEZ   pRules pFuzzyVars --                                                   
+Equivalent to CPU12 REV instruction.
 
 RUN:   head n --                                                               
 Define the behavior for `n'. Close the definition with `;'.
@@ -1084,6 +1224,9 @@ Emit a space.
 SPACES   n --                                                                  
 If `n' is positive emit `n' spaces.
 
+SPEWHASH   --                                                                  
+Dump the contents of the dictionary hash table by hashcode.
+
 SPLIT   str n c -- str+i n-i str i                                             
 Divide a string at a given character.
 
@@ -1095,6 +1238,12 @@ Returns the remaining source line.
 
 STARTS?   str len pat len2 -- str len flag                                     
 Check start of string.
+
+STICK   xu ... x0 x u -- x xu-1 .. xu                                          
+Stores <u> at the uth stack location.
+
+STOP   --                                                                      
+Stops the task. Use AWAKEN to continue.
 
 STRCAT   2:a 2:b -- 2:new-a                                                    
 Concatenate `b' to `a'.
@@ -1129,6 +1278,9 @@ Close definition of switch.
 SYNONYM   "new" "old" --                                                       
 Make alias `new' for `old'.
 
+SYSTEM   <command> --                                                          
+Execute <command> in the shell.
+
 T*   d . n -- t . .                                                            
 Multiply a double number by a single number to get a
 triple number.
@@ -1145,6 +1297,9 @@ Return true if tester inn verbose mode.
 
 TASK   "name" --                                                               
 Define a task with `name'.
+
+TERMINATE   addr --                                                            
+Halts the task at <addr>.
 
 TESTING   --                                                                   
 Talking comment for tester.
@@ -1169,6 +1324,9 @@ Close all open IFs up to COND.
 THIRD   x y z -- x y z x                                                       
 Copy 3rd element to top of stack.
 
+TIME-ZONE   -- minutes                                                         
+Returns the current time zone in minutes.
+
 TIMER   ms --                                                                  
 Display milliseconds elapsed since ms.
 
@@ -1177,6 +1335,9 @@ Reset timer.
 
 TNEGATE   t .. - -t . .                                                        
 Negate a triple number.
+
+TODAY   -- day mon year                                                        
+Returns the current date.
 
 TOGGLE-BITS   mask addr --                                                     
 Toggle <mask> bits in cell at <addr>.
@@ -1232,11 +1393,19 @@ Add 1 to NOS.
 UNDER1-   x1 x2 -- x1' x2                                                      
 Subtract 1 from NOS.
 
+UNESCAPE   c-addr1 len1 c-addr2 -- c-addr2 len2                                
+Replace each '%' character in the input string c-addr1 len1 with two '%' characters.
+The output is represented by c-addr2 len2.
+If you pass a string through UNESCAPE and then SUBSTITUTE, you get the original string.
+
 UPCASE   c1 -- c2                                                              
 Convert c1 to upper case.
 
 UPPER   str n --                                                               
 Convert string to uppercase in-place.
+
+UTIME   -- sec                                                                 
+Returns the current UNIX time in seconds.
 
 VAR   m v size "var" -- m v'                                                   
 Define `var' with size.
@@ -1253,6 +1422,12 @@ Write-only mode.
 W>N   w -- x                                                                   
 Sign extend 16bit word to cell.
 
+WFLIP   uw1 -- uw2                                                             
+Swaps the two halves of the 16bit word uw1.
+
+WHY   #error - caddr u                                                         
+Return the error string corresponding to <#error>.
+
 WINNT?   --                                                                    
 True if Windows.
 
@@ -1261,6 +1436,10 @@ Return true if low <= test < high.
 
 WJOIN   wl wh -- n                                                             
 Join lo and hi 16bit words.
+
+WORDKIND?   xt -- kind                                                         
+Returns the kind of word <xt>. See ficl.h for
+the definiton of <kind> (ficlWordKind enum).
 
 WORDLIST   --                                                                  
 Create an unnamed wordlist, with default hash-size of 1.
@@ -1271,8 +1450,14 @@ iForth variant.
 WORDS:   "name" --                                                             
 iForth variant.
 
+WRULEZ   pRules pWeights pFuzzyVars --                                         
+Equivalent to CPU12 REVW instruction.
+
 WSPLIT   n -- wl wh                                                            
 Split 32bit word to 16bit words.
+
+XFLIP   ux1 -- ux2                                                             
+Swaps the two halves of the 64bit word ux1.
 
 XXX   --                                                                       
 Abort with `not implemented' message.

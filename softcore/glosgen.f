@@ -4,8 +4,8 @@
 \ Permission to copy, distribute or modify this program is granted under the
 \ conditions of the General Public Licence version 2.
 
-: 0<= ( n -- ff )   0 SWAP < 0= ;
-: CMOVE ( from # to -- )   MOVE ;
+\ : 0<= ( n -- ff )   0 SWAP < 0= ;
+\ : CMOVE ( from # to -- )   MOVE ;
 
 : \G POSTPONE \ ; IMMEDIATE
 \G \G is an alias for \, so it is a comment till end-of-line, but

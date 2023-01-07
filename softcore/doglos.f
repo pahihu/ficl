@@ -41,5 +41,8 @@ MAKEGLOS lose.fs
 MAKEGLOS comus.fs
 MAKEGLOS tbelt2k.fs
 MAKEGLOS words.fs
+
+MAKEGLOS extrasdoc.f
+
 WRITEGLOS ficl.glo
 BYE
