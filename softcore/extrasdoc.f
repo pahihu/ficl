@@ -156,15 +156,20 @@
 
 : fuzzify ( pMemberfuncs pFuzzyInputs len systemInput -- )
 \G Equivalent to CPU12 MEM instruction.
+\G Evaluates trapezoidal membership functions.
 
 : defuzzify ( pFuzzyOuts pSingletons len -- systemOutput )
 \G Equivalent to CPU12 WAV instruction.
+\G Performs weighted average defuzzification on singleton
+\G output membership functions.
 
 : rulez ( pRules pFuzzyVars -- )
 \G Equivalent to CPU12 REV instruction.
+\G Performs unweighted MIN-MAX rule evaluation.
 
 : wrulez ( pRules pWeights pFuzzyVars -- )
 \G Equivalent to CPU12 REVW instruction.
+\G Performs weighted MIN-MAX rule evaluation.
 
 : bit? ( ix c-addr -- ff )
 \G Returns TRUE if <ix>th bit is set in bit-array at <c-addr>.
