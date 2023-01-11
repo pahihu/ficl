@@ -101,6 +101,16 @@ static void ficlPrimitiveMS(ficlVm *vm)
    usleep(useconds);
 }
 
+/* : US ( u -- ) */
+static void ficlPrimitiveUS(ficlVm *vm)
+{
+   useconds_t useconds;
+
+   useconds = ficlStackPopUnsigned(vm->dataStack);
+   usleep(useconds);
+}
+
+
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
 
@@ -109,6 +119,7 @@ void ficlSystemCompilePlatform(ficlSystem *system)
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
 
     addPrimitive(dictionary, "ms",    ficlPrimitiveMS);
+    addPrimitive(dictionary, "us",    ficlPrimitiveUS);
 
     return;
 }
