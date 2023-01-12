@@ -17,7 +17,7 @@ HEADERS= ficlplatform.h ficl.h ficlplatform/mingw.h
 MAJOR = 4
 MINOR = 2.0
 
-ficlw.exe: $(HEADERS) softcore.c main.o libficl.a
+ficlw.exe: $(HEADERS) softcore.c main.o ficl.res libficl.a
 	$(CC) -static main.o -o $@ libficl.a -lgdi32 -lpthread $(LIBM)
 
 lib: libficl.so.$(MAJOR).$(MINOR)
@@ -46,6 +46,9 @@ mingw.o: ficlplatform/mingw.c $(HEADERS)
 	
 dlfcn.o: ficlplatform/dlfcn.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ficlplatform/dlfcn.c
+
+ficl.res: ficl.rc
+	windres $* -O coff -o $@
 
 ficlplatform.h: Makefile
 	$(RM) $@
