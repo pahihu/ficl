@@ -15,11 +15,10 @@ Start-Prefixes
 \G Octal number prefix.
    8 __tempbase ; IMMEDIATE
 
--WARNING
+-?
 : # ( "#..." -- n )
 \G Decimal number prefix.
    10 __tempbase ; IMMEDIATE
-+WARNING
 
 : $ ( "$..." -- n )
 \G Hexadecimal number prefix.
@@ -261,11 +260,10 @@ DECIMAL
 \G True if u1 is greater than u2.
    SWAP U< ;
 
--WARNING
+-?
 : . ( n -- )
 \G Display number.
    (.) TYPE SPACE ;
-+WARNING
 
 : UD. ( ud -- )
 \G Display unsigned double number.
@@ -430,8 +428,7 @@ hide
 
 set-current
 
--WARNING
-
+-?
 : DUMP ( addr u -- )
 \G Dump memory `u' bytes from `addr' in hexadecimal.
 	base @ >r hex
@@ -439,8 +436,6 @@ set-current
 		i dump-line
 	16 +LOOP  r> base ! ;
 	
-+WARNING
-
 previous
 
 \ P.Falth, W.Baden

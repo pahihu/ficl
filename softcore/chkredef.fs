@@ -1,6 +1,7 @@
 ( Check redefinition --- 6sep18ap )
 
 VARIABLE WARNING
+VARIABLE SUPPRESS  FALSE SUPPRESS !
 
 : +WARNING ( -- )
 \G Enable redefinition warnings.
@@ -15,14 +16,19 @@ VARIABLE WARNING
    >IN @ >R  BL WORD  R> >IN ! ;
    
 : .REDEF ( cstr -- )
-   WARNING @ IF
+   WARNING @ SUPPRESS @ 0= AND  IF
       ." reDef " DUP COUNT TYPE CR
+      FALSE SUPPRESS !
    THEN  DROP ;
    
 : (REDEF) ( "name" -- )
    PEEKWORD DUP FIND NIP ( ca 0 | ca -1/1 )
    IF  .REDEF  ELSE  DROP  THEN :
 ;
+
+: -? ( -- )
+\G Suppress reDef warning for next definition only.
+   TRUE SUPPRESS ! ;
 
 : : ( "name" -- )   (REDEF) ;
 

@@ -16,14 +16,11 @@ CREATE 'PAD    /PAD CHARS  #SLOTS 1+ *  ALLOT
 
 SET-CURRENT
 
--WARNING
-
+-?
 : PAD ( -- caddr )
 \G Return current PAD address <caddr>.
    /PAD CHARS  #PAD @  *  'PAD + ;
    
-+WARNING
-
 : +PAD ( -- caddr )
 \G Change to next PAD address <caddr>.
    #PAD @  1+ #SLOTS AND  #PAD !

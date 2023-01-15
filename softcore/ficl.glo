@@ -173,6 +173,9 @@ Decrement value at <addr>.
 ->   ... --                                                                    
 RECORD DEPTH AND CONTENT OF STACK.
 
+-?   --                                                                        
+Suppress reDef warning for next definition only.
+
 -LEADING   ca1 u1 -- ca2 u2                                                    
 Strip leading whitespace.
 
@@ -648,6 +651,8 @@ Example:
 
 DEFUZZIFY   pFuzzyOuts pSingletons len -- systemOutput                         
 Equivalent to CPU12 WAV instruction.
+Performs weighted average defuzzification on singleton
+output membership functions.
 
 DF,   F: r --                                                                  
 Store the double-precision FP number in dictionary space. Also F,
@@ -837,6 +842,7 @@ Put top of floating-point stack under the 2nd item.
 
 FUZZIFY   pMemberfuncs pFuzzyInputs len systemInput --                         
 Equivalent to CPU12 MEM instruction.
+Evaluates trapezoidal membership functions.
 
 FVARIABLE   "name" --                                                          
 Define a floating-point variable.
@@ -1159,6 +1165,7 @@ Rotate right number m places.
 
 RULEZ   pRules pFuzzyVars --                                                   
 Equivalent to CPU12 REV instruction.
+Performs unweighted MIN-MAX rule evaluation.
 
 RUN:   head n --                                                               
 Define the behavior for `n'. Close the definition with `;'.
@@ -1452,6 +1459,7 @@ iForth variant.
 
 WRULEZ   pRules pWeights pFuzzyVars --                                         
 Equivalent to CPU12 REVW instruction.
+Performs weighted MIN-MAX rule evaluation.
 
 WSPLIT   n -- wl wh                                                            
 Split 32bit word to 16bit words.

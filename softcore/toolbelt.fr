@@ -25,14 +25,11 @@
 \G Execute "name" if found, define a marker with "name".
    >IN @ POSSIBLY  >IN ! MARKER ;
 
--WARNING
-
+-?
 : EMPTY ( -- )
 \G Empty the dictionary.
     S" ANEW --EMPTY-- DECIMAL  ONLY FORTH DEFINITIONS "
     EVALUATE ;
-
-+WARNING
 
 
 \ ** E N D   T O O L B E L T . F R

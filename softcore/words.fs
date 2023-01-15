@@ -19,16 +19,13 @@ AKA WORDS (WORDS)
 
 SET-CURRENT
 
--WARNING
-
+-?
 : WORDS ( ["name"] -- )
    PARSE-WORD DUP
    IF         (WORDS:)
    ELSE 2DROP (WORDS)
    THEN ;
    
-+WARNING
-
 : WORDS: ( "name" -- )
 \G iForth variant.
    PARSE-WORD (WORDS:) ;

@@ -90,11 +90,10 @@ PI 180.0e F/ FCONSTANT PI/180
 \G Convert radians to degrees.
    PI/180 F/ ;
 
--WARNING
+-?
 : $>FLOAT ( ca u -- true | false ) ( F: -- r | )
 \G Convert ca/u to FP number, return success or failure.
    ?FLOAT NEGATE ;
-+WARNING
 
 : FCLEAR ( F: i*r -- )
 \G Empty FP stack.
