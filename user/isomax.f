@@ -166,11 +166,9 @@ variable tcfrun
 ( EVERY n CYCLE SCHEDULE-RUNS word --------------------------- )
 
 : every ( -- )   ;
-: cycles ( -- )   period ;
+: cycles ( n -- )   period ;
 : schedule-runs ( "word" -- )
-   0 #machines !
-   ' installed
-   isomax-start ;
+   0 #machines !  install  isomax-start ;
 
 
 0 [if] ---------------------------------------------------------
