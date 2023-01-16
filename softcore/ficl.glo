@@ -148,6 +148,9 @@ Add the field definition <name> with <size>.
 +IS   xt <name>                                                                
 Chain <xt> to deferred <name>.
 
++ORDER   wid --                                                                
+Add wid to the search order if not present.
+
 +PAD   -- caddr                                                                
 Change to next PAD address <caddr>.
 
@@ -178,6 +181,9 @@ Suppress reDef warning for next definition only.
 
 -LEADING   ca1 u1 -- ca2 u2                                                    
 Strip leading whitespace.
+
+-ORDER   wid' --                                                               
+Remove wid from the search order.
 
 -ROT   a b c -- c a b                                                          
 Rotate top 3 items up.

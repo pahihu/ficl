@@ -108,6 +108,21 @@ PREVIOUS
       SCREATE
    R> SET-CURRENT ;
 
+: -ORDER ( wid' -- )
+\G Remove wid from the search order.
+   >R  GET-ORDER R> ( wid1 ... widn n wid' )
+   OVER 0 ?DO
+      I 2+ PICK OVER = IF
+         I 2+ ROLL DROP  >R 1- R>
+	 LEAVE
+      THEN
+   LOOP
+   DROP  SET-ORDER ;
+
+: +ORDER ( wid -- )
+\G Add wid to the search order if not present.
+   DUP -ORDER  >SEARCH ;
+
 
 ( --- FP display --------------------------------------------- )
 
