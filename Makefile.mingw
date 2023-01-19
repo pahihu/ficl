@@ -7,7 +7,7 @@ LIBM   = -lm
 # LIBM   = fdlibm53/libfdm.a
 # DTOAO  = dtoa.o
 CFLAGS = $(OPTFLAGS) -Ificlplatform $(SHFLAGS) $(TARGET) $(MFLAGS)
-CC     = gcc -m64
+CC     = gcc -m64 -flto
 LIB    = ar cr
 RANLIB = ranlib
 
@@ -18,7 +18,8 @@ MAJOR = 4
 MINOR = 2.0
 
 ficlw.exe: $(HEADERS) softcore.c main.o ficl.res libficl.a
-	$(CC) -static main.o -o $@ libficl.a -lgdi32 -lpthread $(LIBM)
+	$(CC) -static main.o ficl.res -o $@ libficl.a -lgdi32 -lpthread $(LIBM)
+	strip -x -S $@
 
 lib: libficl.so.$(MAJOR).$(MINOR)
 
@@ -48,7 +49,7 @@ dlfcn.o: ficlplatform/dlfcn.c $(HEADERS)
 	$(CC) $(CFLAGS) -c ficlplatform/dlfcn.c
 
 ficl.res: ficl.rc
-	windres $* -O coff -o $@
+	windres ficl.rc -O coff -o $@
 
 ficlplatform.h: Makefile
 	$(RM) $@
