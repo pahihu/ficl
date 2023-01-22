@@ -11,19 +11,19 @@ VARIABLE SUPPRESS  FALSE SUPPRESS !
 \G Disable redefinition warnings.
    FALSE WARNING ! ;
 
-: PEEKWORD ( -- cstr )
+: PEEKWORD ( -- ca # )
 \G Get next word, don't advance >IN.
-   >IN @ >R  BL WORD  R> >IN ! ;
+   >IN @ >R  PARSE-WORD  R> >IN ! ;
    
-: .REDEF ( cstr -- )
+: .REDEF ( ca # -- )
    WARNING @ SUPPRESS @ 0= AND  IF
-      ." reDef " DUP COUNT TYPE CR
-   THEN  DROP
+      ." reDef " 2DUP TYPE CR
+   THEN  2DROP
    FALSE SUPPRESS ! ;
    
 : (REDEF) ( "name" -- )
-   PEEKWORD DUP FIND NIP ( ca 0 | ca -1/1 )
-   IF  .REDEF  ELSE  DROP  THEN :
+   PEEKWORD 2DUP SFIND NIP ( ca # 0 | ca # -1/1 )
+   IF  .REDEF  ELSE  2DROP  THEN  :
 ;
 
 : -? ( -- )
