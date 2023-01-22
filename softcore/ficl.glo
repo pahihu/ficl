@@ -1086,7 +1086,7 @@ Skip leading spaces and parse name delimited by a space.
 PAUSE   --                                                                     
 Release processing time of a task.
 
-PEEKWORD   -- cstr                                                             
+PEEK-WORD   -- ca #                                                            
 Get next word, don't advance >IN.
 
 PFA   lfa -- pfa                                                               

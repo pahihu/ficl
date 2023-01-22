@@ -11,7 +11,7 @@ VARIABLE SUPPRESS  FALSE SUPPRESS !
 \G Disable redefinition warnings.
    FALSE WARNING ! ;
 
-: PEEKWORD ( -- ca # )
+: PEEK-WORD ( -- ca # )
 \G Get next word, don't advance >IN.
    >IN @ >R  PARSE-WORD  R> >IN ! ;
    
@@ -22,7 +22,7 @@ VARIABLE SUPPRESS  FALSE SUPPRESS !
    FALSE SUPPRESS ! ;
    
 : (REDEF) ( "name" -- )
-   PEEKWORD 2DUP SFIND NIP ( ca # 0 | ca # -1/1 )
+   PEEK-WORD 2DUP SFIND NIP ( ca # 0 | ca # -1/1 )
    IF  .REDEF  ELSE  2DROP  THEN  :
 ;
 
