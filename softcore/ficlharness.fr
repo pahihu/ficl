@@ -1,0 +1,24 @@
+\ ***
+: -EXIT  ( n -- )	\  0= IF EXIT THEN
+	 POSTPONE 0=  POSTPONE IF  POSTPONE EXIT  POSTPONE THEN ;
+	 IMMEDIATE
+	 
+: !+	( addr n -- addr+CELL )	 SWAP !+ ;
+
+: STRING,	 ( str len -- )
+		HERE  OVER 1+ CHARS ALLOT  2DUP C!  CHAR+  SWAP MOVE ;
+		
+
+\ ***
+: CHAIN  ( "name" -- )	CREATE  0 , ;
+
+: RELINK,  ( a -- ) DUP @ DUP IF  OVER +  HERE -  THEN , DROP ;
+
+: >LINK ( a -- )	ALIGN  HERE  OVER RELINK,  OVER - SWAP ! ;
+
+
+\ ***
+: CREATE-XT ( "name" -- xt )   CREATE LAST-WORD ;
+	
+: WORDLIST: ( "name" -- )	 WORDLIST CONSTANT ;
+
