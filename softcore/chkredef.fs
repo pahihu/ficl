@@ -18,8 +18,8 @@ VARIABLE SUPPRESS  FALSE SUPPRESS !
 : .REDEF ( cstr -- )
    WARNING @ SUPPRESS @ 0= AND  IF
       ." reDef " DUP COUNT TYPE CR
-      FALSE SUPPRESS !
-   THEN  DROP ;
+   THEN  DROP
+   FALSE SUPPRESS ! ;
    
 : (REDEF) ( "name" -- )
    PEEKWORD DUP FIND NIP ( ca 0 | ca -1/1 )
