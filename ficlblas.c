@@ -47,7 +47,7 @@ REAL ficlFDOT(unsigned n, REAL *x, unsigned incx, REAL *y, unsigned incy)
     unsigned i;
     REAL dot = 0.0;
 
-    if (1 == incx && i == incy)
+    if (1 == incx && 1 == incy)
     {
         for (i = 0; i < n; i++)
         {
