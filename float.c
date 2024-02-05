@@ -797,6 +797,37 @@ static void ficlPrimitiveFSqrt(ficlVm *vm)
 }
 
 /*******************************************************************
+** Quadratic formula.
+** quadform ( c b a -- r1 r2 ff)
+*******************************************************************/
+static void ficlPrimitiveQuadForm(ficlVm *vm)
+{
+    ficlFloat a, b, c;
+    ficlFloat disc, r1, r2;
+
+    FICL_STACK_CHECK(vm->dataStack,  0, 1);
+    FICL_STACK_CHECK(vm->floatStack, 3, 2);
+
+    a = ficlStackPopFloat(vm->floatStack);
+    b = ficlStackPopFloat(vm->floatStack);
+    c = ficlStackPopFloat(vm->floatStack);
+
+    disc = b*b - 4.0*a*c;
+    if (disc >=0)
+    {
+        disc = sqrt(disc);
+        a *= 2.0;
+        r1 = (-b + disc) / a;
+        r2 = (-b - disc) / a;
+        ficlStackPushFloat(vm->floatStack, r1);
+        ficlStackPushFloat(vm->floatStack, r2);
+        ficlStackPushInteger(vm->dataStack, FICL_TRUE);
+    }
+    else
+        ficlStackPushInteger(vm->dataStack, FICL_FALSE);
+}
+
+/*******************************************************************
 ** FAXPY
 ** faxpy ( f_x incx f_y incy u -- ) ( F: ra -- )
 *******************************************************************/
@@ -1751,6 +1782,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "f>d",       ficlPrimitiveFToD,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fround",    ficlPrimitiveFRound,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "ftrunc",    ficlPrimitiveFTrunc,         FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "ftruncate", ficlPrimitiveFTrunc,         FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f**",       ficlPrimitiveFStarStar,      FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fabs",      ficlPrimitiveFAbs,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "(fe.)",     ficlPrimitiveParenFEDot,     FICL_WORD_DEFAULT);
@@ -1808,6 +1840,7 @@ void ficlSystemCompileFloat(ficlSystem *system)
 
     PRIMDEF( "poly",     Poly);
     PRIMDEF( "odd-poly", OddPoly);
+    PRIMDEF( "quadform", QuadForm);
     ficlDictionarySetConstant(environment, "max-precision", FICL_MAX_FLOAT_PRECISION);
 
 #if FICL_WANT_LOCALS
