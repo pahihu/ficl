@@ -23,15 +23,12 @@
 : DRSHIFT ( d1 n -- d2 )
 \G Double number RSHIFT.
    0 ?DO UD2/ LOOP ;
-: ARSHIFT ( n1 m -- n2 )
-\G Double number arithmetic right shift.
-   0 ?DO 2/ LOOP ;
 : SHIFT ( n1 m -- n2 )
 \G If m > 0 perform LSHIFT, else RSHIFT.
    DUP 0< IF NEGATE RSHIFT ELSE LSHIFT THEN ;
 : ASHIFT ( n1 m -- n2 )
 \G If m > 0 perform LSHIFT, else arithmetic right shift.
-   DUP 0< IF NEGATE ARSHIFT ELSE LSHIFT THEN ;
+   DUP 0< IF NEGATE RSHIFTA ELSE LSHIFT THEN ;
 : LROTATE ( n1 m -- n2 )
 \G Rotate left number m places.
   ?DUP IF
@@ -99,12 +96,12 @@ T{  0 -1    #CELLBITS    DRSHIFT -> -1 0 }T
 T{ -1 -1    #CELLBITS    DRSHIFT -> -1 0 }T
 
 CR
-TESTING ARSHIFT
-T{ 0 0 ARSHIFT -> 0 }T
-T{ 12345 0 ARSHIFT -> 12345 }T
-T{ -1 1 ARSHIFT -> -1 }T
-T{ -2 1 ARSHIFT -> -1 }T
-T{ 23 1 ARSHIFT -> 11 }T
+TESTING RSHIFTA
+T{ 0 0 RSHIFTA -> 0 }T
+T{ 12345 0 RSHIFTA -> 12345 }T
+T{ -1 1 RSHIFTA -> -1 }T
+T{ -2 1 RSHIFTA -> -1 }T
+T{ 23 1 RSHIFTA -> 11 }T
 
 CR
 TESTING SHIFT

@@ -432,9 +432,6 @@ Define an array `name' with n cells.
 Usage: name ( n -- addr )
 Return the address of the nth cell.
 
-ARSHIFT   n1 m -- n2                                                           
-Double number arithmetic right shift.
-
 ASHIFT   n1 m -- n2                                                            
 If m > 0 perform LSHIFT, else arithmetic right shift.
 

@@ -129,6 +129,7 @@ FICL_INSTRUCTION_TOKEN(ficlInstructionMin,        "min",       FICL_WORD_DEFAULT
 FICL_INSTRUCTION_TOKEN(ficlInstructionMove,           "move",      FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionOr,      "or",        FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionRShift,         "rshift",    FICL_WORD_DEFAULT)
+FICL_INSTRUCTION_TOKEN(ficlInstructionRShiftA,        "rshifta",    FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionXor,     "xor",       FICL_WORD_DEFAULT)
 
 FICL_INSTRUCTION_TOKEN(ficlInstructionI,        "i",         FICL_WORD_COMPILE_ONLY)

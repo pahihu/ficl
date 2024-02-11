@@ -797,10 +797,24 @@ static void ficlPrimitiveFSqrt(ficlVm *vm)
 }
 
 /*******************************************************************
-** Quadratic formula.
-** quadform ( c b a -- r1 r2 ff)
+** Floating square.
+** x**2 ( r1 -- r2 )
 *******************************************************************/
-static void ficlPrimitiveQuadForm(ficlVm *vm)
+static void ficlPrimitiveXStarStarTwo(ficlVm *vm)
+{
+    ficlFloat r;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 1);
+
+    r = ficlStackPopFloat(vm->floatStack);
+    ficlStackPushFloat(vm->floatStack, (ficlFloat) r*r);
+}
+
+/*******************************************************************
+** Quadratic formula solver.
+** fsolve2 ( c b a -- r1 r2 ff)
+*******************************************************************/
+static void ficlPrimitiveFSolveTwo(ficlVm *vm)
 {
     ficlFloat a, b, c;
     ficlFloat disc, r1, r2;
@@ -853,6 +867,28 @@ static void ficlPrimitiveFaxpy(ficlVm *vm)
 }
 
 /*******************************************************************
+** FAXPY1
+** faxpy1 ( f_x f_y u -- ) ( F: ra -- )
+*******************************************************************/
+static void ficlPrimitiveFaxpy1(ficlVm *vm)
+{
+    ficlFloat ra;
+    ficlFloat *x, *y;
+    ficlUnsigned n;
+
+    FICL_STACK_CHECK(vm->floatStack, 1, 0);
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+
+    ra = ficlStackPopFloat(vm->floatStack);
+
+    n   = ficlStackPopUnsigned(vm->dataStack);
+    y    = ficlStackPopPointer(vm->dataStack);
+    x    = ficlStackPopPointer(vm->dataStack);
+
+    ficlFAXPY(n, ra, x, 1, y, 1);
+}
+
+/*******************************************************************
 ** FDOT
 ** fdot ( f_x incx f_y incy u -- ) ( F: -- r )
 *******************************************************************/
@@ -873,6 +909,27 @@ static void ficlPrimitiveFdot(ficlVm *vm)
     x    = ficlStackPopPointer(vm->dataStack);
 
     r = ficlFDOT(n, x, incx, y, incy);
+    ficlStackPushFloat(vm->floatStack, r);
+}
+
+/*******************************************************************
+** FDOT with increment of 1.
+** fdot1 ( f_x f_y u -- ) ( F: -- r )
+*******************************************************************/
+static void ficlPrimitiveFdot1(ficlVm *vm)
+{
+    ficlFloat r;
+    ficlFloat *x, *y;
+    ficlUnsigned n;
+
+    FICL_STACK_CHECK(vm->dataStack, 3, 0);
+    FICL_STACK_CHECK(vm->floatStack, 0, 1);
+
+    n    = ficlStackPopUnsigned(vm->dataStack);
+    y    = ficlStackPopPointer(vm->dataStack);
+    x    = ficlStackPopPointer(vm->dataStack);
+
+    r = ficlFDOT(n, x, 1, y, 1);
     ficlStackPushFloat(vm->floatStack, r);
 }
 
@@ -1793,7 +1850,9 @@ void ficlSystemCompileFloat(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "represent", ficlPrimitiveRepresent,      FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "faxpy",     ficlPrimitiveFaxpy,          FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "faxpy1",    ficlPrimitiveFaxpy1,          FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fdot",      ficlPrimitiveFdot,           FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "fdot1",     ficlPrimitiveFdot1,           FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "fmm",       ficlPrimitiveFmm,            FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f<=",	    ficlPrimitiveFLessEqual,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "f>=",	    ficlPrimitiveFGreaterEqual,  FICL_WORD_DEFAULT);
@@ -1840,7 +1899,8 @@ void ficlSystemCompileFloat(ficlSystem *system)
 
     PRIMDEF( "poly",     Poly);
     PRIMDEF( "odd-poly", OddPoly);
-    PRIMDEF( "quadform", QuadForm);
+    PRIMDEF( "fsolve2",  FSolveTwo);
+    PRIMDEF( "x**2",     XStarStarTwo);
     ficlDictionarySetConstant(environment, "max-precision", FICL_MAX_FLOAT_PRECISION);
 
 #if FICL_WANT_LOCALS

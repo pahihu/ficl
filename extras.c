@@ -1309,6 +1309,27 @@ static void ficlPrimitiveBitFlip(ficlVm *vm)
     addr[ix >> 3] ^= (1U << (ix & 7));
 }
 
+/* : isqrt ( u -- u^0.5 ) */
+static void ficlPrimitiveISqrt(ficlVm *vm)
+{
+    ficlUnsigned s, x0, x1;
+
+    FICL_STACK_CHECK(vm->dataStack, 1, 1);
+    s = ficlStackPopUnsigned(vm->dataStack);
+    if (s > 1)
+    {
+        x0 = s >> 1;
+        x1 = (x0 + s / x0) >> 1;
+        while (x1 < x0)
+        {
+            x0 = x1;
+            x1 = (x0 + s / x0) >> 1;
+        }
+        s = x0;
+    }
+    ficlStackPushUnsigned(vm->dataStack, s);
+}
+
 
 #define addPrimitive(d,nm,fn) \
    ficlDictionarySetPrimitive(d,nm,fn,FICL_WORD_DEFAULT)
@@ -1399,6 +1420,8 @@ void ficlSystemCompileExtras(ficlSystem *system)
     addPrimitive(dictionary, "bit-set", ficlPrimitiveBitSet);
     addPrimitive(dictionary, "bit-reset", ficlPrimitiveBitReset);
     addPrimitive(dictionary, "bit-flip", ficlPrimitiveBitFlip);
+
+    addPrimitive(dictionary, "isqrt", ficlPrimitiveISqrt);
 
     return;
 }

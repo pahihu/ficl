@@ -1124,6 +1124,19 @@ MINUSROLL:
             }
 
 
+            case ficlInstructionRShiftA:
+            {
+                ficlUnsigned nBits;
+                ficlInteger x1;
+                CHECK_STACK(2, 1);
+
+                nBits = (dataTop--)->u;
+                x1 = dataTop->i;
+                dataTop->i = x1 >> nBits;
+                continue;
+            }
+
+
             /**************************************************************************
                                     m a x   &   m i n
             ** 
