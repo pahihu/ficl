@@ -1,6 +1,6 @@
 /* 
 ** mingw32.c
-** Andras Pahi, pahia@t-online.hu
+** Andras Pahi, pahihu@gmail.com
 ** based on win32.c by Larry Hastings, larry@hastings.org
 **/
 
