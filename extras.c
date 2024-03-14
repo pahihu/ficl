@@ -433,13 +433,13 @@ static void ficlPrimitiveCCall(ficlVm *vm)
 
 	fn = (long (*)()) ficlStackPopPointer(vm->dataStack);
 	narg = ficlStackPopInteger(vm->dataStack);
-fprintf(stderr,"fn = %p narg = %d\n", fn, narg);
+    /* fprintf(stderr,"fn = %p narg = %d\n", fn, narg); */
 
     FICL_STACK_CHECK(vm->dataStack, narg, 1);
 
 	for (i = 0; i < narg; i++) {
 		arg[i] = ficlStackPopInteger(vm->dataStack);
-fprintf(stderr,"arg[%d] = 0x%lx\n",i,arg[i]);
+        /* fprintf(stderr,"arg[%d] = 0x%lx\n",i,arg[i]); */
 	}
 
 	switch (narg) {
