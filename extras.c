@@ -1312,20 +1312,28 @@ static void ficlPrimitiveBitFlip(ficlVm *vm)
 /* : isqrt ( u -- u^0.5 ) */
 static void ficlPrimitiveISqrt(ficlVm *vm)
 {
-    ficlUnsigned s, x0, x1;
+    ficlUnsigned s, rem, root;
+    ficlInteger  i;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 1);
     s = ficlStackPopUnsigned(vm->dataStack);
     if (s > 1)
     {
-        x0 = s >> 1;
-        x1 = (x0 + s / x0) >> 1;
-        while (x1 < x0)
-        {
-            x0 = x1;
-            x1 = (x0 + s / x0) >> 1;
+        /* Jack W. Crenshaw's 1998 article in Embedded:
+         * http://www.embedded.com/electronics-blogs/programmer-s-toolbox/4219659/Integer-Square-Roots
+         */
+#define NBITS   (8 * sizeof(ficlUnsigned))
+        rem = 0, root = 0;
+        for (i = NBITS / 2; i > 0; i--) {
+            root <<= 1;
+            rem = (rem << 2) | (s >> (NBITS - 2));
+            s <<= 2;
+            if (root < rem) {
+                rem -= root | 1;
+                root += 2;
+            }
         }
-        s = x0;
+        s = root >> 1;
     }
     ficlStackPushUnsigned(vm->dataStack, s);
 }
