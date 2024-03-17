@@ -26,7 +26,7 @@ typedef unsigned long ficlUnsigned32;
 typedef long long ficlInteger64;
 typedef unsigned long long ficlUnsigned64;
 
-#ifdef __MINGW64__
+#if defined(__MINGW64__)
 
 typedef ficlInteger64 ficlInteger;
 typedef ficlUnsigned64 ficlUnsigned;

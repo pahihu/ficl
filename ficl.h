@@ -1863,10 +1863,20 @@ extern ficlFile *ficlStdIn;
 extern ficlFile *ficlStdOut;
 extern ficlFile *ficlStdErr;
 
-#ifdef __MINGW64__
+#if defined(__MINGW64__)
 #  define ficlOff_t off64_t
 #else
-#  define ficlOff_t off_t
+#	if defined(_MSC_VER)
+#		if defined(_WIN32)
+#			if defined(_WIN64)
+#				define ficlOff_t	__int64
+#			else
+#				define ficlOff_t	long
+#			endif
+#		endif
+#	else
+#		define ficlOff_t off_t
+#	endif
 #endif
 
 #if defined (FICL_PLATFORM_HAS_FTRUNCATE)

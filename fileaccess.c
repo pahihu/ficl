@@ -25,11 +25,11 @@ static void pushIor(ficlVm *vm, int success)
 }
 
 
-static ficl2Unsigned ficlOffsTo2Unsigned(off_t offs)
+static ficl2Unsigned ficlOffsTo2Unsigned(ficlOff_t offs)
 {
     ficl2Unsigned ud;
 
-#if defined(__LP64__) || defined(__MINGW64__)
+#if defined(__LP64__) || defined(__MINGW64__) || defined(_WIN64)
     FICL_2UNSIGNED_SET((ficlUnsigned) 0, (ficlUnsigned) offs, ud);
 #else
     {
@@ -45,12 +45,12 @@ static ficl2Unsigned ficlOffsTo2Unsigned(off_t offs)
 }
 
 
-static off_t ficl2UnsignedToOffs(ficl2Unsigned ud)
+static ficlOff_t ficl2UnsignedToOffs(ficl2Unsigned ud)
 {
-    off_t offs;
+    ficlOff_t offs;
 
-#if defined(__LP64__) || defined(__MINGW64__)
-    offs = (off_t) FICL_2UNSIGNED_GET_LOW(ud);
+#if defined(__LP64__) || defined(__MINGW64__) || defined(_WIN64)
+    offs = (ficlOff_t) FICL_2UNSIGNED_GET_LOW(ud);
 #else
     offs   = FICL_2UNSIGNED_GET_HIGH(ud);
     offs <<= 8 * sizeof(ficlUnsigned);
@@ -233,7 +233,7 @@ static void ficlPrimitiveFileStatus(ficlVm *vm) /* ( c-addr u -- x ior ) */
 static void ficlPrimitiveFilePosition(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
     ficlFile *ff;
-    off_t offs;
+    ficlOff_t offs;
     ficl2Unsigned ud;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 2);
@@ -244,14 +244,14 @@ static void ficlPrimitiveFilePosition(ficlVm *vm) /* ( fileid -- ud ior ) */
     ud = ficlOffsTo2Unsigned(offs);
 
     ficlStackPush2Unsigned(vm->dataStack, ud);
-    pushIor(vm, offs != (off_t) -1);
+    pushIor(vm, offs != (ficlOff_t) -1);
 }
 
 
 static void ficlPrimitiveFileSize(ficlVm *vm) /* ( fileid -- ud ior ) */
 {
     ficlFile *ff;
-    off_t size;
+    ficlOff_t size;
     ficl2Unsigned ud;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 2);
@@ -262,7 +262,7 @@ static void ficlPrimitiveFileSize(ficlVm *vm) /* ( fileid -- ud ior ) */
     ud = ficlOffsTo2Unsigned(size);
 
     ficlStackPush2Unsigned(vm->dataStack, ud);
-    pushIor(vm, size != (off_t) -1);
+    pushIor(vm, size != (ficlOff_t) -1);
 }
 
 
@@ -272,8 +272,8 @@ static void ficlPrimitiveIncludeFile(ficlVm *vm) /* ( i*x fileid -- j*x ) */
     ficlFile *ff;
     ficlCell id = vm->sourceId;
     int  except = FICL_VM_STATUS_OUT_OF_TEXT;
-    off_t currentPosition, totalSize;
-    off_t size;
+    ficlOff_t currentPosition, totalSize;
+    ficlOff_t size;
 	ficlString s;
 
     FICL_STACK_CHECK(vm->dataStack, 1, 0);
@@ -435,7 +435,7 @@ static void ficlPrimitiveRepositionFile(ficlVm *vm) /* ( ud fileid -- ior ) */
 {
     ficlFile *ff;
     ficl2Unsigned ud;
-    off_t offs;
+    ficlOff_t offs;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 1);
 
@@ -479,7 +479,7 @@ static void ficlPrimitiveResizeFile(ficlVm *vm) /* ( ud fileid -- ior ) */
 {
     ficlFile *ff;
     ficl2Unsigned ud;
-    off_t offs;
+    ficlOff_t offs;
 
     FICL_STACK_CHECK(vm->dataStack, 3, 1);
 

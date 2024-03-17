@@ -12,14 +12,22 @@
 
 #define FICL_WANT_PLATFORM (1)
 
-#define FICL_PLATFORM_OS             "Win32"
-#define FICL_PLATFORM_ARCHITECTURE   "x86"
+#define FICL_PLATFORM_OS             "Windows"
+#if defined(_MSC_VER)
+#	if defined(_WIN32)
+#		if defined(_WIN64)
+#			define FICL_PLATFORM_ARCHITECTURE   "x64"
+#		else
+#			define FICL_PLATFORM_ARCHITECTURE   "x86"
+#		endif
+#	endif
+#else
+#	define FICL_PLATFORM_ARCHITECTURE   "x86"
+#endif
 
 #define FICL_PLATFORM_BASIC_TYPES    (1)
-#define FICL_PLATFORM_ALIGNMENT      (4)
 #define FICL_PLATFORM_INLINE	     __inline
 
-#define FICL_PLATFORM_HAS_2INTEGER   (1)
 #define FICL_PLATFORM_HAS_FTRUNCATE  (1)
 
 #define fstat       _fstat
@@ -27,6 +35,12 @@
 #define getcwd      _getcwd
 #define chdir       _chdir
 #define fileno      _fileno
+#define unlink		_unlink
+
+#if defined(_MSC_VER)
+#define ftello	_ftelli64
+#define fseeko	_fseeki64
+#endif
 
 
 extern int ftruncate(int fileno, size_t size);
@@ -37,8 +51,19 @@ typedef short ficlInteger16;
 typedef unsigned short ficlUnsigned16;
 typedef long ficlInteger32;
 typedef unsigned long ficlUnsigned32;
-typedef __int64 ficlInteger64;
-typedef unsigned __int64 ficlUnsigned64;
+typedef long long ficlInteger64;
+typedef unsigned long long ficlUnsigned64;
+
+#if defined(_WIN64)
+
+typedef ficlInteger64 ficlInteger;
+typedef ficlUnsigned64 ficlUnsigned;
+typedef double ficlFloat;
+
+#define FICL_PLATFORM_HAS_2INTEGER   (0)
+#define FICL_PLATFORM_ALIGNMENT      (8)
+
+#else
 
 typedef ficlInteger32 ficlInteger;
 typedef ficlUnsigned32 ficlUnsigned;
@@ -47,6 +72,10 @@ typedef float ficlFloat;
 typedef ficlInteger64 ficl2Integer;
 typedef ficlUnsigned64 ficl2Unsigned;
 
+#define FICL_PLATFORM_HAS_2INTEGER   (1)
+#define FICL_PLATFORM_ALIGNMENT      (4)
+
+#endif
 
 #define FICL_MULTICALL_CALLTYPE_FUNCTION        (0)
 #define FICL_MULTICALL_CALLTYPE_METHOD          (1)

@@ -880,3 +880,20 @@ ficlCell *ficlDictionaryWhere(ficlDictionary *dictionary)
 }
 
 
+#if FICL_WANT_MULTITHREADED
+
+pthread_mutex_t dictionaryMutex;
+
+int ficlDictionaryLock(ficlDictionary *dictionary, ficlUnsigned lockIncrement)
+{
+    int rc = 0;
+
+    if (FICL_FALSE == lockIncrement)
+        rc = pthread_mutex_unlock(&dictionaryMutex);
+    else
+        rc = pthread_mutex_lock(&dictionaryMutex);
+
+    return rc;
+}
+
+#endif

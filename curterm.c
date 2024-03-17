@@ -20,8 +20,8 @@ void gotoxy(int x, int y)
 {
 	COORD xy;
 
-	xy.X = x;
-	xy.Y = y;
+	xy.X = (SHORT)x;
+	xy.Y = (SHORT)y;
 	SetConsoleCursorPosition(hStdout, xy);
 }
 
@@ -96,18 +96,18 @@ void prepterm(int dir)
 
 int has_key()
 {
-	return kbhit();
+	return _kbhit();
 }
 
 int getkey(void)
 {
 	int ch;
 
-	ch = getch();
+	ch = _getch();
 	if (0 == ch)
 		ch = 0xF0;
 	if (0xF0 == ch || 0xE0 == ch)
-		ch = (ch << 8) + getch();
+		ch = (ch << 8) + _getch();
 
 	return ch;
 }

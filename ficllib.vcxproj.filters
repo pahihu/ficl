@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{124b7521-5877-4a49-90ba-a4db399c6567}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{0f5772df-49d7-4361-a3f6-f2d9aa58ffb0}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="callback.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="compatibility.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dictionary.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="double.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extras.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileaccess.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="float.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lzuncompress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="prefix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="primitives.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="search.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="softcore.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="system.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ficlplatform\win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="word.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ficlblas.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xoroshiro128plus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="curterm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ficlplatform\dlfcn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ficl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ficlcompatibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ficllocal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ficltokens.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ficlplatform\win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

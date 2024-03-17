@@ -290,11 +290,11 @@ void ficlSystemDestroy(ficlSystem *system)
 
     ficlSystemLock(system, FICL_FALSE);
 
-    ficlFree(system);
-    system = NULL;
-
 	if (ficlSystemGlobal == system)
 		ficlSystemGlobal = NULL;
+
+    ficlFree(system);
+    system = NULL;
 
     return;
 }
@@ -498,4 +498,21 @@ ficlWord *ficlSystemLookupLocal(ficlSystem *system, ficlString name)
 }
 #endif
 
+#if FICL_WANT_MULTITHREADED
+
+pthread_mutex_t systemMutex;
+
+int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
+{
+    int rc = 0;
+
+    if (FICL_FALSE == lockIncrement)
+        rc = pthread_mutex_unlock(&systemMutex);
+    else
+        rc = pthread_mutex_lock(&systemMutex);
+
+    return rc;
+}
+
+#endif
 // vim:ts=4:sw=4:et

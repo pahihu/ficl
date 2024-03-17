@@ -17,6 +17,19 @@
 #include "curterm.h"
 #include "bswap.h"
 
+#if defined(_MSC_VER)
+#define	__sync_synchronize				_ReadWriteBarrier
+#if FICL_ALIGNMENT - 4
+#define __sync_bool_compare_and_swap	_InterlockedCompareExchange64
+#define __sync_val_compare_and_swap		_InterlockedCompareExchange64
+#define __sync_lock_test_and_set		_interlockedbittestandset64
+#else
+#define __sync_bool_compare_and_swap	_InterlockedCompareExchange
+#define __sync_val_compare_and_swap		_InterlockedCompareExchange
+#define __sync_lock_test_and_set		_interlockedbittestandset
+#endif
+#endif
+
 #if !defined(FICL_ANSI) || defined(__MINGW32__)
 
 /*
@@ -707,7 +720,6 @@ static void ficlPrimitivePause(ficlVm *vm)
 
 #define FICL_CAS(x,y,z)	__sync_bool_compare_and_swap(x,y,z)
 
-
 /* : STOP ( -- ) */
 static void ficlPrimitiveStop(ficlVm *vm)
 {
@@ -794,7 +806,7 @@ static void ficlPrimitiveTerminate(ficlVm *vm)
 /* : HIS ( task addr1 -- addr2 ) */
 static void ficlPrimitiveHis(ficlVm *vm)
 {
-   void   *addr1, *addr2;
+   char   *addr1, *addr2;
    ficlVm *otherVm;
 
    FICL_STACK_CHECK(vm->dataStack, 2, 1);
@@ -802,7 +814,7 @@ static void ficlPrimitiveHis(ficlVm *vm)
    addr1    = ficlStackPopPointer(vm->dataStack);
    otherVm  = ficlStackPopPointer(vm->dataStack);
 
-   addr2    = (void *)&otherVm->user[0] + (addr1 - (void *)&vm->user[0]);
+   addr2    = (char *)&otherVm->user[0] + (addr1 - (char *)&vm->user[0]);
 
    ficlStackPushPointer(vm->dataStack, addr2);
 }
@@ -970,7 +982,7 @@ static void ficlPrimitiveQFlip(ficlVm *vm)
     ficlStackPushUnsigned(vm->dataStack, bswap32(u));
 }
 
-#if defined(__LP64__) || defined(__MINGW64__)
+#if defined(__LP64__) || defined(__MINGW64__) || defined(_WIN64)
 
 /* : XFLIP ( ux1 -- ux2 ) */
 static void ficlPrimitiveXFlip(ficlVm *vm)
@@ -1060,7 +1072,7 @@ static void ficlPrimitiveCharsPlus(ficlVm *vm)
 
     n    = ficlStackPopInteger(vm->dataStack);
     addr = ficlStackPopPointer(vm->dataStack);
-    ficlStackPushPointer(vm->dataStack, addr + sizeof(char) * n);
+    ficlStackPushPointer(vm->dataStack, (char *)addr + sizeof(char) * n);
 }
 
 /* : CELLS+ ( addr1 u -- addr2 ) */
@@ -1073,7 +1085,7 @@ static void ficlPrimitiveCellsPlus(ficlVm *vm)
 
     n    = ficlStackPopInteger(vm->dataStack);
     addr = ficlStackPopPointer(vm->dataStack);
-    ficlStackPushPointer(vm->dataStack, addr + sizeof(ficlCell) * n);
+    ficlStackPushPointer(vm->dataStack, (char *)addr + sizeof(ficlCell) * n);
 }
 
 /* : ERRNO ( -- #error ) */

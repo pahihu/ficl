@@ -334,7 +334,11 @@ static void ficlPrimitiveSFFetch(ficlVm *vm)
 
 #if FICL_PLATFORM_ALIGNMENT - 4
 
+#if defined(_MSC_VER)
+#pragma message("Using double-precision FP wrappers.")
+#else
 #warning Using double-precision FP wrappers.
+#endif
 
 #define ficlFAlignPointer		ficlDFAlignPointer
 #define ficlDictionaryFAlign		ficlDictionaryDFAlign
@@ -347,7 +351,11 @@ static void ficlPrimitiveSFFetch(ficlVm *vm)
 
 #else
 
+#if defined(_MSC_VER)
+#pragma message("Using single-precision FP wrappers.")
+#else
 #warning Using single-precision FP wrappers.
+#endif
 
 #define ficlFAlignPointer		ficlSFAlignPointer
 #define ficlDictionaryFAlign		ficlDictionarySFAlign

@@ -3,6 +3,7 @@
 ** submitted to Ficl by Larry Hastings, larry@hastings.org
 **/
 
+#include <io.h>
 #include <sys/stat.h>
 #include "../ficl.h"
 
@@ -23,23 +24,35 @@
 ** CRT/SRC/INTERNAL.H from MSVC.
 **
 ** --lch
+**
+** The wizardry is replaced by a Windows C runtime function call.
+**
+** --ap
+**
 */
-typedef struct {
-        long osfhnd;    /* underlying OS file HANDLE */
-        char osfile;    /* attributes of file (e.g., open in text mode?) */
-        char pipech;    /* one char buffer for handles opened on pipes */
-#ifdef _MT
-        int lockinitflag;
-        CRITICAL_SECTION lock;
-#endif  /* _MT */
-    }   ioinfo;
-extern _CRTIMP ioinfo * __pioinfo[];
+#define _osfhnd(i)  (_get_osfhandle(i))
 
-#define IOINFO_L2E          5
-#define IOINFO_ARRAY_ELTS   (1 << IOINFO_L2E)
-#define _pioinfo(i) ( __pioinfo[(i) >> IOINFO_L2E] + ((i) & (IOINFO_ARRAY_ELTS - \
-                              1)) )
-#define _osfhnd(i)  ( _pioinfo(i)->osfhnd )
+long ficlGetGMTOffset(void)
+{
+  TIME_ZONE_INFORMATION tzi;
+
+  GetTimeZoneInformation(&tzi);
+  return tzi.Bias * 60;
+}
+
+
+char* ficlIntegerToString(char *buf, ficlInteger n)
+{
+  sprintf(buf, "%lld", n);
+  return buf;
+}
+
+
+char* ficlUnsignedToString(char *buf, ficlUnsigned u)
+{
+  sprintf(buf, "%llu", u);
+  return buf;
+}
 
 
 int ficlFileTruncate(ficlFile *ff, ficlUnsigned size)
@@ -69,7 +82,7 @@ int ficlFileStatus(char *filename, int *status)
 }
 
 
-long ficlFileSize(ficlFile *ff)
+ficlOff_t ficlFileSize(ficlFile *ff)
 {
     struct stat statbuf;
     if (ff == NULL)
@@ -180,6 +193,7 @@ void  ficlCallbackDefaultTextOut(ficlCallback *callback, char *message)
 ** 
 ** --lch
 */
+#if defined(_MSC_VER) && !defined(_WIN64)
 static void ficlPrimitiveMulticall(ficlVm *vm)
 {
     int flags;
@@ -368,7 +382,7 @@ static void ficlPrimitiveMulticall(ficlVm *vm)
 
     return;
 }
-
+#endif
 
 
 
@@ -387,6 +401,7 @@ void ficlSystemCompilePlatform(ficlSystem *system)
     ** one native function call to bring them all and in the darkness bind them.
     ** --lch (with apologies to j.r.r.t.)
     */
+#if defined(_MSC_VER) && !defined(_WIN64)
     ficlDictionarySetPrimitive(dictionary, "multicall",      ficlPrimitiveMulticall,      FICL_WORD_DEFAULT);
     ficlDictionarySetConstant(dictionary, "multicall-calltype-function", FICL_MULTICALL_CALLTYPE_FUNCTION);
     ficlDictionarySetConstant(dictionary, "multicall-calltype-method", FICL_MULTICALL_CALLTYPE_METHOD);
@@ -397,6 +412,7 @@ void ficlSystemCompilePlatform(ficlSystem *system)
     ficlDictionarySetConstant(dictionary, "multicall-returntype-float", FICL_MULTICALL_RETURNTYPE_FLOAT);
     ficlDictionarySetConstant(dictionary, "multicall-reverse-arguments", FICL_MULTICALL_REVERSE_ARGUMENTS);
     ficlDictionarySetConstant(dictionary, "multicall-explit-vtable", FICL_MULTICALL_EXPLICIT_VTABLE);
+#endif
 
     /*
     ** Every other Win32-specific word is implemented in Ficl, with multicall or whatnot.

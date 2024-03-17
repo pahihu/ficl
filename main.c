@@ -109,34 +109,10 @@ static void usage()
 
 #if FICL_WANT_MULTITHREADED
 
-pthread_mutex_t dictionaryMutex;
-pthread_mutex_t systemMutex;
+extern pthread_mutex_t dictionaryMutex;
+extern pthread_mutex_t systemMutex;
 
 extern int recursiveMutexInit(pthread_mutex_t *mutex);
-
-int ficlDictionaryLock(ficlDictionary *dictionary, ficlUnsigned lockIncrement)
-{
-    int rc = 0;
-
-    if (FICL_FALSE == lockIncrement)
-        rc = pthread_mutex_unlock(&dictionaryMutex);
-    else
-        rc = pthread_mutex_lock(&dictionaryMutex);
-
-    return rc;
-}
-
-int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
-{
-    int rc = 0;
-
-    if (FICL_FALSE == lockIncrement)
-        rc = pthread_mutex_unlock(&systemMutex);
-    else
-        rc = pthread_mutex_lock(&systemMutex);
-
-    return rc;
-}
 
 #ifdef FICL_USE_STRTOD
 
@@ -161,6 +137,18 @@ int ficlDTOALock(int n, ficlUnsigned lockIncrement)
 }
 
 #endif
+
+#else
+
+int ficlDictionaryLock(ficlDictionary *dictionary, ficlUnsigned lockIncrement)
+{
+	return 0;
+}
+
+int ficlSystemLock(ficlSystem *system, ficlUnsigned lockIncrement)
+{
+	return 0;
+}
 
 #endif
 
@@ -329,6 +317,8 @@ int main(int argc, char **argv)
     }
 
 Lexit:
+    ficlSystemDestroy(f_system);
+
 #if FICL_WANT_MULTITHREADED
     pthread_mutex_destroy(&dictionaryMutex);
     pthread_mutex_destroy(&systemMutex);
@@ -338,7 +328,6 @@ Lexit:
 #endif
 #endif
 
-    ficlSystemDestroy(f_system);
     return 0;
 }
 
