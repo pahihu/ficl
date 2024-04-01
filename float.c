@@ -460,7 +460,11 @@ static ficlFloat ficlRepresentPriv(ficlFloat r, int precision, int *out_sign, do
         int ndigits = lrint(floor(log10(display)));
         display += 1.0;
         if (ndigits != lrint(floor(log10(display))))
-            *out_exp += 1;
+        {
+            display /= 10.0;
+            if (out_exp)
+                *out_exp += 1;
+        }
     }
     if (out_mant)
         *out_mant = display;
@@ -1173,7 +1177,7 @@ static void ficlPrivateFEDot(ficlVm *vm)
             rDisp *= pow(10.0, scale);
             if (rSign)
                 vm->pob[len++] = '-';
-            sprintf(vm->pob + len, "%.*fE%d", prec, rDisp, eng);
+            sprintf(vm->pob + len, "%.*fE%d ", prec, rDisp, eng);
     }
 }
 
