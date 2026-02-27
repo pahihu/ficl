@@ -1,4 +1,3 @@
-CC = cc -m64
 SOURCES  = softcore.fr ifbrack.fr prefix.fr ficl.fr jhlocal.fr marker.fr
 # SOURCES += oo.fr classes.fr string.fr
 # SOURCES += preswoop.fr swoop.fr swoopex.fr
@@ -13,13 +12,14 @@ SOURCES += numcvt.fs defer.fth timedate.fs tofcompat.fs ofcompat.fs
 SOURCES += ffi.f
 SOURCES += substitute.fs
 SOURCES += lose.fs comus.fs tbelt2k.fs words.fs
-	
+
+all:: clean ../softcore.c
 
 ../softcore.c: makesoftcore $(SOURCES)
 	./makesoftcore $(SOURCES)
 
 makesoftcore: makesoftcore.c ../lzcompress.c ../bit.c
-	$(CC) -Ddarwin -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
+	$(CC) $(TARGET) -o makesoftcore makesoftcore.c ../lzcompress.c ../bit.c
 
 clean: 
 	$(RM) ../softcore.c *.o makesoftcore

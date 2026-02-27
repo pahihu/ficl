@@ -1,7 +1,7 @@
 # Flags for shared library
 TARGET= -Dlinux  # riscos MOTO_CPU32 
 SHFLAGS = -fPIC
-OPTFLAGS=-g
+OPTFLAGS=-DNDEBUG=1 -O2 -fomit-frame-pointer -march=native
 LIBM    = -lm
 # MFLAGS  = -DFICL_USE_FDLIBM -Ifdlibm53 -DFICL_USE_STRTOD
 # LIBM    = fdlibm53/libfdm.a
@@ -36,7 +36,7 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 
 softcore.c:
 	touch softcore/ficl.fr
-	cd softcore; $(MAKE)
+	cd softcore; $(MAKE) CC="$(CC)" TARGET="$(TARGET)"
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl -ldl $(LIBM)

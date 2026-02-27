@@ -35,7 +35,7 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 
 softcore.c:
 	touch softcore/ficl.fr
-	cd softcore; $(MAKE)
+	cd softcore; $(MAKE) CC="$(CC)" TARGET="$(TARGET)"
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl -ldl $(LIBM)

@@ -1,5 +1,5 @@
 # Flags for shared library
-TARGET =  -DWIN32 # -ansi -DFICL_ANSI  # riscos MOTO_CPU32 
+TARGET =  -DWIN32
 SHFLAGS = # -fPIC
 OPTFLAGS = -O3 -DNDEBUG -march=native -s
 LIBM   = -lm
@@ -36,7 +36,7 @@ libficl.so.$(MAJOR).$(MINOR): $(OBJECTS)
 
 softcore.c:
 	touch softcore/ficl.fr
-	cd softcore; $(MAKE) -f makefile.mingw
+	cd softcore; $(MAKE) CC="$(CC)" TARGET="$(TARGET)" -f makefile.mingw
 
 main: main.o ficl.h sysdep.h libficl.so.$(MAJOR).$(MINOR)
 	$(CC) main.o -o main -L. -lficl $(LIBM)
