@@ -9,9 +9,13 @@ DECIMAL
 \G Return current milliseconds.
    GET-MSECS ;
 
+: (TIMER) ( ms -- elapsed )
+\G Return elapsed time since ms.
+   GET-MSECS SWAP - ;
+
 : TIMER ( ms -- )
 \G Display milliseconds elapsed since ms.
-   GET-MSECS SWAP - . ;
+   (TIMER) . ;
 
 
 ( --- aliases ------------------------------------------------ )

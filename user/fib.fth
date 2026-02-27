@@ -1,15 +1,12 @@
-if (n < 2) return n;
-else {
-   \ a = fib(n-1);
-   if (n < 3) a = n-1;
-   else {
-      fib3 = fib(n-3);        // n=3,4,5,6
-      a    = fib(n-2) + fib3;
-   }
-   \ b = fib(n-2);
-   if (n < 4) b = n-2;
-   else {                     // n=4,5,6
-      b = fib3 + fib(n-4);
-   }
-   return a+b;
-}
+: fib ( n-m)   dup 2 < if exit then 1- dup recurse swap 1- recurse + ;
+
+: bench ( n -ms)   counter swap fib drop (timer) ;
+
+: run ( -)
+   30 0
+   BEGIN dup 1000 < WHILE
+      drop 1+ dup bench
+   REPEAT   CR ." elapsed=" . ." Fib(" . ." )"
+;
+
+run bye
