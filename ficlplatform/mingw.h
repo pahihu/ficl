@@ -15,7 +15,9 @@
 #define getcwd      _getcwd
 #define chdir       _chdir
 
+#if !defined(__MINGW64__)
 extern int ftruncate(int fileno, size_t size);
+#endif
 
 typedef char ficlInteger8;
 typedef unsigned char ficlUnsigned8;

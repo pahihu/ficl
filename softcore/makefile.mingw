@@ -16,7 +16,7 @@ SOURCES += lose.fs comus.fs tbelt2k.fs words.fs
 
 all:: clean ../softcore.c
 
-..\softcore.c: makesoftcore$(EXE) $(SOURCES)
+../softcore.c: makesoftcore$(EXE) $(SOURCES)
 	./makesoftcore$(EXE) $(SOURCES)
 
 makesoftcore$(EXE): makesoftcore.c ../lzcompress.c ../bit.c
