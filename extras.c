@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include "ficl.h"
 
@@ -88,10 +89,17 @@ static void ficlPrimitiveClock(ficlVm *vm)
 /* : GET-MSECS ( -- u ) */
 static void ficlPrimitiveGetMSecs(ficlVm *vm)
 {
-    clock_t now = clock();
+    static struct timeval t0 = {0, 0};
+    struct timeval t1;
+    time_t msecs;
+
+    if (!t0.tv_sec) gettimeofday(&t0, NULL);
+    gettimeofday(&t1, NULL);
+    msecs = (time_t)((t1.tv_sec - t0.tv_sec) * 1000 + (t1.tv_usec - t0.tv_usec) / 1000.0);
+
     ficlStackPushUnsigned(
 		vm->dataStack,
-		(ficlUnsigned)(1000 * ((double)now / CLOCKS_PER_SEC))
+		(ficlUnsigned)msecs
 	);
     return;
 }
