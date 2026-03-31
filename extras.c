@@ -443,21 +443,21 @@ static void ficlPrimitiveDlSym(ficlVm *vm)
    ficlStackPushPointer(vm->dataStack, ret);
 }
 
-typedef ficlInteger (*FN0)(void);
-typedef ficlInteger (*FN1)(ficlInteger);
-typedef ficlInteger (*FN2)(ficlInteger,ficlInteger);
-typedef ficlInteger (*FN3)(ficlInteger,ficlInteger,ficlInteger);
-typedef ficlInteger (*FN4)(ficlInteger,ficlInteger,ficlInteger,ficlInteger);
-typedef ficlInteger (*FN5)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
-typedef ficlInteger (*FN6)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
-typedef ficlInteger (*FN7)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
+typedef long (*FN0)(void);
+typedef long (*FN1)(long);
+typedef long (*FN2)(long,long);
+typedef long (*FN3)(long,long,long);
+typedef long (*FN4)(long,long,long,long);
+typedef long (*FN5)(long,long,long,long,long);
+typedef long (*FN6)(long,long,long,long,long,long);
+typedef long (*FN7)(long,long,long,long,long,long);
 
 /* : (C-CALL) ( argN ... arg1 N fn  -- ret ) */
 static void ficlPrimitiveCCall(ficlVm *vm)
 {
     FN0 fn0; FN1 fn1; FN2 fn2; FN3 fn3;
     FN4 fn4; FN5 fn5; FN6 fn6; FN7 fn7;
-    ficlInteger ret, arg[8];
+    long ret, arg[8];
     int i, narg;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 0);
@@ -497,16 +497,16 @@ static void ficlPrimitiveCCall(ficlVm *vm)
 }
 
 /* callbacks */
-static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+static long do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
-static int cb0(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(0, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb1(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(1, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb2(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(2, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb3(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(3, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb4(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(4, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb5(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(5, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb6(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(6, a1, a2, a3, a4, a5, a6, a7, a8); }
-static int cb7(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) { return do_cb(7, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb0(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(0, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb1(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(1, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb2(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(2, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb3(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(3, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb4(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(4, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb5(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(5, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb6(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(6, a1, a2, a3, a4, a5, a6, a7, a8); }
+static long cb7(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8) { return do_cb(7, a1, a2, a3, a4, a5, a6, a7, a8); }
 
 typedef struct {
 	void *xt;		/* ficlWord */
@@ -525,11 +525,11 @@ static C_CALLBACK cb_tbl[] = {
 	{0, -1, cb7}
 };
 
-static int do_cb(int n, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+static long do_cb(long n, long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8)
 {
 	ficlVm *vm;
 	ficlWord *xt;
-	int ret;
+	long ret;
 
 	if (-1 == cb_tbl[n].nargs)
 		return 0;
