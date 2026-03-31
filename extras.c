@@ -443,16 +443,33 @@ static void ficlPrimitiveDlSym(ficlVm *vm)
    ficlStackPushPointer(vm->dataStack, ret);
 }
 
+typedef ficlInteger (*FN0)(void);
+typedef ficlInteger (*FN1)(ficlInteger);
+typedef ficlInteger (*FN2)(ficlInteger,ficlInteger);
+typedef ficlInteger (*FN3)(ficlInteger,ficlInteger,ficlInteger);
+typedef ficlInteger (*FN4)(ficlInteger,ficlInteger,ficlInteger,ficlInteger);
+typedef ficlInteger (*FN5)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
+typedef ficlInteger (*FN6)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
+typedef ficlInteger (*FN7)(ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger,ficlInteger);
+
 /* : (C-CALL) ( argN ... arg1 N fn  -- ret ) */
 static void ficlPrimitiveCCall(ficlVm *vm)
 {
-    long (*fn)();
-    long ret, arg[8];
+    FN0 fn0; FN1 fn1; FN2 fn2; FN3 fn3;
+    FN4 fn4; FN5 fn5; FN6 fn6; FN7 fn7;
+    ficlInteger ret, arg[8];
     int i, narg;
 
     FICL_STACK_CHECK(vm->dataStack, 2, 0);
 
-	fn = (long (*)()) ficlStackPopPointer(vm->dataStack);
+	fn0 = (FN0) ficlStackPopPointer(vm->dataStack);
+    fn1 = (FN1) fn0;
+    fn2 = (FN2) fn0;
+    fn3 = (FN3) fn0;
+    fn4 = (FN4) fn0;
+    fn5 = (FN5) fn0;
+    fn6 = (FN6) fn0;
+    fn7 = (FN7) fn0;
 	narg = ficlStackPopInteger(vm->dataStack);
     /* fprintf(stderr,"fn = %p narg = %d\n", fn, narg); */
 
@@ -464,14 +481,14 @@ static void ficlPrimitiveCCall(ficlVm *vm)
 	}
 
 	switch (narg) {
-	case 0: ret = (*fn)(); break;
-	case 1: ret = (*fn)(arg[0]); break;
-	case 2: ret = (*fn)(arg[0], arg[1]); break;
-	case 3: ret = (*fn)(arg[0], arg[1], arg[2]); break;
-	case 4: ret = (*fn)(arg[0], arg[1], arg[2], arg[3]); break;
-	case 5: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4]); break;
-	case 6: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]); break;
-	case 7: ret = (*fn)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]); break;
+	case 0: ret = (*fn0)(); break;
+	case 1: ret = (*fn1)(arg[0]); break;
+	case 2: ret = (*fn2)(arg[0], arg[1]); break;
+	case 3: ret = (*fn3)(arg[0], arg[1], arg[2]); break;
+	case 4: ret = (*fn4)(arg[0], arg[1], arg[2], arg[3]); break;
+	case 5: ret = (*fn5)(arg[0], arg[1], arg[2], arg[3], arg[4]); break;
+	case 6: ret = (*fn6)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]); break;
+	case 7: ret = (*fn7)(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]); break;
 	default:
 		break;
 	}
